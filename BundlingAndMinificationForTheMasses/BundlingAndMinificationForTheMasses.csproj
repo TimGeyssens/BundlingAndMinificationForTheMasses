@@ -436,7 +436,7 @@ xcopy "$(ProjectDir)bin\Antlr3.Runtime*" "$(ProjectDir)..\TestSite\bin\" /Y
 
 
 
-xcopy "$(ProjectDir)Config\*.*" "$(ProjectDir)..\TestSite\App_Plugins\BundlingAndMinificationForTheMasses\Config\" /Y   
+
 
 xcopy "$(ProjectDir)Views\*.*" "$(ProjectDir)..\TestSite\App_Plugins\BundlingAndMinificationForTheMasses\Views\" /Y   
 
