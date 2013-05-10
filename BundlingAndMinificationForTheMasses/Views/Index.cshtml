@@ -1,0 +1,145 @@
+﻿@model BundlingAndMinificationForTheMasses.Models.BundleViewModel
+@{
+    var startDir = "/css/";
+    var exampleScript = "Styles";
+    var ext = "css";
+    var filter = "*.css";
+    
+    if (Request["bundleType"] == "script")
+    {
+        startDir = "/scripts/";
+        exampleScript = "Scripts";
+        ext = "js";
+        filter = "*.js";
+    }
+
+    //startDir = "/";
+    //filter = "*.*";
+}
+<!doctype html>
+<html>
+<head>
+    <title>Bundle editor</title>
+    <script src="scripts/jquery-2.0.0.js"></script>
+    <script src="scripts/jquery-ui-1.10.2.js"></script>
+    <script src="scripts/jqueryFileTree.js"></script>
+    <script src="scripts/underscore.js"></script>
+   
+
+    <link href="Content/jqueryFileTree.css" rel="stylesheet">
+    <link href="Content/style.css" rel="stylesheet">
+ 
+    <script>
+
+        var data = [];
+        
+        
+        function FillData() {
+
+            data.VirtualPath = $('#VirtualPath').val();
+            data.Files = [];
+            $('#selected_files .file').each(function() {
+                data.Files.push($(this).attr('rel'));
+            });
+            data.Directories = [];
+            $('#selected_files .directory').each(function () {
+                data.Directories.push($(this).attr('rel'));
+            });
+        }
+
+        $(document).ready(function () {
+            $('#file_tree').fileTree({
+                script: 'Services/jqueryfiletree.aspx',
+                root: '@startDir',
+                fileFilter: '@filter',
+                }, function (file) {
+
+                    file = '~' + file;
+                    if (!_.contains(data.Files, file)) {
+                        $('#selected_files').append('<li class="file ext_@ext" rel="' + file + '">' + file + ' <span class="delete">Remove</span></li>');
+
+                        data.Files.push(file);
+                    }
+
+                }, function(folder) {
+
+                    folder = '~' + folder;
+                    if (!_.contains(data.Directories, folder)) {
+                        $('#selected_files').append('<li class="directory" rel="' + folder + '">' + folder + ' <span class="delete">Remove</span></li>');
+
+                        data.Directories.push(folder);
+                    }
+                });
+
+                $(document).on("click", ".delete", function () {
+                    data.Files.splice(data.Files.indexOf($(this).parent().attr('rel')), 1);
+                    data.Directories.splice(data.Directories.indexOf($(this).parent().attr('rel')), 1);
+                    $(this).parent().remove();
+                    
+                });
+
+                $("#selected_files").sortable();
+
+                FillData();
+
+            $('#save').click(function(event) {
+
+                FillData();
+                
+                var model = {
+                    VirtualPath: $('#VirtualPath').val(),
+                    Files: data.Files
+                };
+                
+                $.ajax({
+                    type: "POST",
+                    url: 'api/PostBundleUpdate?bundleType=@Request["bundleType"]',
+                    dataType: 'json',
+                    contenttype: 'application/json; charset=utf-8',
+                    data: model,
+                    success: function() {
+
+                        alert("Saved");
+                    }
+                });
+                
+               
+                event.preventDefault();
+
+            });
+
+        });
+
+    </script>
+</head>
+<body>
+    
+    <div>
+        <button type="submit" id="save">Save</button>
+    </div>
+
+    <div>
+        @Html.LabelFor(m => m.VirtualPath)
+        @Html.EditorFor(m => m.VirtualPath) use with @@@{@exampleScript}.Render("@Model.VirtualPath")
+    </div>
+    <div>
+       
+        @Html.LabelFor(m => m.Files)
+        
+        <div>
+
+            <div id="file_tree"></div>
+
+            <ul id="selected_files" class="jqueryFileTree">
+                @foreach (var file in Model.Files)
+                {
+                    <li class="file ext_@ext" rel="@file">@file <span class="delete">Remove</span></li>
+                }
+            </ul>
+            
+        </div>
+    </div>
+    
+
+</body>
+</html>
