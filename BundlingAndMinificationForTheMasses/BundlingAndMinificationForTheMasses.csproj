@@ -44,8 +44,9 @@
     <Reference Include="Antlr3.Runtime">
       <HintPath>..\packages\WebGrease.1.1.0\lib\Antlr3.Runtime.dll</HintPath>
     </Reference>
-    <Reference Include="BundleTransformer.Core">
-      <HintPath>..\packages\BundleTransformer.Core.1.6.24\lib\net40\BundleTransformer.Core.dll</HintPath>
+    <Reference Include="BundleTransformer.Core, Version=1.6.28.0, Culture=neutral, PublicKeyToken=973c344c93aac60d, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\packages\BundleTransformer.Core.1.6.28\lib\net40\BundleTransformer.Core.dll</HintPath>
     </Reference>
     <Reference Include="businesslogic">
       <HintPath>..\packages\UmbracoCms.Core.6.0.5\lib\businesslogic.dll</HintPath>
@@ -239,10 +240,26 @@
     <Compile Include="Config.cs" />
     <Compile Include="Controllers\BundleApiController.cs" />
     <Compile Include="Controllers\BundleController.cs" />
+    <Compile Include="Enums\TranslatorType.cs" />
+    <Compile Include="Interfaces\IFileTranslator.cs" />
     <Compile Include="Models\BundleViewModel.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Services\jqueryFileTree.aspx.designer.cs">
       <DependentUpon>jqueryFileTree.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="Umbraco\Dialogs\CreateStyleSheet.ascx.cs">
+      <DependentUpon>CreateStyleSheet.ascx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="Umbraco\Dialogs\CreateStyleSheet.ascx.designer.cs">
+      <DependentUpon>CreateStyleSheet.ascx</DependentUpon>
+    </Compile>
+    <Compile Include="Umbraco\Pages\FileEditor.aspx.cs">
+      <DependentUpon>FileEditor.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="Umbraco\Pages\FileEditor.aspx.designer.cs">
+      <DependentUpon>FileEditor.aspx</DependentUpon>
     </Compile>
     <Compile Include="Umbraco\StartUpHandlers.cs" />
     <Compile Include="Umbraco\Tasks\BaseBundleTasks.cs" />
@@ -250,6 +267,7 @@
     <Compile Include="Umbraco\Tasks\ScriptBundleTasks.cs" />
     <Compile Include="Umbraco\Trees\BundlingAndMinificationTree.cs" />
     <Compile Include="Umbraco\UmbracoAuthorizeAttribute.cs" />
+    <Compile Include="Translation\Core.cs" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="App_Start\RouteConfig.cs" />
@@ -367,7 +385,11 @@
     <Content Include="Scripts\underscore.js" />
     <Content Include="Scripts\underscore.min.js" />
     <Content Include="Services\jqueryFileTree.aspx" />
-    <Content Include="Web.config" />
+    <Content Include="Umbraco\Dialogs\CreateStyleSheet.ascx" />
+    <Content Include="Umbraco\Pages\FileEditor.aspx" />
+    <Content Include="Web.config">
+      <SubType>Designer</SubType>
+    </Content>
     <Content Include="Web.Debug.config">
       <DependentUpon>Web.config</DependentUpon>
     </Content>
@@ -446,7 +468,11 @@ xcopy "$(ProjectDir)Content\*.*" "$(ProjectDir)..\TestSite\App_Plugins\BundlingA
 
 xcopy "$(ProjectDir)Content\Images\*.*" "$(ProjectDir)..\TestSite\App_Plugins\BundlingAndMinificationForTheMasses\Content\Images\" /Y   
 
-xcopy "$(ProjectDir)Services\*.*" "$(ProjectDir)..\TestSite\App_Plugins\BundlingAndMinificationForTheMasses\Services\" /Y</PostBuildEvent>
+xcopy "$(ProjectDir)Services\*.*" "$(ProjectDir)..\TestSite\App_Plugins\BundlingAndMinificationForTheMasses\Services\" /Y
+
+xcopy "$(ProjectDir)Umbraco\Dialogs\*.ascx" "$(ProjectDir)..\TestSite\App_Plugins\BundlingAndMinificationForTheMasses\Dialogs\" /Y
+
+xcopy "$(ProjectDir)Umbraco\Pages\*.aspx" "$(ProjectDir)..\TestSite\App_Plugins\BundlingAndMinificationForTheMasses\Pages\" /Y</PostBuildEvent>
   </PropertyGroup>
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

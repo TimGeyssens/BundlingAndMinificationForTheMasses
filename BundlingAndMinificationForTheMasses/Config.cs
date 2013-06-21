@@ -11,5 +11,6 @@ namespace BundlingAndMinificationForTheMasses
         public const string BundlesConfigPath = RootDir + "config/bundles.config";
         public const string EditPageViewPath = "~/App_Plugins/BundlingAndMinificationForTheMasses/Views/Index.cshtml";
         public const string EditPagePath = "/App_Plugins/BundlingAndMinificationForTheMasses/Index";
+        public const string EditFilePagePath = "/App_Plugins/BundlingAndMinificationForTheMasses/Pages/FileEditor.aspx";
     }
 }

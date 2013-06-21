@@ -111,9 +111,16 @@
       <create assembly="umbraco" type="MemberGroupTasks" />
     </tasks>
   </nodeType>
-  <nodeType alias="initstylesheets">
+  <!--<nodeType alias="initstylesheets">
     <header>Stylesheet</header>
     <usercontrol>/create/simple.ascx</usercontrol>
+    <tasks>
+      <create assembly="umbraco" type="StylesheetTasks" />
+    </tasks>
+  </nodeType>-->
+  <nodeType alias="initstylesheets">
+    <header>Stylesheet</header>
+    <usercontrol>../../App_Plugins/BundlingAndMinificationForTheMasses/Dialogs/CreateStyleSheet.ascx</usercontrol>
     <tasks>
       <create assembly="umbraco" type="StylesheetTasks" />
     </tasks>
