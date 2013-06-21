@@ -11,7 +11,7 @@ using umbraco.interfaces;
 
 namespace BundlingAndMinificationForTheMasses.Umbraco.Trees
 {
-    [Tree("settings", "", "CSS")]
+    [Tree("settings", "stylesheets", "Stylesheets (NEW)")]
     public class DynamicCSSTree : BaseTree
     {
         public DynamicCSSTree(string application) : base(application)
