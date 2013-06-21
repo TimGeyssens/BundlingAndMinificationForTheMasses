@@ -139,6 +139,7 @@ namespace BundlingAndMinificationForTheMasses.Umbraco.Trees
 
 
                     //JS Action link...
+                    //TODO: JS Action not firing - WHY?!
                     if (orgPath != string.Empty)
                     {
                         xFileNode.Action = "javascript:openDyanmicCSSFileEditor('" + orgPath + file.Name + "');";
