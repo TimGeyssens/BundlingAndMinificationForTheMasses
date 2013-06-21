@@ -14,7 +14,7 @@ namespace BundlingAndMinificationForTheMasses.Providers.Less
     {
         public string Name
         {
-            get { return "Less dynamic stylesheet"; }
+            get { return "Less Dynamic Stylesheet"; }
         }
 
         public string FileExtension

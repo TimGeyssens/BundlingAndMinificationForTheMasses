@@ -2483,3 +2483,494 @@ Parameter name: startIndex
 2013-06-21 15:29:59,313 [57] INFO  umbraco.content - [Thread 56] Loading content from disk cache...
 2013-06-21 15:30:08,540 [57] INFO  Umbraco.Core.PluginManager - [Thread 82] Completed resolution of types of umbraco.BusinessLogic.Actions.IActionHandler, found 1 (took 21ms)
 2013-06-21 15:30:08,655 [57] INFO  Umbraco.Core.PluginManager - [Thread 82] Completed resolution of types of umbraco.interfaces.ITree, found 38 (took 7ms)
+2013-06-21 15:44:03,145 [57] INFO  umbraco.BusinessLogic.Log - [Thread 5] Log scrubbed.  Removed all items older than 2013-04-22 15:44:03
+2013-06-21 15:44:03,152 [57] INFO  Umbraco.Core.UmbracoApplicationBase - [Thread 5] Application shutdown. Reason: BinDirChangeOrDirectoryRename
+2013-06-21 15:44:10,799 [53] INFO  Umbraco.Core.CoreBootManager - [Thread 54] Umbraco application starting
+2013-06-21 15:44:10,818 [53] INFO  Umbraco.Core.PluginManager - [Thread 54] Determining hash of code files on disk
+2013-06-21 15:44:10,829 [53] INFO  Umbraco.Core.PluginManager - [Thread 54] Hash determined (took 8ms)
+2013-06-21 15:44:11,084 [53] INFO  Umbraco.Core.PluginManager - [Thread 54] Completed resolution of types of umbraco.interfaces.IApplicationStartupHandler, found 14 (took 237ms)
+2013-06-21 15:44:11,105 [53] INFO  Umbraco.Core.PluginManager - [Thread 54] Completed resolution of types of Umbraco.Core.Models.IMacroPropertyType, found 0 (took 6ms)
+2013-06-21 15:44:11,112 [53] INFO  Umbraco.Core.PluginManager - [Thread 54] Completed resolution of types of Umbraco.Core.PropertyEditors.IPropertyEditorValueConverter, found 0 (took 7ms)
+2013-06-21 15:44:11,124 [53] INFO  Umbraco.Core.PluginManager - [Thread 54] Completed resolution of types of Umbraco.Web.Mvc.SurfaceController, found 0 (took 11ms)
+2013-06-21 15:44:11,138 [53] INFO  Umbraco.Core.PluginManager - [Thread 54] Completed resolution of types of Umbraco.Core.Media.IThumbnailProvider, found 3 (took 10ms)
+2013-06-21 15:44:11,145 [53] INFO  Umbraco.Core.PluginManager - [Thread 54] Completed resolution of types of Umbraco.Core.Media.IImageUrlProvider, found 1 (took 6ms)
+2013-06-21 15:44:11,218 [53] INFO  Umbraco.Core.CoreBootManager - [Thread 54] Umbraco application startup complete (took 415ms)
+2013-06-21 15:44:11,437 [53] INFO  Umbraco.Core.PluginManager - [Thread 54] Completed resolution of types of umbraco.interfaces.IApplication, found 7 (took 8ms)
+2013-06-21 15:44:11,473 [53] INFO  Umbraco.Core.PluginManager - [Thread 54] Completed resolution of types of umbraco.interfaces.ITree, found 29 (took 7ms)
+2013-06-21 15:44:11,509 [53] INFO  umbraco.BusinessLogic.Log - [Thread 58] Redirected log call (please use Umbraco.Core.Logging.LogHelper instead of umbraco.BusinessLogic.Log) | Type: Custom | User: 0 | NodeId: -1 | Comment: [UmbracoExamine] Adding examine event handlers for index providers: 3
+2013-06-21 15:45:34,856 [53] INFO  Umbraco.Core.PluginManager - [Thread 82] Completed resolution of types of umbraco.interfaces.ITree, found 38 (took 5ms)
+2013-06-21 15:45:34,964 [53] INFO  Umbraco.Core.PluginManager - [Thread 82] Completed resolution of types of umbraco.BusinessLogic.Actions.IActionHandler, found 1 (took 6ms)
+2013-06-21 15:48:20,325 [53] INFO  umbraco.BusinessLogic.Log - [Thread 82] Log scrubbed.  Removed all items older than 2013-04-22 15:48:20
+2013-06-21 15:48:20,326 [53] INFO  Umbraco.Core.UmbracoApplicationBase - [Thread 82] Application shutdown. Reason: BinDirChangeOrDirectoryRename
+2013-06-21 15:48:30,254 [73] INFO  Umbraco.Core.CoreBootManager - [Thread 1] Umbraco application starting
+2013-06-21 15:48:30,271 [73] INFO  Umbraco.Core.PluginManager - [Thread 1] Determining hash of code files on disk
+2013-06-21 15:48:30,281 [73] INFO  Umbraco.Core.PluginManager - [Thread 1] Hash determined (took 9ms)
+2013-06-21 15:48:30,471 [73] INFO  Umbraco.Core.PluginManager - [Thread 1] Completed resolution of types of umbraco.interfaces.IApplicationStartupHandler, found 14 (took 180ms)
+2013-06-21 15:48:30,494 [73] INFO  Umbraco.Core.PluginManager - [Thread 1] Completed resolution of types of Umbraco.Core.Models.IMacroPropertyType, found 0 (took 6ms)
+2013-06-21 15:48:30,501 [73] INFO  Umbraco.Core.PluginManager - [Thread 1] Completed resolution of types of Umbraco.Core.PropertyEditors.IPropertyEditorValueConverter, found 0 (took 6ms)
+2013-06-21 15:48:30,507 [73] INFO  Umbraco.Core.PluginManager - [Thread 1] Completed resolution of types of Umbraco.Web.Mvc.SurfaceController, found 0 (took 5ms)
+2013-06-21 15:48:30,515 [73] INFO  Umbraco.Core.PluginManager - [Thread 1] Completed resolution of types of Umbraco.Core.Media.IThumbnailProvider, found 3 (took 6ms)
+2013-06-21 15:48:30,521 [73] INFO  Umbraco.Core.PluginManager - [Thread 1] Completed resolution of types of Umbraco.Core.Media.IImageUrlProvider, found 1 (took 5ms)
+2013-06-21 15:48:30,581 [73] INFO  Umbraco.Core.CoreBootManager - [Thread 1] Umbraco application startup complete (took 324ms)
+2013-06-21 15:48:30,799 [73] INFO  Umbraco.Core.PluginManager - [Thread 1] Completed resolution of types of umbraco.interfaces.IApplication, found 7 (took 8ms)
+2013-06-21 15:48:30,803 [73] INFO  umbraco.BusinessLogic.Log - [Thread 50] Redirected log call (please use Umbraco.Core.Logging.LogHelper instead of umbraco.BusinessLogic.Log) | Type: Custom | User: 0 | NodeId: -1 | Comment: [UmbracoExamine] Adding examine event handlers for index providers: 3
+2013-06-21 15:48:30,835 [73] INFO  Umbraco.Core.PluginManager - [Thread 1] Completed resolution of types of umbraco.interfaces.ITree, found 29 (took 6ms)
+2013-06-21 15:50:08,542 [73] INFO  umbraco.BusinessLogic.Log - [Thread 58] Log scrubbed.  Removed all items older than 2013-04-22 15:50:08
+2013-06-21 15:50:08,545 [73] INFO  Umbraco.Core.UmbracoApplicationBase - [Thread 58] Application shutdown. Reason: BinDirChangeOrDirectoryRename
+2013-06-21 15:50:13,694 [79] INFO  Umbraco.Core.CoreBootManager - [Thread 1] Umbraco application starting
+2013-06-21 15:50:13,711 [79] INFO  Umbraco.Core.PluginManager - [Thread 1] Determining hash of code files on disk
+2013-06-21 15:50:13,719 [79] INFO  Umbraco.Core.PluginManager - [Thread 1] Hash determined (took 7ms)
+2013-06-21 15:50:13,906 [79] INFO  Umbraco.Core.PluginManager - [Thread 1] Completed resolution of types of umbraco.interfaces.IApplicationStartupHandler, found 14 (took 174ms)
+2013-06-21 15:50:13,925 [79] INFO  Umbraco.Core.PluginManager - [Thread 1] Completed resolution of types of Umbraco.Core.Models.IMacroPropertyType, found 0 (took 7ms)
+2013-06-21 15:50:13,933 [79] INFO  Umbraco.Core.PluginManager - [Thread 1] Completed resolution of types of Umbraco.Core.PropertyEditors.IPropertyEditorValueConverter, found 0 (took 7ms)
+2013-06-21 15:50:13,940 [79] INFO  Umbraco.Core.PluginManager - [Thread 1] Completed resolution of types of Umbraco.Web.Mvc.SurfaceController, found 0 (took 6ms)
+2013-06-21 15:50:13,949 [79] INFO  Umbraco.Core.PluginManager - [Thread 1] Completed resolution of types of Umbraco.Core.Media.IThumbnailProvider, found 3 (took 7ms)
+2013-06-21 15:50:13,957 [79] INFO  Umbraco.Core.PluginManager - [Thread 1] Completed resolution of types of Umbraco.Core.Media.IImageUrlProvider, found 1 (took 7ms)
+2013-06-21 15:50:14,012 [79] INFO  Umbraco.Core.CoreBootManager - [Thread 1] Umbraco application startup complete (took 315ms)
+2013-06-21 15:50:14,224 [79] INFO  Umbraco.Core.PluginManager - [Thread 1] Completed resolution of types of umbraco.interfaces.IApplication, found 7 (took 7ms)
+2013-06-21 15:50:14,256 [79] INFO  Umbraco.Core.PluginManager - [Thread 1] Completed resolution of types of umbraco.interfaces.ITree, found 29 (took 7ms)
+2013-06-21 15:50:14,295 [79] INFO  umbraco.BusinessLogic.Log - [Thread 64] Redirected log call (please use Umbraco.Core.Logging.LogHelper instead of umbraco.BusinessLogic.Log) | Type: Custom | User: 0 | NodeId: -1 | Comment: [UmbracoExamine] Adding examine event handlers for index providers: 3
+2013-06-21 15:50:14,331 [79] ERROR Umbraco.Core.UmbracoApplicationBase - [Thread 52] An unhandled exception occurred
+System.ArgumentOutOfRangeException: startIndex cannot be larger than length of string.
+Parameter name: startIndex
+   at System.String.InternalSubStringWithChecks(Int32 startIndex, Int32 length, Boolean fAlwaysCopy)
+   at System.Web.Compilation.DiskBuildResultCache.MarkAssemblyAndRelatedFilesForDeletion(String assemblyName)
+   at System.Web.Compilation.DiskBuildResultCache.CacheBuildResult(String cacheKey, BuildResult result, Int64 hashCode, DateTime utcStart)
+   at System.Web.Compilation.BuildManager.CacheBuildResultInternal(String cacheKey, BuildResult result, Int64 hashCode, DateTime utcStart)
+   at System.Web.Compilation.BuildManager.CompileWebFile(VirtualPath virtualPath)
+   at System.Web.Compilation.BuildManager.GetVPathBuildResultInternal(VirtualPath virtualPath, Boolean noBuild, Boolean allowCrossApp, Boolean allowBuildInPrecompile, Boolean throwIfNotFound, Boolean ensureIsUpToDate)
+   at System.Web.Compilation.BuildManager.GetVPathBuildResultWithNoAssert(HttpContext context, VirtualPath virtualPath, Boolean noBuild, Boolean allowCrossApp, Boolean allowBuildInPrecompile, Boolean throwIfNotFound, Boolean ensureIsUpToDate)
+   at System.Web.Compilation.BuildManager.GetVirtualPathObjectFactory(VirtualPath virtualPath, HttpContext context, Boolean allowCrossApp, Boolean throwIfNotFound)
+   at System.Web.Compilation.BuildManager.GetCompiledType(VirtualPath virtualPath)
+   at System.Web.Compilation.BuildManager.GetCompiledType(String virtualPath)
+   at System.Web.Script.Services.WebServiceData.GetWebServiceData(HttpContext context, String virtualPath, Boolean failIfNoData, Boolean pageMethods, Boolean inlineScript)
+   at System.Web.Script.Services.RestHandler.CreateHandler(HttpContext context)
+   at System.Web.Script.Services.RestHandlerFactory.GetHandler(HttpContext context, String requestType, String url, String pathTranslated)
+   at System.Web.Script.Services.ScriptHandlerFactory.GetHandler(HttpContext context, String requestType, String url, String pathTranslated)
+   at System.Web.HttpApplication.MaterializeHandlerExecutionStep.System.Web.HttpApplication.IExecutionStep.Execute()
+   at System.Web.HttpApplication.ExecuteStep(IExecutionStep step, Boolean& completedSynchronously)
+2013-06-21 15:50:14,377 [79] INFO  umbraco.BusinessLogic.Log - [Thread 61] Log scrubbed.  Removed all items older than 2013-04-22 15:50:14
+2013-06-21 15:50:14,378 [79] INFO  Umbraco.Core.UmbracoApplicationBase - [Thread 61] Application shutdown. Reason: BinDirChangeOrDirectoryRename
+2013-06-21 15:50:20,155 [81] INFO  Umbraco.Core.CoreBootManager - [Thread 1] Umbraco application starting
+2013-06-21 15:50:20,175 [81] INFO  Umbraco.Core.PluginManager - [Thread 1] Determining hash of code files on disk
+2013-06-21 15:50:20,190 [81] INFO  Umbraco.Core.PluginManager - [Thread 1] Hash determined (took 15ms)
+2013-06-21 15:50:20,394 [81] INFO  Umbraco.Core.PluginManager - [Thread 1] Completed resolution of types of umbraco.interfaces.IApplicationStartupHandler, found 14 (took 190ms)
+2013-06-21 15:50:20,411 [81] INFO  Umbraco.Core.PluginManager - [Thread 1] Completed resolution of types of Umbraco.Core.Models.IMacroPropertyType, found 0 (took 6ms)
+2013-06-21 15:50:20,420 [81] INFO  Umbraco.Core.PluginManager - [Thread 1] Completed resolution of types of Umbraco.Core.PropertyEditors.IPropertyEditorValueConverter, found 0 (took 8ms)
+2013-06-21 15:50:20,436 [81] INFO  Umbraco.Core.PluginManager - [Thread 1] Completed resolution of types of Umbraco.Web.Mvc.SurfaceController, found 0 (took 14ms)
+2013-06-21 15:50:20,447 [81] INFO  Umbraco.Core.PluginManager - [Thread 1] Completed resolution of types of Umbraco.Core.Media.IThumbnailProvider, found 3 (took 8ms)
+2013-06-21 15:50:20,455 [81] INFO  Umbraco.Core.PluginManager - [Thread 1] Completed resolution of types of Umbraco.Core.Media.IImageUrlProvider, found 1 (took 7ms)
+2013-06-21 15:50:20,525 [81] INFO  Umbraco.Core.CoreBootManager - [Thread 1] Umbraco application startup complete (took 367ms)
+2013-06-21 15:50:20,761 [81] INFO  Umbraco.Core.PluginManager - [Thread 1] Completed resolution of types of umbraco.interfaces.IApplication, found 7 (took 10ms)
+2013-06-21 15:50:20,797 [81] INFO  Umbraco.Core.PluginManager - [Thread 1] Completed resolution of types of umbraco.interfaces.ITree, found 29 (took 7ms)
+2013-06-21 15:50:20,847 [81] INFO  umbraco.BusinessLogic.Log - [Thread 82] Redirected log call (please use Umbraco.Core.Logging.LogHelper instead of umbraco.BusinessLogic.Log) | Type: Custom | User: 0 | NodeId: -1 | Comment: [UmbracoExamine] Adding examine event handlers for index providers: 3
+2013-06-21 20:42:55,731 [7] INFO  Umbraco.Core.CoreBootManager - [Thread 1] Umbraco application starting
+2013-06-21 20:42:55,750 [7] INFO  Umbraco.Core.PluginManager - [Thread 1] Determining hash of code files on disk
+2013-06-21 20:42:55,757 [7] INFO  Umbraco.Core.PluginManager - [Thread 1] Hash determined (took 7ms)
+2013-06-21 20:42:55,954 [7] INFO  Umbraco.Core.PluginManager - [Thread 1] Completed resolution of types of umbraco.interfaces.IApplicationStartupHandler, found 14 (took 185ms)
+2013-06-21 20:42:55,972 [7] INFO  Umbraco.Core.PluginManager - [Thread 1] Completed resolution of types of Umbraco.Core.Models.IMacroPropertyType, found 0 (took 15ms)
+2013-06-21 20:42:55,980 [7] INFO  Umbraco.Core.PluginManager - [Thread 1] Completed resolution of types of Umbraco.Core.PropertyEditors.IPropertyEditorValueConverter, found 0 (took 6ms)
+2013-06-21 20:42:55,989 [7] INFO  Umbraco.Core.PluginManager - [Thread 1] Completed resolution of types of Umbraco.Web.Mvc.SurfaceController, found 0 (took 8ms)
+2013-06-21 20:42:56,003 [7] INFO  Umbraco.Core.PluginManager - [Thread 1] Completed resolution of types of Umbraco.Core.Media.IThumbnailProvider, found 3 (took 5ms)
+2013-06-21 20:42:56,010 [7] INFO  Umbraco.Core.PluginManager - [Thread 1] Completed resolution of types of Umbraco.Core.Media.IImageUrlProvider, found 1 (took 5ms)
+2013-06-21 20:42:56,163 [7] INFO  Umbraco.Core.CoreBootManager - [Thread 1] Umbraco application startup complete (took 429ms)
+2013-06-21 20:42:56,473 [7] INFO  Umbraco.Core.PluginManager - [Thread 1] Completed resolution of types of umbraco.interfaces.IApplication, found 7 (took 8ms)
+2013-06-21 20:42:56,537 [7] INFO  Umbraco.Core.PluginManager - [Thread 1] Completed resolution of types of umbraco.interfaces.ITree, found 29 (took 7ms)
+2013-06-21 20:42:56,591 [7] INFO  umbraco.BusinessLogic.Log - [Thread 8] Redirected log call (please use Umbraco.Core.Logging.LogHelper instead of umbraco.BusinessLogic.Log) | Type: Custom | User: 0 | NodeId: -1 | Comment: [UmbracoExamine] Adding examine event handlers for index providers: 3
+2013-06-21 20:42:56,709 [7] INFO  umbraco.content - [Thread 8] Loading content from disk cache...
+2013-06-21 20:43:10,440 [7] INFO  Umbraco.Core.PluginManager - [Thread 9] Completed resolution of types of umbraco.BusinessLogic.Actions.IActionHandler, found 1 (took 6ms)
+2013-06-21 20:43:10,528 [7] INFO  Umbraco.Core.PluginManager - [Thread 9] Completed resolution of types of umbraco.interfaces.ITree, found 38 (took 7ms)
+2013-06-21 20:44:05,017 [7] INFO  umbraco.BusinessLogic.Log - [Thread 8] Log scrubbed.  Removed all items older than 2013-04-22 20:44:05
+2013-06-21 20:44:05,022 [7] INFO  Umbraco.Core.UmbracoApplicationBase - [Thread 8] Application shutdown. Reason: BinDirChangeOrDirectoryRename
+2013-06-21 20:44:15,198 [23] INFO  Umbraco.Core.CoreBootManager - [Thread 5] Umbraco application starting
+2013-06-21 20:44:15,215 [23] INFO  Umbraco.Core.PluginManager - [Thread 5] Determining hash of code files on disk
+2013-06-21 20:44:15,225 [23] INFO  Umbraco.Core.PluginManager - [Thread 5] Hash determined (took 9ms)
+2013-06-21 20:44:15,399 [23] INFO  Umbraco.Core.PluginManager - [Thread 5] Completed resolution of types of umbraco.interfaces.IApplicationStartupHandler, found 14 (took 165ms)
+2013-06-21 20:44:15,416 [23] INFO  Umbraco.Core.PluginManager - [Thread 5] Completed resolution of types of Umbraco.Core.Models.IMacroPropertyType, found 0 (took 5ms)
+2013-06-21 20:44:15,422 [23] INFO  Umbraco.Core.PluginManager - [Thread 5] Completed resolution of types of Umbraco.Core.PropertyEditors.IPropertyEditorValueConverter, found 0 (took 5ms)
+2013-06-21 20:44:15,433 [23] INFO  Umbraco.Core.PluginManager - [Thread 5] Completed resolution of types of Umbraco.Web.Mvc.SurfaceController, found 0 (took 10ms)
+2013-06-21 20:44:15,441 [23] INFO  Umbraco.Core.PluginManager - [Thread 5] Completed resolution of types of Umbraco.Core.Media.IThumbnailProvider, found 3 (took 5ms)
+2013-06-21 20:44:15,452 [23] INFO  Umbraco.Core.PluginManager - [Thread 5] Completed resolution of types of Umbraco.Core.Media.IImageUrlProvider, found 1 (took 8ms)
+2013-06-21 20:44:15,509 [23] INFO  Umbraco.Core.CoreBootManager - [Thread 5] Umbraco application startup complete (took 307ms)
+2013-06-21 20:44:15,704 [23] INFO  umbraco.BusinessLogic.Log - [Thread 17] Redirected log call (please use Umbraco.Core.Logging.LogHelper instead of umbraco.BusinessLogic.Log) | Type: Custom | User: 0 | NodeId: -1 | Comment: [UmbracoExamine] Adding examine event handlers for index providers: 3
+2013-06-21 20:44:15,707 [23] INFO  Umbraco.Core.PluginManager - [Thread 5] Completed resolution of types of umbraco.interfaces.IApplication, found 7 (took 7ms)
+2013-06-21 20:44:15,742 [23] INFO  Umbraco.Core.PluginManager - [Thread 5] Completed resolution of types of umbraco.interfaces.ITree, found 29 (took 8ms)
+2013-06-21 20:44:58,599 [23] INFO  umbraco.content - [Thread 19] Loading content from disk cache...
+2013-06-21 20:45:17,131 [23] INFO  Umbraco.Core.PluginManager - [Thread 13] Completed resolution of types of umbraco.BusinessLogic.Actions.IActionHandler, found 1 (took 7ms)
+2013-06-21 20:45:17,225 [23] INFO  Umbraco.Core.PluginManager - [Thread 13] Completed resolution of types of umbraco.interfaces.ITree, found 38 (took 9ms)
+2013-06-21 20:49:46,872 [23] INFO  umbraco.BusinessLogic.Log - [Thread 30] Log scrubbed.  Removed all items older than 2013-04-22 20:49:46
+2013-06-21 20:49:46,873 [23] INFO  Umbraco.Core.UmbracoApplicationBase - [Thread 30] Application shutdown. Reason: BinDirChangeOrDirectoryRename
+2013-06-21 20:49:56,831 [36] INFO  Umbraco.Core.CoreBootManager - [Thread 5] Umbraco application starting
+2013-06-21 20:49:56,848 [36] INFO  Umbraco.Core.PluginManager - [Thread 5] Determining hash of code files on disk
+2013-06-21 20:49:56,855 [36] INFO  Umbraco.Core.PluginManager - [Thread 5] Hash determined (took 6ms)
+2013-06-21 20:49:57,014 [36] INFO  Umbraco.Core.PluginManager - [Thread 5] Completed resolution of types of umbraco.interfaces.IApplicationStartupHandler, found 14 (took 150ms)
+2013-06-21 20:49:57,034 [36] INFO  Umbraco.Core.PluginManager - [Thread 5] Completed resolution of types of Umbraco.Core.Models.IMacroPropertyType, found 0 (took 6ms)
+2013-06-21 20:49:57,040 [36] INFO  Umbraco.Core.PluginManager - [Thread 5] Completed resolution of types of Umbraco.Core.PropertyEditors.IPropertyEditorValueConverter, found 0 (took 5ms)
+2013-06-21 20:49:57,046 [36] INFO  Umbraco.Core.PluginManager - [Thread 5] Completed resolution of types of Umbraco.Web.Mvc.SurfaceController, found 0 (took 5ms)
+2013-06-21 20:49:57,056 [36] INFO  Umbraco.Core.PluginManager - [Thread 5] Completed resolution of types of Umbraco.Core.Media.IThumbnailProvider, found 3 (took 7ms)
+2013-06-21 20:49:57,069 [36] INFO  Umbraco.Core.PluginManager - [Thread 5] Completed resolution of types of Umbraco.Core.Media.IImageUrlProvider, found 1 (took 12ms)
+2013-06-21 20:49:57,129 [36] INFO  Umbraco.Core.CoreBootManager - [Thread 5] Umbraco application startup complete (took 295ms)
+2013-06-21 20:49:57,341 [36] INFO  umbraco.BusinessLogic.Log - [Thread 15] Redirected log call (please use Umbraco.Core.Logging.LogHelper instead of umbraco.BusinessLogic.Log) | Type: Custom | User: 0 | NodeId: -1 | Comment: [UmbracoExamine] Adding examine event handlers for index providers: 3
+2013-06-21 20:49:57,342 [36] INFO  Umbraco.Core.PluginManager - [Thread 5] Completed resolution of types of umbraco.interfaces.IApplication, found 7 (took 7ms)
+2013-06-21 20:49:57,378 [36] INFO  Umbraco.Core.PluginManager - [Thread 5] Completed resolution of types of umbraco.interfaces.ITree, found 29 (took 6ms)
+2013-06-21 20:49:59,791 [36] INFO  Umbraco.Core.PluginManager - [Thread 30] Completed resolution of types of umbraco.BusinessLogic.Actions.IActionHandler, found 1 (took 5ms)
+2013-06-21 20:49:59,863 [36] INFO  Umbraco.Core.PluginManager - [Thread 30] Completed resolution of types of umbraco.interfaces.ITree, found 38 (took 5ms)
+2013-06-21 20:54:48,129 [36] INFO  umbraco.BusinessLogic.Log - [Thread 35] Log scrubbed.  Removed all items older than 2013-04-22 20:54:48
+2013-06-21 20:54:48,131 [36] INFO  Umbraco.Core.UmbracoApplicationBase - [Thread 35] Application shutdown. Reason: BinDirChangeOrDirectoryRename
+2013-06-21 20:54:55,367 [46] INFO  Umbraco.Core.CoreBootManager - [Thread 45] Umbraco application starting
+2013-06-21 20:54:55,385 [46] INFO  Umbraco.Core.PluginManager - [Thread 45] Determining hash of code files on disk
+2013-06-21 20:54:55,398 [46] INFO  Umbraco.Core.PluginManager - [Thread 45] Hash determined (took 12ms)
+2013-06-21 20:54:55,592 [46] INFO  Umbraco.Core.PluginManager - [Thread 45] Completed resolution of types of umbraco.interfaces.IApplicationStartupHandler, found 14 (took 180ms)
+2013-06-21 20:54:55,613 [46] INFO  Umbraco.Core.PluginManager - [Thread 45] Completed resolution of types of Umbraco.Core.Models.IMacroPropertyType, found 0 (took 7ms)
+2013-06-21 20:54:55,618 [46] INFO  Umbraco.Core.PluginManager - [Thread 45] Completed resolution of types of Umbraco.Core.PropertyEditors.IPropertyEditorValueConverter, found 0 (took 5ms)
+2013-06-21 20:54:55,624 [46] INFO  Umbraco.Core.PluginManager - [Thread 45] Completed resolution of types of Umbraco.Web.Mvc.SurfaceController, found 0 (took 5ms)
+2013-06-21 20:54:55,632 [46] INFO  Umbraco.Core.PluginManager - [Thread 45] Completed resolution of types of Umbraco.Core.Media.IThumbnailProvider, found 3 (took 5ms)
+2013-06-21 20:54:55,637 [46] INFO  Umbraco.Core.PluginManager - [Thread 45] Completed resolution of types of Umbraco.Core.Media.IImageUrlProvider, found 1 (took 5ms)
+2013-06-21 20:54:55,800 [46] INFO  Umbraco.Core.CoreBootManager - [Thread 45] Umbraco application startup complete (took 430ms)
+2013-06-21 20:54:56,041 [46] INFO  umbraco.BusinessLogic.Log - [Thread 39] Redirected log call (please use Umbraco.Core.Logging.LogHelper instead of umbraco.BusinessLogic.Log) | Type: Custom | User: 0 | NodeId: -1 | Comment: [UmbracoExamine] Adding examine event handlers for index providers: 3
+2013-06-21 20:54:56,052 [46] INFO  Umbraco.Core.PluginManager - [Thread 45] Completed resolution of types of umbraco.interfaces.IApplication, found 7 (took 7ms)
+2013-06-21 20:54:56,112 [46] INFO  Umbraco.Core.PluginManager - [Thread 45] Completed resolution of types of umbraco.interfaces.ITree, found 29 (took 6ms)
+2013-06-21 20:54:56,197 [46] INFO  umbraco.content - [Thread 35] Loading content from disk cache...
+2013-06-21 20:55:02,562 [46] INFO  Umbraco.Core.PluginManager - [Thread 39] Completed resolution of types of umbraco.interfaces.ITree, found 38 (took 5ms)
+2013-06-21 20:56:04,363 [46] INFO  Umbraco.Core.PluginManager - [Thread 39] Completed resolution of types of umbraco.BusinessLogic.Actions.IActionHandler, found 1 (took 6ms)
+2013-06-21 21:07:37,229 [46] INFO  umbraco.BusinessLogic.Log - [Thread 7] Log scrubbed.  Removed all items older than 2013-04-22 21:07:37
+2013-06-21 21:07:37,230 [46] INFO  Umbraco.Core.UmbracoApplicationBase - [Thread 7] Application shutdown. Reason: BinDirChangeOrDirectoryRename
+2013-06-21 21:07:45,909 [58] INFO  Umbraco.Core.CoreBootManager - [Thread 60] Umbraco application starting
+2013-06-21 21:07:45,930 [58] INFO  Umbraco.Core.PluginManager - [Thread 60] Determining hash of code files on disk
+2013-06-21 21:07:45,940 [58] INFO  Umbraco.Core.PluginManager - [Thread 60] Hash determined (took 9ms)
+2013-06-21 21:07:46,141 [58] INFO  Umbraco.Core.PluginManager - [Thread 60] Completed resolution of types of umbraco.interfaces.IApplicationStartupHandler, found 14 (took 188ms)
+2013-06-21 21:07:46,160 [58] INFO  Umbraco.Core.PluginManager - [Thread 60] Completed resolution of types of Umbraco.Core.Models.IMacroPropertyType, found 0 (took 8ms)
+2013-06-21 21:07:46,166 [58] INFO  Umbraco.Core.PluginManager - [Thread 60] Completed resolution of types of Umbraco.Core.PropertyEditors.IPropertyEditorValueConverter, found 0 (took 6ms)
+2013-06-21 21:07:46,173 [58] INFO  Umbraco.Core.PluginManager - [Thread 60] Completed resolution of types of Umbraco.Web.Mvc.SurfaceController, found 0 (took 6ms)
+2013-06-21 21:07:46,180 [58] INFO  Umbraco.Core.PluginManager - [Thread 60] Completed resolution of types of Umbraco.Core.Media.IThumbnailProvider, found 3 (took 6ms)
+2013-06-21 21:07:46,187 [58] INFO  Umbraco.Core.PluginManager - [Thread 60] Completed resolution of types of Umbraco.Core.Media.IImageUrlProvider, found 1 (took 6ms)
+2013-06-21 21:07:46,247 [58] INFO  Umbraco.Core.CoreBootManager - [Thread 60] Umbraco application startup complete (took 334ms)
+2013-06-21 21:07:46,465 [58] INFO  umbraco.BusinessLogic.Log - [Thread 64] Redirected log call (please use Umbraco.Core.Logging.LogHelper instead of umbraco.BusinessLogic.Log) | Type: Custom | User: 0 | NodeId: -1 | Comment: [UmbracoExamine] Adding examine event handlers for index providers: 3
+2013-06-21 21:07:46,465 [58] INFO  Umbraco.Core.PluginManager - [Thread 60] Completed resolution of types of umbraco.interfaces.IApplication, found 7 (took 8ms)
+2013-06-21 21:07:46,501 [58] INFO  Umbraco.Core.PluginManager - [Thread 60] Completed resolution of types of umbraco.interfaces.ITree, found 29 (took 8ms)
+2013-06-21 21:07:48,541 [58] INFO  umbraco.content - [Thread 62] Loading content from disk cache...
+2013-06-21 21:07:56,109 [58] INFO  Umbraco.Core.PluginManager - [Thread 57] Completed resolution of types of umbraco.BusinessLogic.Actions.IActionHandler, found 1 (took 6ms)
+2013-06-21 21:07:56,209 [58] INFO  Umbraco.Core.PluginManager - [Thread 57] Completed resolution of types of umbraco.interfaces.ITree, found 38 (took 5ms)
+2013-06-21 21:15:03,513 [58] INFO  umbraco.BusinessLogic.Log - [Thread 15] Log scrubbed.  Removed all items older than 2013-04-22 21:15:03
+2013-06-21 21:15:03,514 [58] INFO  Umbraco.Core.UmbracoApplicationBase - [Thread 15] Application shutdown. Reason: BinDirChangeOrDirectoryRename
+2013-06-21 21:15:10,794 [43] INFO  Umbraco.Core.CoreBootManager - [Thread 45] Umbraco application starting
+2013-06-21 21:15:10,812 [43] INFO  Umbraco.Core.PluginManager - [Thread 45] Determining hash of code files on disk
+2013-06-21 21:15:10,818 [43] INFO  Umbraco.Core.PluginManager - [Thread 45] Hash determined (took 5ms)
+2013-06-21 21:15:10,993 [43] INFO  Umbraco.Core.PluginManager - [Thread 45] Completed resolution of types of umbraco.interfaces.IApplicationStartupHandler, found 14 (took 163ms)
+2013-06-21 21:15:11,023 [43] INFO  Umbraco.Core.PluginManager - [Thread 45] Completed resolution of types of Umbraco.Core.Models.IMacroPropertyType, found 0 (took 15ms)
+2013-06-21 21:15:11,031 [43] INFO  Umbraco.Core.PluginManager - [Thread 45] Completed resolution of types of Umbraco.Core.PropertyEditors.IPropertyEditorValueConverter, found 0 (took 7ms)
+2013-06-21 21:15:11,038 [43] INFO  Umbraco.Core.PluginManager - [Thread 45] Completed resolution of types of Umbraco.Web.Mvc.SurfaceController, found 0 (took 6ms)
+2013-06-21 21:15:11,048 [43] INFO  Umbraco.Core.PluginManager - [Thread 45] Completed resolution of types of Umbraco.Core.Media.IThumbnailProvider, found 3 (took 7ms)
+2013-06-21 21:15:11,056 [43] INFO  Umbraco.Core.PluginManager - [Thread 45] Completed resolution of types of Umbraco.Core.Media.IImageUrlProvider, found 1 (took 7ms)
+2013-06-21 21:15:11,117 [43] INFO  Umbraco.Core.CoreBootManager - [Thread 45] Umbraco application startup complete (took 320ms)
+2013-06-21 21:15:11,331 [43] INFO  Umbraco.Core.PluginManager - [Thread 45] Completed resolution of types of umbraco.interfaces.IApplication, found 7 (took 7ms)
+2013-06-21 21:15:11,363 [43] INFO  Umbraco.Core.PluginManager - [Thread 45] Completed resolution of types of umbraco.interfaces.ITree, found 29 (took 5ms)
+2013-06-21 21:15:11,415 [43] INFO  umbraco.BusinessLogic.Log - [Thread 6] Redirected log call (please use Umbraco.Core.Logging.LogHelper instead of umbraco.BusinessLogic.Log) | Type: Custom | User: 0 | NodeId: -1 | Comment: [UmbracoExamine] Adding examine event handlers for index providers: 3
+2013-06-21 21:15:14,008 [43] INFO  umbraco.content - [Thread 15] Loading content from disk cache...
+2013-06-21 21:15:19,006 [43] INFO  Umbraco.Core.PluginManager - [Thread 15] Completed resolution of types of umbraco.BusinessLogic.Actions.IActionHandler, found 1 (took 6ms)
+2013-06-21 21:15:19,120 [43] INFO  Umbraco.Core.PluginManager - [Thread 15] Completed resolution of types of umbraco.interfaces.ITree, found 38 (took 8ms)
+2013-06-21 21:24:56,428 [43] INFO  umbraco.BusinessLogic.Log - [Thread 48] Log scrubbed.  Removed all items older than 2013-04-22 21:24:56
+2013-06-21 21:24:56,430 [43] INFO  Umbraco.Core.UmbracoApplicationBase - [Thread 48] Application shutdown. Reason: BinDirChangeOrDirectoryRename
+2013-06-21 21:25:03,945 [49] INFO  Umbraco.Core.CoreBootManager - [Thread 5] Umbraco application starting
+2013-06-21 21:25:03,962 [49] INFO  Umbraco.Core.PluginManager - [Thread 5] Determining hash of code files on disk
+2013-06-21 21:25:03,972 [49] INFO  Umbraco.Core.PluginManager - [Thread 5] Hash determined (took 8ms)
+2013-06-21 21:25:04,150 [49] INFO  Umbraco.Core.PluginManager - [Thread 5] Completed resolution of types of umbraco.interfaces.IApplicationStartupHandler, found 14 (took 169ms)
+2013-06-21 21:25:04,168 [49] INFO  Umbraco.Core.PluginManager - [Thread 5] Completed resolution of types of Umbraco.Core.Models.IMacroPropertyType, found 0 (took 6ms)
+2013-06-21 21:25:04,176 [49] INFO  Umbraco.Core.PluginManager - [Thread 5] Completed resolution of types of Umbraco.Core.PropertyEditors.IPropertyEditorValueConverter, found 0 (took 7ms)
+2013-06-21 21:25:04,186 [49] INFO  Umbraco.Core.PluginManager - [Thread 5] Completed resolution of types of Umbraco.Web.Mvc.SurfaceController, found 0 (took 9ms)
+2013-06-21 21:25:04,201 [49] INFO  Umbraco.Core.PluginManager - [Thread 5] Completed resolution of types of Umbraco.Core.Media.IThumbnailProvider, found 3 (took 10ms)
+2013-06-21 21:25:04,207 [49] INFO  Umbraco.Core.PluginManager - [Thread 5] Completed resolution of types of Umbraco.Core.Media.IImageUrlProvider, found 1 (took 6ms)
+2013-06-21 21:25:04,294 [49] INFO  Umbraco.Core.CoreBootManager - [Thread 5] Umbraco application startup complete (took 346ms)
+2013-06-21 21:25:04,507 [49] INFO  umbraco.BusinessLogic.Log - [Thread 48] Redirected log call (please use Umbraco.Core.Logging.LogHelper instead of umbraco.BusinessLogic.Log) | Type: Custom | User: 0 | NodeId: -1 | Comment: [UmbracoExamine] Adding examine event handlers for index providers: 3
+2013-06-21 21:25:04,516 [49] INFO  Umbraco.Core.PluginManager - [Thread 5] Completed resolution of types of umbraco.interfaces.IApplication, found 7 (took 7ms)
+2013-06-21 21:25:04,548 [49] INFO  Umbraco.Core.PluginManager - [Thread 5] Completed resolution of types of umbraco.interfaces.ITree, found 29 (took 6ms)
+2013-06-21 21:25:06,865 [49] INFO  Umbraco.Core.PluginManager - [Thread 16] Completed resolution of types of umbraco.BusinessLogic.Actions.IActionHandler, found 1 (took 5ms)
+2013-06-21 21:25:06,935 [49] INFO  Umbraco.Core.PluginManager - [Thread 16] Completed resolution of types of umbraco.interfaces.ITree, found 38 (took 5ms)
+2013-06-21 21:25:14,146 [49] ERROR Umbraco.Core.UmbracoApplicationBase - [Thread 22] An unhandled exception occurred
+System.IO.IOException: The directory name is invalid.
+
+   at System.IO.__Error.WinIOError(Int32 errorCode, String maybeFullPath)
+   at System.IO.FileSystemEnumerableIterator`1.CommonInit()
+   at System.IO.FileSystemEnumerableIterator`1..ctor(String path, String originalUserPath, String searchPattern, SearchOption searchOption, SearchResultHandler`1 resultHandler, Boolean checkHost)
+   at System.IO.DirectoryInfo.InternalGetDirectories(String searchPattern, SearchOption searchOption)
+   at System.IO.DirectoryInfo.GetDirectories()
+   at BundlingAndMinificationForTheMasses.Umbraco.Trees.DynamicCSSTree.Render(XmlTree& tree) in c:\inetpub\wwwroot\Contrib\UmbracoBundling\BundlingAndMinificationForTheMasses\Umbraco\Trees\DynamicCSSTree.cs:line 50
+   at umbraco.presentation.webservices.TreeDataService.LoadTree(TreeRequestParams treeParams)
+   at umbraco.presentation.webservices.TreeDataService.GetXmlTree()
+   at umbraco.presentation.webservices.TreeDataService.ProcessRequest(HttpContext context)
+   at System.Web.HttpApplication.CallHandlerExecutionStep.System.Web.HttpApplication.IExecutionStep.Execute()
+   at System.Web.HttpApplication.ExecuteStep(IExecutionStep step, Boolean& completedSynchronously)
+2013-06-21 21:26:20,802 [49] ERROR Umbraco.Core.UmbracoApplicationBase - [Thread 16] An unhandled exception occurred
+System.IO.IOException: The directory name is invalid.
+
+   at System.IO.__Error.WinIOError(Int32 errorCode, String maybeFullPath)
+   at System.IO.FileSystemEnumerableIterator`1.CommonInit()
+   at System.IO.FileSystemEnumerableIterator`1..ctor(String path, String originalUserPath, String searchPattern, SearchOption searchOption, SearchResultHandler`1 resultHandler, Boolean checkHost)
+   at System.IO.DirectoryInfo.InternalGetDirectories(String searchPattern, SearchOption searchOption)
+   at System.IO.DirectoryInfo.GetDirectories()
+   at BundlingAndMinificationForTheMasses.Umbraco.Trees.DynamicCSSTree.Render(XmlTree& tree) in c:\inetpub\wwwroot\Contrib\UmbracoBundling\BundlingAndMinificationForTheMasses\Umbraco\Trees\DynamicCSSTree.cs:line 50
+   at umbraco.presentation.webservices.TreeDataService.LoadTree(TreeRequestParams treeParams)
+   at umbraco.presentation.webservices.TreeDataService.GetXmlTree()
+   at umbraco.presentation.webservices.TreeDataService.ProcessRequest(HttpContext context)
+   at System.Web.HttpApplication.CallHandlerExecutionStep.System.Web.HttpApplication.IExecutionStep.Execute()
+   at System.Web.HttpApplication.ExecuteStep(IExecutionStep step, Boolean& completedSynchronously)
+2013-06-21 21:26:31,135 [49] ERROR Umbraco.Core.UmbracoApplicationBase - [Thread 47] An unhandled exception occurred
+System.IO.IOException: The directory name is invalid.
+
+   at System.IO.__Error.WinIOError(Int32 errorCode, String maybeFullPath)
+   at System.IO.FileSystemEnumerableIterator`1.CommonInit()
+   at System.IO.FileSystemEnumerableIterator`1..ctor(String path, String originalUserPath, String searchPattern, SearchOption searchOption, SearchResultHandler`1 resultHandler, Boolean checkHost)
+   at System.IO.DirectoryInfo.InternalGetDirectories(String searchPattern, SearchOption searchOption)
+   at System.IO.DirectoryInfo.GetDirectories()
+   at BundlingAndMinificationForTheMasses.Umbraco.Trees.DynamicCSSTree.Render(XmlTree& tree) in c:\inetpub\wwwroot\Contrib\UmbracoBundling\BundlingAndMinificationForTheMasses\Umbraco\Trees\DynamicCSSTree.cs:line 50
+   at umbraco.presentation.webservices.TreeDataService.LoadTree(TreeRequestParams treeParams)
+   at umbraco.presentation.webservices.TreeDataService.GetXmlTree()
+   at umbraco.presentation.webservices.TreeDataService.ProcessRequest(HttpContext context)
+   at System.Web.HttpApplication.CallHandlerExecutionStep.System.Web.HttpApplication.IExecutionStep.Execute()
+   at System.Web.HttpApplication.ExecuteStep(IExecutionStep step, Boolean& completedSynchronously)
+2013-06-21 21:28:04,502 [49] INFO  umbraco.BusinessLogic.Log - [Thread 16] Log scrubbed.  Removed all items older than 2013-04-22 21:28:04
+2013-06-21 21:28:04,506 [49] INFO  Umbraco.Core.UmbracoApplicationBase - [Thread 16] Application shutdown. Reason: BinDirChangeOrDirectoryRename
+2013-06-21 21:28:11,581 [51] INFO  Umbraco.Core.CoreBootManager - [Thread 60] Umbraco application starting
+2013-06-21 21:28:11,601 [51] INFO  Umbraco.Core.PluginManager - [Thread 60] Determining hash of code files on disk
+2013-06-21 21:28:11,609 [51] INFO  Umbraco.Core.PluginManager - [Thread 60] Hash determined (took 7ms)
+2013-06-21 21:28:11,795 [51] INFO  Umbraco.Core.PluginManager - [Thread 60] Completed resolution of types of umbraco.interfaces.IApplicationStartupHandler, found 14 (took 177ms)
+2013-06-21 21:28:11,817 [51] INFO  Umbraco.Core.PluginManager - [Thread 60] Completed resolution of types of Umbraco.Core.Models.IMacroPropertyType, found 0 (took 7ms)
+2013-06-21 21:28:11,824 [51] INFO  Umbraco.Core.PluginManager - [Thread 60] Completed resolution of types of Umbraco.Core.PropertyEditors.IPropertyEditorValueConverter, found 0 (took 7ms)
+2013-06-21 21:28:11,843 [51] INFO  Umbraco.Core.PluginManager - [Thread 60] Completed resolution of types of Umbraco.Web.Mvc.SurfaceController, found 0 (took 17ms)
+2013-06-21 21:28:11,853 [51] INFO  Umbraco.Core.PluginManager - [Thread 60] Completed resolution of types of Umbraco.Core.Media.IThumbnailProvider, found 3 (took 7ms)
+2013-06-21 21:28:11,866 [51] INFO  Umbraco.Core.PluginManager - [Thread 60] Completed resolution of types of Umbraco.Core.Media.IImageUrlProvider, found 1 (took 13ms)
+2013-06-21 21:28:11,933 [51] INFO  Umbraco.Core.CoreBootManager - [Thread 60] Umbraco application startup complete (took 348ms)
+2013-06-21 21:28:12,115 [51] INFO  Umbraco.Core.PluginManager - [Thread 60] Completed resolution of types of umbraco.interfaces.IApplication, found 7 (took 8ms)
+2013-06-21 21:28:12,154 [51] INFO  Umbraco.Core.PluginManager - [Thread 60] Completed resolution of types of umbraco.interfaces.ITree, found 29 (took 9ms)
+2013-06-21 21:28:12,197 [51] INFO  umbraco.BusinessLogic.Log - [Thread 27] Redirected log call (please use Umbraco.Core.Logging.LogHelper instead of umbraco.BusinessLogic.Log) | Type: Custom | User: 0 | NodeId: -1 | Comment: [UmbracoExamine] Adding examine event handlers for index providers: 3
+2013-06-21 21:28:14,879 [51] INFO  Umbraco.Core.PluginManager - [Thread 21] Completed resolution of types of umbraco.BusinessLogic.Actions.IActionHandler, found 1 (took 6ms)
+2013-06-21 21:28:14,972 [51] INFO  Umbraco.Core.PluginManager - [Thread 21] Completed resolution of types of umbraco.interfaces.ITree, found 38 (took 7ms)
+2013-06-21 21:28:23,247 [51] ERROR Umbraco.Core.UmbracoApplicationBase - [Thread 13] An unhandled exception occurred
+System.IO.IOException: The directory name is invalid.
+
+   at System.IO.__Error.WinIOError(Int32 errorCode, String maybeFullPath)
+   at System.IO.FileSystemEnumerableIterator`1.CommonInit()
+   at System.IO.FileSystemEnumerableIterator`1..ctor(String path, String originalUserPath, String searchPattern, SearchOption searchOption, SearchResultHandler`1 resultHandler, Boolean checkHost)
+   at System.IO.DirectoryInfo.InternalGetDirectories(String searchPattern, SearchOption searchOption)
+   at System.IO.DirectoryInfo.GetDirectories()
+   at BundlingAndMinificationForTheMasses.Umbraco.Trees.DynamicCSSTree.Render(XmlTree& tree) in c:\inetpub\wwwroot\Contrib\UmbracoBundling\BundlingAndMinificationForTheMasses\Umbraco\Trees\DynamicCSSTree.cs:line 50
+   at umbraco.presentation.webservices.TreeDataService.LoadTree(TreeRequestParams treeParams)
+   at umbraco.presentation.webservices.TreeDataService.GetXmlTree()
+   at umbraco.presentation.webservices.TreeDataService.ProcessRequest(HttpContext context)
+   at System.Web.HttpApplication.CallHandlerExecutionStep.System.Web.HttpApplication.IExecutionStep.Execute()
+   at System.Web.HttpApplication.ExecuteStep(IExecutionStep step, Boolean& completedSynchronously)
+2013-06-21 21:28:28,460 [51] ERROR Umbraco.Core.UmbracoApplicationBase - [Thread 61] An unhandled exception occurred
+System.IO.IOException: The directory name is invalid.
+
+   at System.IO.__Error.WinIOError(Int32 errorCode, String maybeFullPath)
+   at System.IO.FileSystemEnumerableIterator`1.CommonInit()
+   at System.IO.FileSystemEnumerableIterator`1..ctor(String path, String originalUserPath, String searchPattern, SearchOption searchOption, SearchResultHandler`1 resultHandler, Boolean checkHost)
+   at System.IO.DirectoryInfo.InternalGetDirectories(String searchPattern, SearchOption searchOption)
+   at System.IO.DirectoryInfo.GetDirectories()
+   at BundlingAndMinificationForTheMasses.Umbraco.Trees.DynamicCSSTree.Render(XmlTree& tree) in c:\inetpub\wwwroot\Contrib\UmbracoBundling\BundlingAndMinificationForTheMasses\Umbraco\Trees\DynamicCSSTree.cs:line 50
+   at umbraco.presentation.webservices.TreeDataService.LoadTree(TreeRequestParams treeParams)
+   at umbraco.presentation.webservices.TreeDataService.GetXmlTree()
+   at umbraco.presentation.webservices.TreeDataService.ProcessRequest(HttpContext context)
+   at System.Web.HttpApplication.CallHandlerExecutionStep.System.Web.HttpApplication.IExecutionStep.Execute()
+   at System.Web.HttpApplication.ExecuteStep(IExecutionStep step, Boolean& completedSynchronously)
+2013-06-21 21:29:22,224 [51] INFO  umbraco.BusinessLogic.Log - [Thread 21] Log scrubbed.  Removed all items older than 2013-04-22 21:29:22
+2013-06-21 21:29:22,228 [51] INFO  Umbraco.Core.UmbracoApplicationBase - [Thread 21] Application shutdown. Reason: BinDirChangeOrDirectoryRename
+2013-06-21 21:29:28,914 [55] INFO  Umbraco.Core.CoreBootManager - [Thread 5] Umbraco application starting
+2013-06-21 21:29:28,932 [55] INFO  Umbraco.Core.PluginManager - [Thread 5] Determining hash of code files on disk
+2013-06-21 21:29:28,940 [55] INFO  Umbraco.Core.PluginManager - [Thread 5] Hash determined (took 6ms)
+2013-06-21 21:29:29,109 [55] INFO  Umbraco.Core.PluginManager - [Thread 5] Completed resolution of types of umbraco.interfaces.IApplicationStartupHandler, found 14 (took 158ms)
+2013-06-21 21:29:29,131 [55] INFO  Umbraco.Core.PluginManager - [Thread 5] Completed resolution of types of Umbraco.Core.Models.IMacroPropertyType, found 0 (took 6ms)
+2013-06-21 21:29:29,139 [55] INFO  Umbraco.Core.PluginManager - [Thread 5] Completed resolution of types of Umbraco.Core.PropertyEditors.IPropertyEditorValueConverter, found 0 (took 8ms)
+2013-06-21 21:29:29,148 [55] INFO  Umbraco.Core.PluginManager - [Thread 5] Completed resolution of types of Umbraco.Web.Mvc.SurfaceController, found 0 (took 8ms)
+2013-06-21 21:29:29,163 [55] INFO  Umbraco.Core.PluginManager - [Thread 5] Completed resolution of types of Umbraco.Core.Media.IThumbnailProvider, found 3 (took 8ms)
+2013-06-21 21:29:29,174 [55] INFO  Umbraco.Core.PluginManager - [Thread 5] Completed resolution of types of Umbraco.Core.Media.IImageUrlProvider, found 1 (took 11ms)
+2013-06-21 21:29:29,245 [55] INFO  Umbraco.Core.CoreBootManager - [Thread 5] Umbraco application startup complete (took 327ms)
+2013-06-21 21:29:29,446 [55] INFO  umbraco.BusinessLogic.Log - [Thread 57] Redirected log call (please use Umbraco.Core.Logging.LogHelper instead of umbraco.BusinessLogic.Log) | Type: Custom | User: 0 | NodeId: -1 | Comment: [UmbracoExamine] Adding examine event handlers for index providers: 3
+2013-06-21 21:29:29,458 [55] INFO  Umbraco.Core.PluginManager - [Thread 5] Completed resolution of types of umbraco.interfaces.IApplication, found 7 (took 9ms)
+2013-06-21 21:29:29,492 [55] INFO  Umbraco.Core.PluginManager - [Thread 5] Completed resolution of types of umbraco.interfaces.ITree, found 29 (took 6ms)
+2013-06-21 21:29:31,775 [55] INFO  Umbraco.Core.PluginManager - [Thread 27] Completed resolution of types of umbraco.BusinessLogic.Actions.IActionHandler, found 1 (took 6ms)
+2013-06-21 21:29:31,854 [55] INFO  Umbraco.Core.PluginManager - [Thread 27] Completed resolution of types of umbraco.interfaces.ITree, found 38 (took 5ms)
+2013-06-21 21:29:36,173 [55] ERROR Umbraco.Core.UmbracoApplicationBase - [Thread 27] An unhandled exception occurred
+System.NotSupportedException: The given path's format is not supported.
+   at System.Security.Util.StringExpressionSet.CanonicalizePath(String path, Boolean needFullPath)
+   at System.Security.Util.StringExpressionSet.CreateListFromExpressions(String[] str, Boolean needFullPath)
+   at System.Security.Permissions.FileIOPermission.AddPathList(FileIOPermissionAccess access, AccessControlActions control, String[] pathListOrig, Boolean checkForDuplicates, Boolean needFullPath, Boolean copyPathList)
+   at System.Security.Permissions.FileIOPermission..ctor(FileIOPermissionAccess access, String path)
+   at System.Web.InternalSecurityPermissions.PathDiscovery(String path)
+   at System.Web.Hosting.HostingEnvironment.MapPath(VirtualPath virtualPath)
+   at Umbraco.Core.IO.IOHelper.MapPath(String path, Boolean useHttpContext)
+   at Umbraco.Core.IO.IOHelper.MapPath(String path)
+   at BundlingAndMinificationForTheMasses.Umbraco.Trees.DynamicCSSTree.Render(XmlTree& tree) in c:\inetpub\wwwroot\Contrib\UmbracoBundling\BundlingAndMinificationForTheMasses\Umbraco\Trees\DynamicCSSTree.cs:line 41
+   at umbraco.presentation.webservices.TreeDataService.LoadTree(TreeRequestParams treeParams)
+   at umbraco.presentation.webservices.TreeDataService.GetXmlTree()
+   at umbraco.presentation.webservices.TreeDataService.ProcessRequest(HttpContext context)
+   at System.Web.HttpApplication.CallHandlerExecutionStep.System.Web.HttpApplication.IExecutionStep.Execute()
+   at System.Web.HttpApplication.ExecuteStep(IExecutionStep step, Boolean& completedSynchronously)
+2013-06-21 21:29:45,919 [55] ERROR Umbraco.Core.UmbracoApplicationBase - [Thread 21] An unhandled exception occurred
+System.NotSupportedException: The given path's format is not supported.
+   at System.Security.Util.StringExpressionSet.CanonicalizePath(String path, Boolean needFullPath)
+   at System.Security.Util.StringExpressionSet.CreateListFromExpressions(String[] str, Boolean needFullPath)
+   at System.Security.Permissions.FileIOPermission.AddPathList(FileIOPermissionAccess access, AccessControlActions control, String[] pathListOrig, Boolean checkForDuplicates, Boolean needFullPath, Boolean copyPathList)
+   at System.Security.Permissions.FileIOPermission..ctor(FileIOPermissionAccess access, String path)
+   at System.Web.InternalSecurityPermissions.PathDiscovery(String path)
+   at System.Web.Hosting.HostingEnvironment.MapPath(VirtualPath virtualPath)
+   at Umbraco.Core.IO.IOHelper.MapPath(String path, Boolean useHttpContext)
+   at Umbraco.Core.IO.IOHelper.MapPath(String path)
+   at BundlingAndMinificationForTheMasses.Umbraco.Trees.DynamicCSSTree.Render(XmlTree& tree) in c:\inetpub\wwwroot\Contrib\UmbracoBundling\BundlingAndMinificationForTheMasses\Umbraco\Trees\DynamicCSSTree.cs:line 41
+   at umbraco.presentation.webservices.TreeDataService.LoadTree(TreeRequestParams treeParams)
+   at umbraco.presentation.webservices.TreeDataService.GetXmlTree()
+   at umbraco.presentation.webservices.TreeDataService.ProcessRequest(HttpContext context)
+   at System.Web.HttpApplication.CallHandlerExecutionStep.System.Web.HttpApplication.IExecutionStep.Execute()
+   at System.Web.HttpApplication.ExecuteStep(IExecutionStep step, Boolean& completedSynchronously)
+2013-06-21 21:30:22,651 [55] ERROR Umbraco.Core.UmbracoApplicationBase - [Thread 64] An unhandled exception occurred
+System.IO.DirectoryNotFoundException: Could not find a part of the path 'C:\inetpub\wwwroot\Contrib\UmbracoBundling\TestSite\css\css\Sassy.css'.
+   at System.IO.__Error.WinIOError(Int32 errorCode, String maybeFullPath)
+   at System.IO.FileSystemEnumerableIterator`1.CommonInit()
+   at System.IO.FileSystemEnumerableIterator`1..ctor(String path, String originalUserPath, String searchPattern, SearchOption searchOption, SearchResultHandler`1 resultHandler, Boolean checkHost)
+   at System.IO.DirectoryInfo.InternalGetDirectories(String searchPattern, SearchOption searchOption)
+   at System.IO.DirectoryInfo.GetDirectories()
+   at BundlingAndMinificationForTheMasses.Umbraco.Trees.DynamicCSSTree.Render(XmlTree& tree) in c:\inetpub\wwwroot\Contrib\UmbracoBundling\BundlingAndMinificationForTheMasses\Umbraco\Trees\DynamicCSSTree.cs:line 50
+   at umbraco.presentation.webservices.TreeDataService.LoadTree(TreeRequestParams treeParams)
+   at umbraco.presentation.webservices.TreeDataService.GetXmlTree()
+   at umbraco.presentation.webservices.TreeDataService.ProcessRequest(HttpContext context)
+   at System.Web.HttpApplication.CallHandlerExecutionStep.System.Web.HttpApplication.IExecutionStep.Execute()
+   at System.Web.HttpApplication.ExecuteStep(IExecutionStep step, Boolean& completedSynchronously)
+2013-06-21 21:30:35,108 [55] ERROR Umbraco.Core.UmbracoApplicationBase - [Thread 66] An unhandled exception occurred
+System.IO.IOException: The directory name is invalid.
+
+   at System.IO.__Error.WinIOError(Int32 errorCode, String maybeFullPath)
+   at System.IO.FileSystemEnumerableIterator`1.CommonInit()
+   at System.IO.FileSystemEnumerableIterator`1..ctor(String path, String originalUserPath, String searchPattern, SearchOption searchOption, SearchResultHandler`1 resultHandler, Boolean checkHost)
+   at System.IO.DirectoryInfo.InternalGetDirectories(String searchPattern, SearchOption searchOption)
+   at System.IO.DirectoryInfo.GetDirectories()
+   at BundlingAndMinificationForTheMasses.Umbraco.Trees.DynamicCSSTree.Render(XmlTree& tree) in c:\inetpub\wwwroot\Contrib\UmbracoBundling\BundlingAndMinificationForTheMasses\Umbraco\Trees\DynamicCSSTree.cs:line 50
+   at umbraco.presentation.webservices.TreeDataService.LoadTree(TreeRequestParams treeParams)
+   at umbraco.presentation.webservices.TreeDataService.GetXmlTree()
+   at umbraco.presentation.webservices.TreeDataService.ProcessRequest(HttpContext context)
+   at System.Web.HttpApplication.CallHandlerExecutionStep.System.Web.HttpApplication.IExecutionStep.Execute()
+   at System.Web.HttpApplication.ExecuteStep(IExecutionStep step, Boolean& completedSynchronously)
+2013-06-21 21:31:13,066 [55] ERROR Umbraco.Core.UmbracoApplicationBase - [Thread 48] An unhandled exception occurred
+System.IO.IOException: The directory name is invalid.
+
+   at System.IO.__Error.WinIOError(Int32 errorCode, String maybeFullPath)
+   at System.IO.FileSystemEnumerableIterator`1.CommonInit()
+   at System.IO.FileSystemEnumerableIterator`1..ctor(String path, String originalUserPath, String searchPattern, SearchOption searchOption, SearchResultHandler`1 resultHandler, Boolean checkHost)
+   at System.IO.DirectoryInfo.InternalGetDirectories(String searchPattern, SearchOption searchOption)
+   at System.IO.DirectoryInfo.GetDirectories()
+   at BundlingAndMinificationForTheMasses.Umbraco.Trees.DynamicCSSTree.Render(XmlTree& tree) in c:\inetpub\wwwroot\Contrib\UmbracoBundling\BundlingAndMinificationForTheMasses\Umbraco\Trees\DynamicCSSTree.cs:line 50
+   at umbraco.presentation.webservices.TreeDataService.LoadTree(TreeRequestParams treeParams)
+   at umbraco.presentation.webservices.TreeDataService.GetXmlTree()
+   at umbraco.presentation.webservices.TreeDataService.ProcessRequest(HttpContext context)
+   at System.Web.HttpApplication.CallHandlerExecutionStep.System.Web.HttpApplication.IExecutionStep.Execute()
+   at System.Web.HttpApplication.ExecuteStep(IExecutionStep step, Boolean& completedSynchronously)
+2013-06-21 21:31:17,712 [55] ERROR Umbraco.Core.UmbracoApplicationBase - [Thread 62] An unhandled exception occurred
+System.IO.IOException: The directory name is invalid.
+
+   at System.IO.__Error.WinIOError(Int32 errorCode, String maybeFullPath)
+   at System.IO.FileSystemEnumerableIterator`1.CommonInit()
+   at System.IO.FileSystemEnumerableIterator`1..ctor(String path, String originalUserPath, String searchPattern, SearchOption searchOption, SearchResultHandler`1 resultHandler, Boolean checkHost)
+   at System.IO.DirectoryInfo.InternalGetDirectories(String searchPattern, SearchOption searchOption)
+   at System.IO.DirectoryInfo.GetDirectories()
+   at BundlingAndMinificationForTheMasses.Umbraco.Trees.DynamicCSSTree.Render(XmlTree& tree) in c:\inetpub\wwwroot\Contrib\UmbracoBundling\BundlingAndMinificationForTheMasses\Umbraco\Trees\DynamicCSSTree.cs:line 50
+   at umbraco.presentation.webservices.TreeDataService.LoadTree(TreeRequestParams treeParams)
+   at umbraco.presentation.webservices.TreeDataService.GetXmlTree()
+   at umbraco.presentation.webservices.TreeDataService.ProcessRequest(HttpContext context)
+   at System.Web.HttpApplication.CallHandlerExecutionStep.System.Web.HttpApplication.IExecutionStep.Execute()
+   at System.Web.HttpApplication.ExecuteStep(IExecutionStep step, Boolean& completedSynchronously)
+2013-06-21 21:34:17,157 [55] INFO  umbraco.BusinessLogic.Log - [Thread 66] Log scrubbed.  Removed all items older than 2013-04-22 21:34:17
+2013-06-21 21:34:17,158 [55] INFO  Umbraco.Core.UmbracoApplicationBase - [Thread 66] Application shutdown. Reason: BinDirChangeOrDirectoryRename
+2013-06-21 21:34:25,246 [52] INFO  Umbraco.Core.CoreBootManager - [Thread 5] Umbraco application starting
+2013-06-21 21:34:25,265 [52] INFO  Umbraco.Core.PluginManager - [Thread 5] Determining hash of code files on disk
+2013-06-21 21:34:25,272 [52] INFO  Umbraco.Core.PluginManager - [Thread 5] Hash determined (took 6ms)
+2013-06-21 21:34:25,460 [52] INFO  Umbraco.Core.PluginManager - [Thread 5] Completed resolution of types of umbraco.interfaces.IApplicationStartupHandler, found 14 (took 175ms)
+2013-06-21 21:34:25,484 [52] INFO  Umbraco.Core.PluginManager - [Thread 5] Completed resolution of types of Umbraco.Core.Models.IMacroPropertyType, found 0 (took 9ms)
+2013-06-21 21:34:25,496 [52] INFO  Umbraco.Core.PluginManager - [Thread 5] Completed resolution of types of Umbraco.Core.PropertyEditors.IPropertyEditorValueConverter, found 0 (took 10ms)
+2013-06-21 21:34:25,507 [52] INFO  Umbraco.Core.PluginManager - [Thread 5] Completed resolution of types of Umbraco.Web.Mvc.SurfaceController, found 0 (took 10ms)
+2013-06-21 21:34:25,515 [52] INFO  Umbraco.Core.PluginManager - [Thread 5] Completed resolution of types of Umbraco.Core.Media.IThumbnailProvider, found 3 (took 6ms)
+2013-06-21 21:34:25,522 [52] INFO  Umbraco.Core.PluginManager - [Thread 5] Completed resolution of types of Umbraco.Core.Media.IImageUrlProvider, found 1 (took 7ms)
+2013-06-21 21:34:25,591 [52] INFO  Umbraco.Core.CoreBootManager - [Thread 5] Umbraco application startup complete (took 341ms)
+2013-06-21 21:34:25,787 [52] INFO  umbraco.BusinessLogic.Log - [Thread 65] Redirected log call (please use Umbraco.Core.Logging.LogHelper instead of umbraco.BusinessLogic.Log) | Type: Custom | User: 0 | NodeId: -1 | Comment: [UmbracoExamine] Adding examine event handlers for index providers: 3
+2013-06-21 21:34:25,788 [52] INFO  Umbraco.Core.PluginManager - [Thread 5] Completed resolution of types of umbraco.interfaces.IApplication, found 7 (took 7ms)
+2013-06-21 21:34:25,822 [52] INFO  Umbraco.Core.PluginManager - [Thread 5] Completed resolution of types of umbraco.interfaces.ITree, found 29 (took 6ms)
+2013-06-21 21:34:28,225 [52] INFO  Umbraco.Core.PluginManager - [Thread 47] Completed resolution of types of umbraco.BusinessLogic.Actions.IActionHandler, found 1 (took 8ms)
+2013-06-21 21:34:28,317 [52] INFO  Umbraco.Core.PluginManager - [Thread 47] Completed resolution of types of umbraco.interfaces.ITree, found 38 (took 6ms)
+2013-06-21 21:36:49,255 [52] INFO  umbraco.BusinessLogic.Log - [Thread 61] Log scrubbed.  Removed all items older than 2013-04-22 21:36:49
+2013-06-21 21:36:49,257 [52] INFO  Umbraco.Core.UmbracoApplicationBase - [Thread 61] Application shutdown. Reason: BinDirChangeOrDirectoryRename
+2013-06-21 21:36:52,188 [49] INFO  Umbraco.Core.CoreBootManager - [Thread 22] Umbraco application starting
+2013-06-21 21:36:52,206 [49] INFO  Umbraco.Core.PluginManager - [Thread 22] Determining hash of code files on disk
+2013-06-21 21:36:52,212 [49] INFO  Umbraco.Core.PluginManager - [Thread 22] Hash determined (took 5ms)
+2013-06-21 21:36:52,368 [49] INFO  Umbraco.Core.PluginManager - [Thread 22] Completed resolution of types of umbraco.interfaces.IApplicationStartupHandler, found 14 (took 146ms)
+2013-06-21 21:36:52,386 [49] INFO  Umbraco.Core.PluginManager - [Thread 22] Completed resolution of types of Umbraco.Core.Models.IMacroPropertyType, found 0 (took 5ms)
+2013-06-21 21:36:52,392 [49] INFO  Umbraco.Core.PluginManager - [Thread 22] Completed resolution of types of Umbraco.Core.PropertyEditors.IPropertyEditorValueConverter, found 0 (took 6ms)
+2013-06-21 21:36:52,398 [49] INFO  Umbraco.Core.PluginManager - [Thread 22] Completed resolution of types of Umbraco.Web.Mvc.SurfaceController, found 0 (took 5ms)
+2013-06-21 21:36:52,405 [49] INFO  Umbraco.Core.PluginManager - [Thread 22] Completed resolution of types of Umbraco.Core.Media.IThumbnailProvider, found 3 (took 5ms)
+2013-06-21 21:36:52,413 [49] INFO  Umbraco.Core.PluginManager - [Thread 22] Completed resolution of types of Umbraco.Core.Media.IImageUrlProvider, found 1 (took 7ms)
+2013-06-21 21:36:52,467 [49] INFO  Umbraco.Core.CoreBootManager - [Thread 22] Umbraco application startup complete (took 274ms)
+2013-06-21 21:36:52,658 [49] INFO  Umbraco.Core.PluginManager - [Thread 22] Completed resolution of types of umbraco.interfaces.IApplication, found 7 (took 7ms)
+2013-06-21 21:36:52,692 [49] INFO  Umbraco.Core.PluginManager - [Thread 22] Completed resolution of types of umbraco.interfaces.ITree, found 29 (took 7ms)
+2013-06-21 21:36:52,726 [49] INFO  umbraco.BusinessLogic.Log - [Thread 47] Redirected log call (please use Umbraco.Core.Logging.LogHelper instead of umbraco.BusinessLogic.Log) | Type: Custom | User: 0 | NodeId: -1 | Comment: [UmbracoExamine] Adding examine event handlers for index providers: 3
+2013-06-21 21:36:52,780 [49] ERROR Umbraco.Core.UmbracoApplicationBase - [Thread 63] An unhandled exception occurred
+System.ArgumentOutOfRangeException: startIndex cannot be larger than length of string.
+Parameter name: startIndex
+   at System.String.InternalSubStringWithChecks(Int32 startIndex, Int32 length, Boolean fAlwaysCopy)
+   at System.Web.Compilation.DiskBuildResultCache.MarkAssemblyAndRelatedFilesForDeletion(String assemblyName)
+   at System.Web.Compilation.DiskBuildResultCache.CacheBuildResult(String cacheKey, BuildResult result, Int64 hashCode, DateTime utcStart)
+   at System.Web.Compilation.BuildManager.CacheBuildResultInternal(String cacheKey, BuildResult result, Int64 hashCode, DateTime utcStart)
+   at System.Web.Compilation.BuildManager.CompileWebFile(VirtualPath virtualPath)
+   at System.Web.Compilation.BuildManager.GetVPathBuildResultInternal(VirtualPath virtualPath, Boolean noBuild, Boolean allowCrossApp, Boolean allowBuildInPrecompile, Boolean throwIfNotFound, Boolean ensureIsUpToDate)
+   at System.Web.Compilation.BuildManager.GetVPathBuildResultWithNoAssert(HttpContext context, VirtualPath virtualPath, Boolean noBuild, Boolean allowCrossApp, Boolean allowBuildInPrecompile, Boolean throwIfNotFound, Boolean ensureIsUpToDate)
+   at System.Web.Compilation.BuildManager.GetVirtualPathObjectFactory(VirtualPath virtualPath, HttpContext context, Boolean allowCrossApp, Boolean throwIfNotFound)
+   at System.Web.Compilation.BuildManager.GetCompiledType(VirtualPath virtualPath)
+   at System.Web.Compilation.BuildManager.GetCompiledType(String virtualPath)
+   at System.Web.Script.Services.WebServiceData.GetWebServiceData(HttpContext context, String virtualPath, Boolean failIfNoData, Boolean pageMethods, Boolean inlineScript)
+   at System.Web.Script.Services.RestHandler.CreateHandler(HttpContext context)
+   at System.Web.Script.Services.RestHandlerFactory.GetHandler(HttpContext context, String requestType, String url, String pathTranslated)
+   at System.Web.Script.Services.ScriptHandlerFactory.GetHandler(HttpContext context, String requestType, String url, String pathTranslated)
+   at System.Web.HttpApplication.MaterializeHandlerExecutionStep.System.Web.HttpApplication.IExecutionStep.Execute()
+   at System.Web.HttpApplication.ExecuteStep(IExecutionStep step, Boolean& completedSynchronously)
+2013-06-21 21:36:52,872 [49] INFO  umbraco.BusinessLogic.Log - [Thread 27] Log scrubbed.  Removed all items older than 2013-04-22 21:36:52
+2013-06-21 21:36:52,874 [49] INFO  Umbraco.Core.UmbracoApplicationBase - [Thread 27] Application shutdown. Reason: BinDirChangeOrDirectoryRename
+2013-06-21 21:37:02,735 [43] INFO  Umbraco.Core.CoreBootManager - [Thread 22] Umbraco application starting
+2013-06-21 21:37:02,751 [43] INFO  Umbraco.Core.PluginManager - [Thread 22] Determining hash of code files on disk
+2013-06-21 21:37:02,759 [43] INFO  Umbraco.Core.PluginManager - [Thread 22] Hash determined (took 6ms)
+2013-06-21 21:37:02,949 [43] INFO  Umbraco.Core.PluginManager - [Thread 22] Completed resolution of types of umbraco.interfaces.IApplicationStartupHandler, found 14 (took 180ms)
+2013-06-21 21:37:02,982 [43] INFO  Umbraco.Core.PluginManager - [Thread 22] Completed resolution of types of Umbraco.Core.Models.IMacroPropertyType, found 0 (took 6ms)
+2013-06-21 21:37:02,995 [43] INFO  Umbraco.Core.PluginManager - [Thread 22] Completed resolution of types of Umbraco.Core.PropertyEditors.IPropertyEditorValueConverter, found 0 (took 12ms)
+2013-06-21 21:37:03,004 [43] INFO  Umbraco.Core.PluginManager - [Thread 22] Completed resolution of types of Umbraco.Web.Mvc.SurfaceController, found 0 (took 8ms)
+2013-06-21 21:37:03,015 [43] INFO  Umbraco.Core.PluginManager - [Thread 22] Completed resolution of types of Umbraco.Core.Media.IThumbnailProvider, found 3 (took 8ms)
+2013-06-21 21:37:03,024 [43] INFO  Umbraco.Core.PluginManager - [Thread 22] Completed resolution of types of Umbraco.Core.Media.IImageUrlProvider, found 1 (took 9ms)
+2013-06-21 21:37:03,088 [43] INFO  Umbraco.Core.CoreBootManager - [Thread 22] Umbraco application startup complete (took 350ms)
+2013-06-21 21:37:03,276 [43] INFO  Umbraco.Core.PluginManager - [Thread 22] Completed resolution of types of umbraco.interfaces.IApplication, found 7 (took 7ms)
+2013-06-21 21:37:03,307 [43] INFO  Umbraco.Core.PluginManager - [Thread 22] Completed resolution of types of umbraco.interfaces.ITree, found 29 (took 6ms)
+2013-06-21 21:37:03,351 [43] INFO  umbraco.BusinessLogic.Log - [Thread 16] Redirected log call (please use Umbraco.Core.Logging.LogHelper instead of umbraco.BusinessLogic.Log) | Type: Custom | User: 0 | NodeId: -1 | Comment: [UmbracoExamine] Adding examine event handlers for index providers: 3
+2013-06-21 21:37:20,831 [43] INFO  Umbraco.Core.PluginManager - [Thread 65] Completed resolution of types of umbraco.BusinessLogic.Actions.IActionHandler, found 1 (took 5ms)
+2013-06-21 21:37:20,906 [43] INFO  Umbraco.Core.PluginManager - [Thread 65] Completed resolution of types of umbraco.interfaces.ITree, found 38 (took 5ms)
+2013-06-21 21:37:31,739 [43] ERROR Umbraco.Core.UmbracoApplicationBase - [Thread 62] An unhandled exception occurred
+System.IO.IOException: The directory name is invalid.
+
+   at System.IO.__Error.WinIOError(Int32 errorCode, String maybeFullPath)
+   at System.IO.FileSystemEnumerableIterator`1.CommonInit()
+   at System.IO.FileSystemEnumerableIterator`1..ctor(String path, String originalUserPath, String searchPattern, SearchOption searchOption, SearchResultHandler`1 resultHandler, Boolean checkHost)
+   at System.IO.DirectoryInfo.InternalGetDirectories(String searchPattern, SearchOption searchOption)
+   at System.IO.DirectoryInfo.GetDirectories()
+   at BundlingAndMinificationForTheMasses.Umbraco.Trees.DynamicCSSTree.Render(XmlTree& tree) in c:\inetpub\wwwroot\Contrib\UmbracoBundling\BundlingAndMinificationForTheMasses\Umbraco\Trees\DynamicCSSTree.cs:line 50
+   at umbraco.presentation.webservices.TreeDataService.LoadTree(TreeRequestParams treeParams)
+   at umbraco.presentation.webservices.TreeDataService.GetXmlTree()
+   at umbraco.presentation.webservices.TreeDataService.ProcessRequest(HttpContext context)
+   at System.Web.HttpApplication.CallHandlerExecutionStep.System.Web.HttpApplication.IExecutionStep.Execute()
+   at System.Web.HttpApplication.ExecuteStep(IExecutionStep step, Boolean& completedSynchronously)
+2013-06-21 21:38:07,996 [43] INFO  umbraco.BusinessLogic.Log - [Thread 64] Log scrubbed.  Removed all items older than 2013-04-22 21:38:07
+2013-06-21 21:38:07,998 [43] INFO  Umbraco.Core.UmbracoApplicationBase - [Thread 64] Application shutdown. Reason: BinDirChangeOrDirectoryRename
+2013-06-21 21:38:16,076 [44] INFO  Umbraco.Core.CoreBootManager - [Thread 45] Umbraco application starting
+2013-06-21 21:38:16,092 [44] INFO  Umbraco.Core.PluginManager - [Thread 45] Determining hash of code files on disk
+2013-06-21 21:38:16,098 [44] INFO  Umbraco.Core.PluginManager - [Thread 45] Hash determined (took 5ms)
+2013-06-21 21:38:16,263 [44] INFO  Umbraco.Core.PluginManager - [Thread 45] Completed resolution of types of umbraco.interfaces.IApplicationStartupHandler, found 14 (took 155ms)
+2013-06-21 21:38:16,279 [44] INFO  Umbraco.Core.PluginManager - [Thread 45] Completed resolution of types of Umbraco.Core.Models.IMacroPropertyType, found 0 (took 5ms)
+2013-06-21 21:38:16,285 [44] INFO  Umbraco.Core.PluginManager - [Thread 45] Completed resolution of types of Umbraco.Core.PropertyEditors.IPropertyEditorValueConverter, found 0 (took 5ms)
+2013-06-21 21:38:16,293 [44] INFO  Umbraco.Core.PluginManager - [Thread 45] Completed resolution of types of Umbraco.Web.Mvc.SurfaceController, found 0 (took 6ms)
+2013-06-21 21:38:16,301 [44] INFO  Umbraco.Core.PluginManager - [Thread 45] Completed resolution of types of Umbraco.Core.Media.IThumbnailProvider, found 3 (took 6ms)
+2013-06-21 21:38:16,308 [44] INFO  Umbraco.Core.PluginManager - [Thread 45] Completed resolution of types of Umbraco.Core.Media.IImageUrlProvider, found 1 (took 6ms)
+2013-06-21 21:38:16,359 [44] INFO  Umbraco.Core.CoreBootManager - [Thread 45] Umbraco application startup complete (took 280ms)
+2013-06-21 21:38:16,556 [44] INFO  umbraco.BusinessLogic.Log - [Thread 16] Redirected log call (please use Umbraco.Core.Logging.LogHelper instead of umbraco.BusinessLogic.Log) | Type: Custom | User: 0 | NodeId: -1 | Comment: [UmbracoExamine] Adding examine event handlers for index providers: 3
+2013-06-21 21:38:16,566 [44] INFO  Umbraco.Core.PluginManager - [Thread 45] Completed resolution of types of umbraco.interfaces.IApplication, found 7 (took 7ms)
+2013-06-21 21:38:16,598 [44] INFO  Umbraco.Core.PluginManager - [Thread 45] Completed resolution of types of umbraco.interfaces.ITree, found 29 (took 6ms)

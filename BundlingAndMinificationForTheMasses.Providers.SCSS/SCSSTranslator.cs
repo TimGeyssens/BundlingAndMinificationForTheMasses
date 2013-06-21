@@ -14,7 +14,7 @@ namespace BundlingAndMinificationForTheMasses.Providers.SassAndSCSS
     {
         public string Name
         {
-            get { return "Sassy dynamic stylesheet"; }
+            get { return "Sass Dynamic Stylesheet"; }
         }
 
         public string FileExtension

@@ -4,6 +4,7 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Web;
+using Umbraco.Core.IO;
 using umbraco.BusinessLogic.Actions;
 using umbraco.businesslogic;
 using umbraco.cms.presentation.Trees;
@@ -11,13 +12,11 @@ using umbraco.interfaces;
 
 namespace BundlingAndMinificationForTheMasses.Umbraco.Trees
 {
-    [Tree("settings", "stylesheets", "Stylesheets (NEW)")]
+    [Tree("settings", "stylesheetsNew", "Stylesheets (NEW)")]
     public class DynamicCSSTree : BaseTree
     {
         public DynamicCSSTree(string application) : base(application)
         {
-            //Loop files in CSS folder?
-
         }
 
         public override void RenderJS(ref StringBuilder Javascript)
@@ -28,15 +27,145 @@ namespace BundlingAndMinificationForTheMasses.Umbraco.Trees
                     UmbClientMgr.contentFrame(Config.EditFilePagePath + '?file='+virtualPath +'path=/css/');
                 }");
         }
+        
 
         public override void Render(ref XmlTree tree)
         {
-            throw new NotImplementedException();
+            string orgPath  = string.Empty;
+            string path     = string.Empty;
+            string FilePath = "/css/";
+
+            if (!string.IsNullOrEmpty(this.NodeKey))
+            {
+                orgPath = this.NodeKey;
+                path = IOHelper.MapPath(FilePath + orgPath);
+                orgPath += "/";
+            }
+            else
+            {
+                path = IOHelper.MapPath(FilePath);
+            }
+
+            DirectoryInfo dirInfo       = new DirectoryInfo(path);
+            DirectoryInfo[] dirInfos    = dirInfo.GetDirectories();
+
+            var args = new TreeEventArgs(tree);
+            OnBeforeTreeRender(dirInfo, args);
+
+            //Loop through directories
+            //foreach (DirectoryInfo dir in dirInfos)
+            //{
+            //    if ((dir.Attributes & FileAttributes.Hidden) == 0)
+            //    {
+            //        XmlTreeNode xDirNode    = XmlTreeNode.Create(this);
+            //        xDirNode.Menu.Clear();
+            //        xDirNode.NodeID         = orgPath + dir.Name;
+            //        xDirNode.Text           = dir.Name;
+            //        xDirNode.Action         = string.Empty;
+            //        xDirNode.Source         = GetTreeServiceUrl(orgPath + dir.Name);
+            //        xDirNode.Icon           = FolderIcon;
+            //        xDirNode.OpenIcon       = FolderIconOpen;
+            //        xDirNode.HasChildren    = dir.GetFiles().Length > 0 || dir.GetDirectories().Length > 0;
+
+            //        //OnRenderFolderNode(ref xDirNode);
+            //        OnBeforeNodeRender(ref tree, ref xDirNode, EventArgs.Empty);
+            //        if (xDirNode != null)
+            //        {
+            //            tree.Add(xDirNode);
+            //            OnAfterNodeRender(ref tree, ref xDirNode, EventArgs.Empty);
+            //        }
+            //    }
+            //}
+
+            //Loop through files
+            var fileInfo = dirInfo.GetFilesByExtensions(".css", ".less", ".scss");
+
+            foreach (FileInfo file in fileInfo)
+            {
+                if ((file.Attributes & FileAttributes.Hidden) == 0)
+                {
+                    XmlTreeNode xFileNode   = XmlTreeNode.Create(this);
+                    xFileNode.NodeID        = orgPath + file.Name;
+                    xFileNode.Text          = file.Name;
+                    xFileNode.OpenIcon      = "doc.gif";
+                    xFileNode.Menu          = new List<IAction> { ActionDelete.Instance };
+
+                    //CSS
+                    if (xFileNode.Text.EndsWith(".css"))
+                    {
+                        xFileNode.Icon = "../../images/umbraco/settingCss.gif";
+                    }
+                       
+                    //LESS
+                    else if (xFileNode.Text.EndsWith(".less"))
+                    {
+                        xFileNode.Icon = "../../images/umbraco/less-icon.gif";
+
+                        //Check if child compiled CSS file exists
+
+                    }   
+                    
+                    //SASS
+                    else if (xFileNode.Text.EndsWith(".scss"))
+                    {
+                        xFileNode.Icon = "../../images/umbraco/sass-icon.gif";
+
+                        //Try and find a CSS version
+                        var cssToFind       = xFileNode.Text.Replace(".scss", ".css");
+                        var findStaticCSS   = fileInfo.SingleOrDefault(x => x.Name == cssToFind);
+
+                        if (findStaticCSS != null)
+                        {
+                            //Found the static CSS file on disk
+
+                            //Remove the item from the tree if it exists
+                            var itemInTree = tree.treeCollection.SingleOrDefault(x => x.Text == cssToFind);
+
+                            //Check we found the item in the tree collection
+                            if (itemInTree != null)
+                            {
+                                //Remove the item from the tree collection
+                                tree.treeCollection.Remove(itemInTree);
+                            }
+
+                            //Now add the item as a child node
+                            xFileNode.HasChildren = true;
+
+                            //TODO: TIM Can you help with this Tree Service URL to list the static CSS file as the child node?
+                            xFileNode.Source = GetTreeServiceUrl(orgPath + itemInTree.Text);
+
+                        }
+                    }
+
+
+                    //JS Action link...
+                    if (orgPath != string.Empty)
+                    {
+                        xFileNode.Action = "javascript:openDyanmicCSSFileEditor('" + orgPath + file.Name + "');";
+                    }
+                    else
+                    {
+                        xFileNode.Action = "javascript:openDyanmicCSSFileEditor('" + file.Name + "');";
+                    }
+
+                    //OnRenderFileNode(ref xFileNode);
+                    OnBeforeNodeRender(ref tree, ref xFileNode, EventArgs.Empty);
+
+                    if (xFileNode != null)
+                    {
+                        tree.Add(xFileNode);
+                        OnAfterNodeRender(ref tree, ref xFileNode, EventArgs.Empty);
+                    }
+                }
+            }
+
+            //After TREE Rendering
+            OnAfterTreeRender(dirInfo, args);
         }
+
 
         protected override void CreateRootNode(ref XmlTreeNode rootNode)
         {
-            rootNode.Text       = "CSS Files";
             rootNode.Icon       = ".sprTreeFolder";
             rootNode.OpenIcon   = ".sprTreeFolder_o";
             rootNode.NodeID     = "init";
@@ -46,37 +175,11 @@ namespace BundlingAndMinificationForTheMasses.Umbraco.Trees
 
         protected override void OnAfterNodeRender(ref XmlTree sender, ref XmlTreeNode node, EventArgs e)
         {
-            if (node.NodeType == "configFolder")
-            {
-                node.Menu = new List<IAction> {ActionNew.Instance, ActionRefresh.Instance};
-            }
-            else
-            {
-                if (node.Text.EndsWith(".css"))
-                {
-                    node.Icon = "../../images/umbraco/settingCss.gif";
-                }
-                else if (node.Text.EndsWith(".less"))
-                {
-                    node.Icon = "../../images/umbraco/less-icon.gif";
-
-                    //Check if child compiled CSS file exists
-                }
-                else if (node.Text.EndsWith(".scss"))
-                {
-                    node.Icon = "../../images/umbraco/sass-icon.gif";
-                }
-
-                //CSS (Sass or Less as well) Node
-                node.Action     = node.Action.Replace("openFile", "openConfigEditor");
-                node.Menu       = new List<IAction> { ActionDelete.Instance };
-                node.OpenIcon   = node.Icon;
-                node.Action     = string.Format("javascript:openDyanmicCSSFileEditor('{0}');", node.NodeID);
-
-            }
-
+            
         }
     }
+
+    
 }
 
 
