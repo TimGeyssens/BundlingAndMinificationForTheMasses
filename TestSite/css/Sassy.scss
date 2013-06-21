@@ -1,0 +1,7 @@
+$color: red;
+
+@mixin(t)
+	
+body {
+	background: $color;
+}
