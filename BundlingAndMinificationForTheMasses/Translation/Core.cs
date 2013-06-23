@@ -32,6 +32,15 @@ namespace BundlingAndMinificationForTheMasses.Translation
             return null;
         }
 
+        public IEnumerable<string> GetPossibleExtensions(TranslatorType transType)
+        {
+            var extensions = new List<string>();
+            foreach (var trans in GetTranslators(transType))
+                extensions.Add(string.Format(".{0}",trans.FileExtension));
+
+            return extensions;
+        }
+
         public string GetTranslatorMimeType(string filePath)
         {
             var extension = Path.GetExtension(filePath);

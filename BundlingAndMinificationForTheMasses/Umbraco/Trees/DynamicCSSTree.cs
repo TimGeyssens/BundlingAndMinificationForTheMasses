@@ -78,7 +78,7 @@ namespace BundlingAndMinificationForTheMasses.Umbraco.Trees
             //}
 
             //Loop through files
-            var fileInfo = dirInfo.GetFilesByExtensions(".css", ".less", ".scss");
+            var fileInfo = dirInfo.GetFilesByExtensions(new Translation.Core().GetPossibleExtensions(Enums.TranslatorType.StyleSheet).ToArray());
 
             foreach (FileInfo file in fileInfo)
             {
