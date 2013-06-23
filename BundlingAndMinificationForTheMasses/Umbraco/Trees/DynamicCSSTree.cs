@@ -23,8 +23,8 @@ namespace BundlingAndMinificationForTheMasses.Umbraco.Trees
         {
             Javascript.Append(
             @"
-                function openDyanmicCSSFileEditor(virtualPath) {
-                    UmbClientMgr.contentFrame(Config.EditFilePagePath + '?file='+virtualPath +'path=/css/');
+                function openDyanmicCSSFileEditor(fileName) {
+                    UmbClientMgr.contentFrame('../App_Plugins/BundlingAndMinificationForTheMasses/Pages/FileEditor.aspx?file='+fileName +'&path=/css/');
                 }");
         }
         
