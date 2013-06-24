@@ -16,9 +16,9 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BundlingAndMinificationForT
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BundlingAndMinificationForTheMasses.Providers.SassAndSCSS", "BundlingAndMinificationForTheMasses.Providers.SCSS\BundlingAndMinificationForTheMasses.Providers.SassAndSCSS.csproj", "{9FE56583-994F-4286-9BE5-C2F0237D6FB7}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BundlingAndMinificationForTheMasses.Providers.Coffee", "BundlingAndMinificationForTheMasses.Providers.Coffee\BundlingAndMinificationForTheMasses.Providers.Coffee.csproj", "{077CE74A-1B24-4205-BCD8-CAB39A3CD4DF}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BundlingAndMinificationForTheMasses.Providers.CoffeeScript", "BundlingAndMinificationForTheMasses.Providers.Coffee\BundlingAndMinificationForTheMasses.Providers.CoffeeScript.csproj", "{077CE74A-1B24-4205-BCD8-CAB39A3CD4DF}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BundlingAndMinificationForTheMasses.Providers.Type", "BundlingAndMinificationForTheMasses.Providers.Type\BundlingAndMinificationForTheMasses.Providers.Type.csproj", "{034575BA-E003-4C09-BDD2-ECC66B6589C2}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BundlingAndMinificationForTheMasses.Providers.TypeScript", "BundlingAndMinificationForTheMasses.Providers.Type\BundlingAndMinificationForTheMasses.Providers.TypeScript.csproj", "{034575BA-E003-4C09-BDD2-ECC66B6589C2}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
