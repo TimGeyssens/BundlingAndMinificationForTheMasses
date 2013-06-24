@@ -12,7 +12,7 @@ using umbraco.interfaces;
 
 namespace BundlingAndMinificationForTheMasses.Umbraco.Trees
 {
-    [Tree("settings", "stylesheetsNew", "Stylesheets (NEW)")]
+    [Tree("settings", "stylesheetsNew", "Dynamic Stylesheets")]
     public class DynamicCSSTree : BaseTree
     {
         public DynamicCSSTree(string application) : base(application)
@@ -23,8 +23,8 @@ namespace BundlingAndMinificationForTheMasses.Umbraco.Trees
         {
             Javascript.Append(
             @"
-                function openDyanmicCSSFileEditor(virtualPath) {
-                    UmbClientMgr.contentFrame(Config.EditFilePagePath + '?file='+virtualPath +'path=/css/');
+                function openDyanmicCSSFileEditor(fileName) {
+                    UmbClientMgr.contentFrame('../App_Plugins/BundlingAndMinificationForTheMasses/Pages/FileEditor.aspx?file='+fileName +'&path=/css/');
                 }");
         }
         
@@ -78,7 +78,7 @@ namespace BundlingAndMinificationForTheMasses.Umbraco.Trees
             //}
 
             //Loop through files
-            var fileInfo = dirInfo.GetFilesByExtensions(".css", ".less", ".scss");
+            var fileInfo = dirInfo.GetFilesByExtensions(new Translation.Core().GetPossibleExtensions(Enums.TranslatorType.StyleSheet).ToArray());
 
             foreach (FileInfo file in fileInfo)
             {

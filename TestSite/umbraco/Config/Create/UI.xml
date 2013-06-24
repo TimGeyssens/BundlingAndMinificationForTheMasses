@@ -384,5 +384,13 @@
       <delete assembly="BundlingAndMinificationForTheMasses" type="Umbraco.Tasks.StyleBundleTasks" />
     </tasks>
   </nodeType>
-	
+
+  <nodeType alias="initstylesheetsNew">
+    <header>Stylesheet</header>
+    <usercontrol>../../App_Plugins/BundlingAndMinificationForTheMasses/Dialogs/CreateStyleSheet.ascx</usercontrol>
+    <tasks>
+      <!--<create assembly="umbraco" type="StylesheetTasks" />-->
+    </tasks>
+  </nodeType>
+  
 </createUI>
