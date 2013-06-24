@@ -397,8 +397,8 @@
     <Content Include="Services\jqueryFileTree.aspx" />
     <Content Include="Umbraco\Dialogs\CreateScript.ascx" />
     <Content Include="Umbraco\Dialogs\CreateStyleSheet.ascx" />
-    <Content Include="Umbraco\images\less-icon.png" />
-    <Content Include="Umbraco\images\sass-icon.png" />
+    <Content Include="Umbraco\Icons\less-icon.png" />
+    <Content Include="Umbraco\Icons\sass-icon.png" />
     <Content Include="Umbraco\Pages\FileEditor.aspx" />
     <Content Include="Web.config">
       <SubType>Designer</SubType>
@@ -485,7 +485,9 @@ xcopy "$(ProjectDir)Services\*.*" "$(ProjectDir)..\TestSite\App_Plugins\Bundling
 
 xcopy "$(ProjectDir)Umbraco\Dialogs\*.ascx" "$(ProjectDir)..\TestSite\App_Plugins\BundlingAndMinificationForTheMasses\Dialogs\" /Y
 
-xcopy "$(ProjectDir)Umbraco\Pages\*.aspx" "$(ProjectDir)..\TestSite\App_Plugins\BundlingAndMinificationForTheMasses\Pages\" /Y</PostBuildEvent>
+xcopy "$(ProjectDir)Umbraco\Pages\*.aspx" "$(ProjectDir)..\TestSite\App_Plugins\BundlingAndMinificationForTheMasses\Pages\" /Y
+
+xcopy "$(ProjectDir)Umbraco\Icons\*.*" "$(ProjectDir)..\TestSite\App_Plugins\BundlingAndMinificationForTheMasses\Icons\" /Y</PostBuildEvent>
   </PropertyGroup>
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
