@@ -99,7 +99,7 @@ namespace BundlingAndMinificationForTheMasses.Umbraco.Trees
                     //LESS
                     else if (xFileNode.Text.EndsWith(".less"))
                     {
-                        xFileNode.Icon = "../../images/umbraco/less-icon.gif";
+                        xFileNode.Icon = "../../images/umbraco/less-icon.png";
 
                         //Check if child compiled CSS file exists
 
@@ -108,7 +108,7 @@ namespace BundlingAndMinificationForTheMasses.Umbraco.Trees
                     //SASS
                     else if (xFileNode.Text.EndsWith(".scss"))
                     {
-                        xFileNode.Icon = "../../images/umbraco/sass-icon.gif";
+                        xFileNode.Icon = "../../images/umbraco/sass-icon.png";
 
                         //Try and find a CSS version
                         var cssToFind       = xFileNode.Text.Replace(".scss", ".css");
