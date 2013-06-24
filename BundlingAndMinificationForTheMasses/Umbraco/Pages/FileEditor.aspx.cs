@@ -50,7 +50,24 @@ namespace BundlingAndMinificationForTheMasses.Umbraco.Pages
             foreach(var script in transCore.GetTranlatorClientDependencies(path))
                 ClientDependencyLoader.Instance.RegisterDependency(2, script, "UmbracoClient", ClientDependencyType.Javascript);
 
-           
+            //if querystring ?compiled=true
+            if (Request.QueryString["compiled"] == "true")
+            {
+                //Then run JS fucntion disableEditor()
+                var jsString =
+                        "console.log('Disable Editor Function():');" +
+                        "disableEditor();";
+                Page.ClientScript.RegisterStartupScript(this.GetType(), "disableEditorJS", jsString, true);
+
+                //Now set Feedback panel with warning/info message
+                Feedback.Text = "This is a compiled file, and you are unable to edit this file directly. Please edit the compiler file instead.";
+                Feedback.type = Feedback.feedbacktype.notice;
+                Feedback.Visible = true;
+                UmbracoPanel.hasMenu = NamePanel.Visible = PathPanel.Visible = EditorPanel.Visible = false;
+            }
+            
+
+
             TxtName.Text = file;
             var appPath = Request.ApplicationPath;
 
