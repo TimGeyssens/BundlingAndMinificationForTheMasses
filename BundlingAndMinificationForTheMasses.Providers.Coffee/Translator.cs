@@ -22,6 +22,11 @@ namespace BundlingAndMinificationForTheMasses.Providers.CoffeeScript
             get { return "coffee"; }
         }
 
+        public string FileIconPath
+        {
+            get { return "../../../App_Plugins/BundlingAndMinificationForTheMasses/Icons/coffeescript-icon.png"; }
+        }
+
         public string FileMimeType
         {
             get { return "text/x-coffeescript"; }
