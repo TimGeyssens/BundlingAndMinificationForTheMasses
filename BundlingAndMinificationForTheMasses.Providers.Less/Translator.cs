@@ -22,6 +22,11 @@ namespace BundlingAndMinificationForTheMasses.Providers.Less
             get { return "less"; }
         }
 
+        public string FileIconPath
+        {
+            get { return "../../../App_Plugins/BundlingAndMinificationForTheMasses/Icons/less-icon.png"; }
+        }
+
         public string FileMimeType
         {
             get { return "text/x-less"; }
