@@ -5,28 +5,26 @@
     
     <script type="text/javascript">
         function highlightLine(lineNumber) {
-            
-            //This seems to re-inititalize
-            var editor = CodeMirror.fromTextArea(document.getElementById("body_CodeTextBox"), {
-                lineNumbers: true,
-                matchBrackets: true
-            });
 
-            //Log the editor object
-            console.log(editor);
+            //Line number is zero based index
+            var actualLineNumber = lineNumber - 1;
 
-            //Then highlight the line
-            var line = editor.getLineHandle(lineNumber);
-            console.log(line);
+            //Select editor loaded in the DOM
+            var myEditor = $("#body_EditorSource .CodeMirror");
+            console.log(myEditor);
+            console.log(myEditor[0].CodeMirror);
+
+            var codeMirrorEditor = myEditor[0].CodeMirror;
             
             //Set line css class
-            editor.addLineClass(line, 'background', 'line-error');
+            codeMirrorEditor.setLineClass(actualLineNumber, 'background', 'line-error');
         }
     </script>
     
     <style>
         .line-error {
-            background: rgba(255, 10, 10, 0.75);
+            background: #FBC2C4 !important;
+            color: #8a1f11 !important;
         }
     </style>
 
