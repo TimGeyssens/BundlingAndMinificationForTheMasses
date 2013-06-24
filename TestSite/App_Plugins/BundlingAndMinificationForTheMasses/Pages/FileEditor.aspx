@@ -2,6 +2,33 @@
 <%@ Register TagPrefix="umb" Namespace="umbraco.uicontrols" Assembly="controls" %>
 
 <asp:content ID="Content1" contentplaceholderid="body" runat="server">
+    
+    <script type="text/javascript">
+        function highlightLine(lineNumber) {
+            
+            //This seems to re-inititalize
+            var editor = CodeMirror.fromTextArea(document.getElementById("body_CodeTextBox"), {
+                lineNumbers: true,
+                matchBrackets: true
+            });
+
+            //Log the editor object
+            console.log(editor);
+
+            //Then highlight the line
+            var line = editor.getLineHandle(lineNumber);
+            console.log(line);
+            
+            //Set line css class
+            CodeMirror.addLineClass(line, 'background', 'line-error');
+        }
+    </script>
+    
+    <style>
+        .line-error {
+            background: rgba(255, 10, 10, 0.75);
+        }
+    </style>
 
     <umb:UmbracoPanel runat="server" ID="UmbracoPanel" Text="File Editor" hasMenu="true">
                 

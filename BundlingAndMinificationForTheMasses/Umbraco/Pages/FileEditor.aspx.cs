@@ -18,6 +18,9 @@ namespace BundlingAndMinificationForTheMasses.Umbraco.Pages
     {
         private Translation.Core transCore = new Translation.Core();
 
+        public static int ErrorLineNumber = 0;
+
+
         protected override void OnInit(EventArgs e)
         {
             base.OnInit(e);
@@ -107,9 +110,16 @@ namespace BundlingAndMinificationForTheMasses.Umbraco.Pages
                 }
                 else
                 {
+                    var exceptionMessage = errors.First().Message;
+
                     Feedback.type = Feedback.feedbacktype.error;
-                    Feedback.Text = errors.First().Message;
+                    Feedback.Text = exceptionMessage;
                     Feedback.Visible = true;
+
+                    //Get Line number from the exception message - presumes messages always ends with
+                    //Line number: 3
+                    var lineNumber = exceptionMessage.Split(' ').Last().Replace("\r", "").Replace("\n", "");
+                    int.TryParse(lineNumber, out ErrorLineNumber);
 
                     return false;
                 }
@@ -127,7 +137,20 @@ namespace BundlingAndMinificationForTheMasses.Umbraco.Pages
             }
             else
             {
-                ClientTools.ShowSpeechBubble(speechBubbleIcon.error, ui.Text("speechBubbles", "fileErrorHeader"), ui.Text("speechBubbles", "fileErrorText"));
+                //If we have an error - most likely have a line number from the parser - highlight in the editor?
+                if (ErrorLineNumber > 0)
+                {
+                    //Figure how to write or inject some JS to highlight the line with the error...
+                    //highlightLine(ErrorLineNumber);
+
+                    var jsString = 
+                        "console.log('Highlight Line Function(): " + ErrorLineNumber + "');" +
+                        "highlightLine(" + ErrorLineNumber + ");";
+
+                    Page.ClientScript.RegisterStartupScript(this.GetType(), "errorLineJS", jsString, true);
+                }
+
+                ClientTools.ShowSpeechBubble(speechBubbleIcon.error, "Error Compiling", "There was an error compiling your file.");
             }
         }
     }

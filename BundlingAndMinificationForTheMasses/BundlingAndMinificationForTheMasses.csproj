@@ -397,6 +397,8 @@
     <Content Include="Services\jqueryFileTree.aspx" />
     <Content Include="Umbraco\Dialogs\CreateScript.ascx" />
     <Content Include="Umbraco\Dialogs\CreateStyleSheet.ascx" />
+    <Content Include="Umbraco\images\less-icon.png" />
+    <Content Include="Umbraco\images\sass-icon.png" />
     <Content Include="Umbraco\Pages\FileEditor.aspx" />
     <Content Include="Web.config">
       <SubType>Designer</SubType>
