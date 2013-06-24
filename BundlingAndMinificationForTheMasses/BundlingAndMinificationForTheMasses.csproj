@@ -247,6 +247,13 @@
     <Compile Include="Services\jqueryFileTree.aspx.designer.cs">
       <DependentUpon>jqueryFileTree.aspx</DependentUpon>
     </Compile>
+    <Compile Include="Umbraco\Dialogs\CreateScript.ascx.cs">
+      <DependentUpon>CreateScript.ascx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="Umbraco\Dialogs\CreateScript.ascx.designer.cs">
+      <DependentUpon>CreateScript.ascx</DependentUpon>
+    </Compile>
     <Compile Include="Umbraco\Dialogs\CreateStyleSheet.ascx.cs">
       <DependentUpon>CreateStyleSheet.ascx</DependentUpon>
       <SubType>ASPXCodeBehind</SubType>
@@ -388,6 +395,7 @@
     <Content Include="Scripts\underscore.js" />
     <Content Include="Scripts\underscore.min.js" />
     <Content Include="Services\jqueryFileTree.aspx" />
+    <Content Include="Umbraco\Dialogs\CreateScript.ascx" />
     <Content Include="Umbraco\Dialogs\CreateStyleSheet.ascx" />
     <Content Include="Umbraco\Pages\FileEditor.aspx" />
     <Content Include="Web.config">
