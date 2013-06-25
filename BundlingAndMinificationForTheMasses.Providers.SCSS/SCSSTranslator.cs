@@ -22,6 +22,10 @@ namespace BundlingAndMinificationForTheMasses.Providers.SassAndSCSS
             get { return "scss"; }
         }
 
+        public string FileIconPath 
+        {
+            get { return "../../../App_Plugins/BundlingAndMinificationForTheMasses/Icons/sass-icon.png"; }  
+        }
         public string FileMimeType
         {
             get { return "text/x-sass"; }

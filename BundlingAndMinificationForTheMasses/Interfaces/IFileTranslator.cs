@@ -12,6 +12,7 @@ namespace BundlingAndMinificationForTheMasses.Interfaces
         string Name { get; }
         string FileExtension { get; }
         string FileMimeType { get; }
+        string FileIconPath { get; }
         TranslatorType TranslatorType { get; }
 
         IEnumerable<string> EditorClientDependencies { get; }
