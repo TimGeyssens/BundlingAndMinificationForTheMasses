@@ -1,4 +1,4 @@
-# Bundling and minification for the masses #
+# Optimus aka - Bundling and minification for the masses #
 
 UI layer on top of [Asp.net Web Optimization framework](http://aspnetoptimization.codeplex.com/) for [Umbraco](http://umbraco.com/), makes it possible to create script and style bundles from within the Umbraco backoffice. 
 
