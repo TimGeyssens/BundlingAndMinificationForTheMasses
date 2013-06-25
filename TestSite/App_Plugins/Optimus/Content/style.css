@@ -24,3 +24,7 @@
 {
     cursor: pointer;
 }
+
+.panel {
+    width: 100% !important;
+}
