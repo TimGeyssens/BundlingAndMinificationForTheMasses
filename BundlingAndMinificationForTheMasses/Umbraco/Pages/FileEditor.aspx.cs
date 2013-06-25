@@ -63,7 +63,7 @@ namespace BundlingAndMinificationForTheMasses.Umbraco.Pages
                 Feedback.Text = "This is a compiled file, and you are unable to edit this file directly. Please edit the compiler file instead.";
                 Feedback.type = Feedback.feedbacktype.notice;
                 Feedback.Visible = true;
-                UmbracoPanel.hasMenu = NamePanel.Visible = PathPanel.Visible = EditorPanel.Visible = false;
+                UmbracoPanel.hasMenu = false;
             }
             
 

@@ -23,8 +23,8 @@ namespace BundlingAndMinificationForTheMasses.Umbraco.Trees
         {
             Javascript.Append(
             @"
-                function openDyanmicCSSFileEditor(fileName) {
-                    UmbClientMgr.contentFrame('../App_Plugins/BundlingAndMinificationForTheMasses/Pages/FileEditor.aspx?file='+fileName +'&path=/css/&compiled=true');
+                function openDyanmicCSSFileEditor(fileName, compiled) {
+                    UmbClientMgr.contentFrame('../App_Plugins/BundlingAndMinificationForTheMasses/Pages/FileEditor.aspx?file='+ fileName + '&path=/css/&compiled=' + compiled);
                 }");
         }
         
@@ -139,15 +139,19 @@ namespace BundlingAndMinificationForTheMasses.Umbraco.Trees
 
 
                     //JS Action link...
-                    //TODO: JS Action not firing - WHY?!
-                    if (orgPath != string.Empty)
+                    //Only run/set an action if it's empty (as in not been set above as static/compiled file)
+                    if (string.IsNullOrEmpty(xFileNode.Action))
                     {
-                        xFileNode.Action = "javascript:openDyanmicCSSFileEditor('" + orgPath + file.Name + "');";
+                        if (orgPath != string.Empty)
+                        {
+                            xFileNode.Action = "javascript:openDyanmicCSSFileEditor('" + orgPath + file.Name + "', false');";
+                        }
+                        else
+                        {
+                            xFileNode.Action = "javascript:openDyanmicCSSFileEditor('" + file.Name + "', 'false');";
+                        }
                     }
-                    else
-                    {
-                        xFileNode.Action = "javascript:openDyanmicCSSFileEditor('" + file.Name + "');";
-                    }
+                    
 
                     //OnRenderFileNode(ref xFileNode);
                     OnBeforeNodeRender(ref tree, ref xFileNode, EventArgs.Empty);

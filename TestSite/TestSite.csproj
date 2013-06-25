@@ -241,9 +241,52 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="App_Plugins\BundlingAndMinificationForTheMasses\Services\jqueryFileTree.aspx.designer.cs">
+      <DependentUpon>jqueryFileTree.aspx</DependentUpon>
+    </Compile>
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
+    <Content Include="App_Plugins\BundlingAndMinificationForTheMasses\Content\Images\application.png" />
+    <Content Include="App_Plugins\BundlingAndMinificationForTheMasses\Content\Images\code.png" />
+    <Content Include="App_Plugins\BundlingAndMinificationForTheMasses\Content\Images\css.png" />
+    <Content Include="App_Plugins\BundlingAndMinificationForTheMasses\Content\Images\db.png" />
+    <Content Include="App_Plugins\BundlingAndMinificationForTheMasses\Content\Images\directory.png" />
+    <Content Include="App_Plugins\BundlingAndMinificationForTheMasses\Content\Images\doc.png" />
+    <Content Include="App_Plugins\BundlingAndMinificationForTheMasses\Content\Images\file.png" />
+    <Content Include="App_Plugins\BundlingAndMinificationForTheMasses\Content\Images\film.png" />
+    <Content Include="App_Plugins\BundlingAndMinificationForTheMasses\Content\Images\flash.png" />
+    <Content Include="App_Plugins\BundlingAndMinificationForTheMasses\Content\Images\folder_open.png" />
+    <Content Include="App_Plugins\BundlingAndMinificationForTheMasses\Content\Images\html.png" />
+    <Content Include="App_Plugins\BundlingAndMinificationForTheMasses\Content\Images\java.png" />
+    <Content Include="App_Plugins\BundlingAndMinificationForTheMasses\Content\Images\linux.png" />
+    <Content Include="App_Plugins\BundlingAndMinificationForTheMasses\Content\Images\music.png" />
+    <Content Include="App_Plugins\BundlingAndMinificationForTheMasses\Content\Images\pdf.png" />
+    <Content Include="App_Plugins\BundlingAndMinificationForTheMasses\Content\Images\php.png" />
+    <Content Include="App_Plugins\BundlingAndMinificationForTheMasses\Content\Images\picture.png" />
+    <Content Include="App_Plugins\BundlingAndMinificationForTheMasses\Content\Images\ppt.png" />
+    <Content Include="App_Plugins\BundlingAndMinificationForTheMasses\Content\Images\psd.png" />
+    <Content Include="App_Plugins\BundlingAndMinificationForTheMasses\Content\Images\ruby.png" />
+    <Content Include="App_Plugins\BundlingAndMinificationForTheMasses\Content\Images\script.png" />
+    <Content Include="App_Plugins\BundlingAndMinificationForTheMasses\Content\Images\spinner.gif" />
+    <Content Include="App_Plugins\BundlingAndMinificationForTheMasses\Content\Images\txt.png" />
+    <Content Include="App_Plugins\BundlingAndMinificationForTheMasses\Content\Images\xls.png" />
+    <Content Include="App_Plugins\BundlingAndMinificationForTheMasses\Content\Images\zip.png" />
+    <Content Include="App_Plugins\BundlingAndMinificationForTheMasses\Content\jqueryFileTree.css" />
+    <Content Include="App_Plugins\BundlingAndMinificationForTheMasses\Content\style.css" />
+    <Content Include="App_Plugins\BundlingAndMinificationForTheMasses\Dialogs\CreateScript.ascx" />
+    <Content Include="App_Plugins\BundlingAndMinificationForTheMasses\Dialogs\CreateStyleSheet.ascx" />
+    <Content Include="App_Plugins\BundlingAndMinificationForTheMasses\Pages\FileEditor.aspx" />
+    <None Include="App_Plugins\BundlingAndMinificationForTheMasses\Scripts\jquery-2.0.0.intellisense.js" />
+    <Content Include="App_Plugins\BundlingAndMinificationForTheMasses\Scripts\jquery-2.0.0.js" />
+    <Content Include="App_Plugins\BundlingAndMinificationForTheMasses\Scripts\jquery-2.0.0.min.js" />
+    <Content Include="App_Plugins\BundlingAndMinificationForTheMasses\Scripts\jquery-ui-1.10.2.js" />
+    <Content Include="App_Plugins\BundlingAndMinificationForTheMasses\Scripts\jquery-ui-1.10.2.min.js" />
+    <Content Include="App_Plugins\BundlingAndMinificationForTheMasses\Scripts\jqueryFileTree.js" />
+    <Content Include="App_Plugins\BundlingAndMinificationForTheMasses\Scripts\main.js" />
+    <Content Include="App_Plugins\BundlingAndMinificationForTheMasses\Scripts\underscore.js" />
+    <Content Include="App_Plugins\BundlingAndMinificationForTheMasses\Scripts\underscore.min.js" />
+    <Content Include="App_Plugins\BundlingAndMinificationForTheMasses\Services\jqueryFileTree.aspx" />
     <Content Include="bin\amd64\Microsoft.VC90.CRT\msvcr90.dll" />
     <Content Include="bin\amd64\Microsoft.VC90.CRT\README_ENU.txt" />
     <Content Include="bin\amd64\sqlceca40.dll" />
@@ -370,6 +413,10 @@
     <Content Include="bin\amd64\Microsoft.VC90.CRT\Microsoft.VC90.CRT.manifest" />
   </ItemGroup>
   <ItemGroup>
+    <Content Include="App_Plugins\BundlingAndMinificationForTheMasses\config\bundles.config" />
+    <Content Include="App_Plugins\BundlingAndMinificationForTheMasses\Scripts\jquery-2.0.0.min.map" />
+    <Content Include="App_Plugins\BundlingAndMinificationForTheMasses\Views\Index.cshtml" />
+    <Content Include="App_Plugins\BundlingAndMinificationForTheMasses\Views\Web.config" />
     <None Include="BundleTransformer.Configuration.xsd">
       <SubType>Designer</SubType>
     </None>

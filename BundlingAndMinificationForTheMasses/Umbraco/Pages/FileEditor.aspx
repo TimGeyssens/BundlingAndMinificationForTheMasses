@@ -21,18 +21,27 @@
     }
 
     function disableEditor() {
+        //Wait until DOM loaded - hopefully CodeMirror loaded as well
+        $(document).ready(function () {
+            if (typeof CodeMirror != 'undefined') {
+
+                console.log("Found CodeMirror");
+
+                //Select editor loaded in the DOM
+                var myEditor = $("#body_EditorSource .CodeMirror");
+                console.log(myEditor);
+                console.log(myEditor[0].CodeMirror);
+
+                var codeMirrorEditor = myEditor[0].CodeMirror;
+
+                //Set editor to readonly (nocursor - can't even select)
+                codeMirrorEditor.setOption("readOnly", "nocursor");
+                //codeMirrorEditor.readOnly = "nocursor";
+            } else {
+                console.log("Can't find CodeMirror");
+            }
+        });
         
-        //Need to check if CodeMirror has loaded first...
-
-        //Select editor loaded in the DOM
-        var myEditor = $("#body_EditorSource .CodeMirror");
-        console.log(myEditor);
-        console.log(myEditor[0].CodeMirror);
-
-        var codeMirrorEditor = myEditor[0].CodeMirror;
-
-        //Set editor to readonly
-        codeMirrorEditor.readOnly = true;
     }
 </script>
     
