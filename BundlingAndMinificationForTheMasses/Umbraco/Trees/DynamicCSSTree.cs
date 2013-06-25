@@ -90,53 +90,9 @@ namespace Optimus.Umbraco.Trees
                     xFileNode.OpenIcon      = "doc.gif";
                     xFileNode.Menu          = new List<IAction> { ActionDelete.Instance };
 
-                    //CSS
-                    if (xFileNode.Text.EndsWith(".css"))
-                    {
-                        xFileNode.Icon = "../../images/umbraco/settingCss.gif";
-                    }
-                       
-                    //LESS
-                    else if (xFileNode.Text.EndsWith(".less"))
-                    {
-                        xFileNode.Icon = "../../images/umbraco/less-icon.png";
+                    xFileNode.Icon = new Optimus.Translation.Core().GetTranslatorTreeIconPath(file.Name);
 
-                        //Check if child compiled CSS file exists
-
-                    }   
                     
-                    //SASS
-                    else if (xFileNode.Text.EndsWith(".scss"))
-                    {
-                        xFileNode.Icon = "../../images/umbraco/sass-icon.png";
-
-                        //Try and find a CSS version
-                        var cssToFind       = xFileNode.Text.Replace(".scss", ".css");
-                        var findStaticCSS   = fileInfo.SingleOrDefault(x => x.Name == cssToFind);
-
-                        if (findStaticCSS != null)
-                        {
-                            //Found the static CSS file on disk
-
-                            //Remove the item from the tree if it exists
-                            var itemInTree = tree.treeCollection.SingleOrDefault(x => x.Text == cssToFind);
-
-                            //Check we found the item in the tree collection
-                            if (itemInTree != null)
-                            {
-                                //Remove the item from the tree collection
-                                tree.treeCollection.Remove(itemInTree);
-                            }
-
-                            //Now add the item as a child node
-                            xFileNode.HasChildren = true;
-
-                            //TODO: TIM Can you help with this Tree Service URL to list the static CSS file as the child node?
-                            xFileNode.Source = GetTreeServiceUrl(orgPath + itemInTree.Text);
-
-                        }
-                    }
-
 
                     //JS Action link...
                     //Only run/set an action if it's empty (as in not been set above as static/compiled file)
@@ -178,10 +134,7 @@ namespace Optimus.Umbraco.Trees
             rootNode.Menu       = new List<IAction> { ActionNew.Instance, ActionRefresh.Instance };
         }
 
-        protected override void OnAfterNodeRender(ref XmlTree sender, ref XmlTreeNode node, EventArgs e)
-        {
-            
-        }
+       
     }
 
     

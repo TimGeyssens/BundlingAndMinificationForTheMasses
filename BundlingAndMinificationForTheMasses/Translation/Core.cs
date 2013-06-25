@@ -32,6 +32,17 @@ namespace Optimus.Translation
             return null;
         }
 
+        public string GetTranslatorTreeIconPath(string filePath)
+        {
+            var extension = Path.GetExtension(filePath);
+            extension = extension.Substring(1, extension.Length - 1);
+            var translator = GetTranslator(extension);
+            if (translator != null)
+               return translator.FileIconPath;
+
+            return null;
+        }
+
         public IEnumerable<string> GetPossibleExtensions(TranslatorType transType)
         {
             var extensions = new List<string>();
