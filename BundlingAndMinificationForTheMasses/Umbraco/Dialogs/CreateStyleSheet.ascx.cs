@@ -18,7 +18,7 @@ namespace Optimus.Umbraco.Dialogs
 
             if (!Page.IsPostBack)
             {
-                //styleSheetType.Items.Add(new ListItem("Plain stylesheet", "css"));
+                styleSheetType.Items.Add(new ListItem("Plain stylesheet", "css"));
 
                 foreach (var trans in new Translation.Core().GetStyleSheetTranslators())
                 {
