@@ -300,8 +300,10 @@
     <None Include="Scripts\jquery-2.0.0.intellisense.js" />
     <Content Include="Content\images\application.png" />
     <Content Include="Content\images\code.png" />
+    <Content Include="Content\images\cross.png" />
     <Content Include="Content\images\css.png" />
     <Content Include="Content\images\db.png" />
+    <Content Include="Content\images\delete.png" />
     <Content Include="Content\images\directory.png" />
     <Content Include="Content\images\doc.png" />
     <Content Include="Content\images\file.png" />
