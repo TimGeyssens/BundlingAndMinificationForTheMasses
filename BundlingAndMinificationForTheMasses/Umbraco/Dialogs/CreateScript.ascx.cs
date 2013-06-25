@@ -18,7 +18,7 @@ namespace Optimus.Umbraco.Dialogs
 
             if (!Page.IsPostBack)
             {
-                scriptType.Items.Add(new ListItem("Plain script", "js"));
+                //scriptType.Items.Add(new ListItem("Plain script", "js"));
 
                 foreach (var trans in new Translation.Core().GetScriptTranslators())
                 {
