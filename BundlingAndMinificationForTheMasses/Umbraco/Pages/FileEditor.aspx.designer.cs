@@ -7,7 +7,8 @@
 // </auto-generated>
 //------------------------------------------------------------------------------
 
-namespace BundlingAndMinificationForTheMasses.Umbraco.Pages {
+namespace Optimus.Umbraco.Pages
+{
     
     
     public partial class FileEditor {

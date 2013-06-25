@@ -8,7 +8,7 @@ using umbraco;
 using umbraco.BasePages;
 using System.IO;
 
-namespace BundlingAndMinificationForTheMasses.Umbraco.Dialogs
+namespace Optimus.Umbraco.Dialogs
 {
     public partial class CreateScript : System.Web.UI.UserControl
     {

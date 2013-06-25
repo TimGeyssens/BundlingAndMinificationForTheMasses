@@ -5,7 +5,7 @@ using System.Web;
 using System.Web.Mvc;
 using System.Web.Routing;
 
-namespace BundlingAndMinificationForTheMasses
+namespace Optimus
 {
     public class RouteConfig
     {
@@ -14,7 +14,7 @@ namespace BundlingAndMinificationForTheMasses
            
             routes.MapRoute(
                 name: "Bundle",
-                url: "App_Plugins/BundlingAndMinificationForTheMasses/{action}/{id}",
+                url: "App_Plugins/Optimus/{action}/{id}",
                 defaults: new { controller = "Bundle", action = "Index", id = UrlParameter.Optional }
             );
         }

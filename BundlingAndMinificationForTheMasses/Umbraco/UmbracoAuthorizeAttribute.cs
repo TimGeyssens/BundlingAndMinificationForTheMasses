@@ -4,7 +4,7 @@ using System.Web.Mvc;
 using System.Web.Security;
 using Umbraco.Core;
 
-namespace BundlingAndMinificationForTheMasses.Umbraco
+namespace Optimus.Umbraco
 {
     public class UmbracoAuthorizeAttribute : AuthorizeAttribute
     {

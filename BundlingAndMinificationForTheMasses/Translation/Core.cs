@@ -1,13 +1,13 @@
 ﻿using BundleTransformer.Core.Translators;
-using BundlingAndMinificationForTheMasses.Enums;
-using BundlingAndMinificationForTheMasses.Interfaces;
+using Optimus.Enums;
+using Optimus.Interfaces;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Web;
 
-namespace BundlingAndMinificationForTheMasses.Translation
+namespace Optimus.Translation
 {
     public class Core
     {

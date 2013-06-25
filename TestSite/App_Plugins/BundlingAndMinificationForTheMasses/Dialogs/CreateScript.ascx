@@ -1,4 +1,4 @@
-﻿<%@ Control Language="C#" AutoEventWireup="true" CodeBehind="CreateScript.ascx.cs" Inherits="BundlingAndMinificationForTheMasses.Umbraco.Dialogs.CreateScript" %>
+﻿<%@ Control Language="C#" AutoEventWireup="true" CodeBehind="CreateScript.ascx.cs" Inherits="Optimus.Umbraco.Dialogs.CreateScript" %>
 <input type="hidden" name="nodeType" value="-1"/>
 
 <%=umbraco.ui.Text("name")%>: <asp:RequiredFieldValidator id="RequiredFieldValidator1" ErrorMessage="*" ControlToValidate="rename" runat="server">*</asp:RequiredFieldValidator><br />

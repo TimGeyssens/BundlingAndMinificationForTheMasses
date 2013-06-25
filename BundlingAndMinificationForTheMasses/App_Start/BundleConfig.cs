@@ -7,7 +7,7 @@ using System.Xml.Linq;
 using BundleTransformer.Core.Orderers;
 using BundleTransformer.Core.Transformers;
 
-namespace BundlingAndMinificationForTheMasses
+namespace Optimus
 {
     public class BundleConfig
     {

@@ -4,7 +4,7 @@ using System.IO;
 using System.Linq;
 using System.Web;
 
-namespace BundlingAndMinificationForTheMasses.Umbraco.Trees
+namespace Optimus.Umbraco.Trees
 {
     public static class ExtensionMethods
     {

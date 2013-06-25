@@ -7,7 +7,7 @@ using System.Web.Optimization;
 using System.Web.Routing;
 using Umbraco.Core;
 
-namespace BundlingAndMinificationForTheMasses.Umbraco
+namespace Optimus.Umbraco
 {
     public class StartUpHandlers : IApplicationEventHandler
     {

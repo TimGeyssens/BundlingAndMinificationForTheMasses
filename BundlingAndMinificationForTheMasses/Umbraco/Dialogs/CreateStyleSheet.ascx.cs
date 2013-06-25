@@ -8,7 +8,7 @@ using System.Web.UI.WebControls;
 using umbraco;
 using umbraco.BasePages;
 
-namespace BundlingAndMinificationForTheMasses.Umbraco.Dialogs
+namespace Optimus.Umbraco.Dialogs
 {
     public partial class CreateStyleSheet : System.Web.UI.UserControl
     {

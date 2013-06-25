@@ -4,11 +4,11 @@ using System.Linq;
 using System.Web;
 using System.Web.Mvc;
 using System.Xml.Linq;
-using BundlingAndMinificationForTheMasses.Models;
-using BundlingAndMinificationForTheMasses.Umbraco;
+using Optimus.Models;
+using Optimus.Umbraco;
 using Umbraco.Web.Mvc;
 
-namespace BundlingAndMinificationForTheMasses.Controllers
+namespace Optimus.Controllers
 {
     public class BundleController : UmbracoAuthorizedController
     {

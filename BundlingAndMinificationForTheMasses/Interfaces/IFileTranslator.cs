@@ -1,11 +1,11 @@
 ﻿using BundleTransformer.Core.Translators;
-using BundlingAndMinificationForTheMasses.Enums;
+using Optimus.Enums;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
-namespace BundlingAndMinificationForTheMasses.Interfaces
+namespace Optimus.Interfaces
 {
     public interface IFileTranslator
     {

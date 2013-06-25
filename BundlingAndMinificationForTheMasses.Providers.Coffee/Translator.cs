@@ -1,14 +1,14 @@
 ﻿using BundleTransformer.CoffeeScript.Translators;
 using BundleTransformer.Core.Assets;
 using BundleTransformer.Core.Translators;
-using BundlingAndMinificationForTheMasses.Interfaces;
+using Optimus.Interfaces;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Web;
 
-namespace BundlingAndMinificationForTheMasses.Providers.CoffeeScript
+namespace Optimus.Providers.CoffeeScript
 {
     public class Translator : IFileTranslator
     {
@@ -24,7 +24,7 @@ namespace BundlingAndMinificationForTheMasses.Providers.CoffeeScript
 
         public string FileIconPath
         {
-            get { return "../../../App_Plugins/BundlingAndMinificationForTheMasses/Icons/coffeescript-icon.png"; }
+            get { return "../../../App_Plugins/Optimus/Icons/coffeescript-icon.png"; }
         }
 
         public string FileMimeType

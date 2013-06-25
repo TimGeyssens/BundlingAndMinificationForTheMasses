@@ -10,7 +10,7 @@ using umbraco.BusinessLogic;
 using umbraco.interfaces;
 using umbraco.cms.businesslogic.packager.standardPackageActions;
 
-namespace BundlingAndMinificationForTheMasses.Umbraco.Installer
+namespace Optimus.Umbraco.Installer
 {
     public class AddUIPackageAction : IPackageAction 
     {

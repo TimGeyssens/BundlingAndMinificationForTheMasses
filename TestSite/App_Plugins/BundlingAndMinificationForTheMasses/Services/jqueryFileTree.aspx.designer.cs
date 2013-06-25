@@ -7,7 +7,7 @@
 // </auto-generated>
 //------------------------------------------------------------------------------
 
-namespace BundlingAndMinificationForTheMasses
+namespace Optimus
 {
 
 

@@ -1,4 +1,4 @@
-﻿using BundlingAndMinificationForTheMasses.Interfaces;
+﻿using Optimus.Interfaces;
 using ClientDependency.Core;
 using ClientDependency.Core.Controls;
 using System;
@@ -12,7 +12,7 @@ using umbraco;
 using umbraco.BasePages;
 using umbraco.uicontrols;
 
-namespace BundlingAndMinificationForTheMasses.Umbraco.Pages
+namespace Optimus.Umbraco.Pages
 {
     public partial class FileEditor : UmbracoEnsuredPage
     {

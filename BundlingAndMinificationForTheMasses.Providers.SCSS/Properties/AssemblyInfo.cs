@@ -5,11 +5,11 @@ using System.Runtime.InteropServices;
 // General Information about an assembly is controlled through the following 
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
-[assembly: AssemblyTitle("BundlingAndMinificationForTheMasses.Providers.SCSS")]
+[assembly: AssemblyTitle("Optimus.Providers.SCSS")]
 [assembly: AssemblyDescription("")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("")]
-[assembly: AssemblyProduct("BundlingAndMinificationForTheMasses.Providers.SCSS")]
+[assembly: AssemblyProduct("Optimus.Providers.SCSS")]
 [assembly: AssemblyCopyright("Copyright ©  2013")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]

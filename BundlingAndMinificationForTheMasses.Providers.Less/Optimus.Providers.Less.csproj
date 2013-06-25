@@ -11,8 +11,8 @@
     <ProjectTypeGuids>{E3E379DF-F4C6-4180-9B81-6769533ABE47};{349c5851-65df-11da-9384-00065b846f21};{fae04ec0-301f-11d3-bf4b-00c04f79efbc}</ProjectTypeGuids>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>BundlingAndMinificationForTheMasses.Providers.Less</RootNamespace>
-    <AssemblyName>BundlingAndMinificationForTheMasses.Providers.Less</AssemblyName>
+    <RootNamespace>Optimus.Providers.Less</RootNamespace>
+    <AssemblyName>Optimus.Providers.Less</AssemblyName>
     <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
     <MvcBuildViews>false</MvcBuildViews>
     <UseIISExpress>true</UseIISExpress>
@@ -149,9 +149,9 @@
     <Content Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\BundlingAndMinificationForTheMasses\BundlingAndMinificationForTheMasses.csproj">
+    <ProjectReference Include="..\BundlingAndMinificationForTheMasses\Optimus.csproj">
       <Project>{68a4fd95-45a1-4cc1-aff1-7c2fac5d26af}</Project>
-      <Name>BundlingAndMinificationForTheMasses</Name>
+      <Name>Optimus</Name>
     </ProjectReference>
   </ItemGroup>
   <PropertyGroup>
@@ -184,7 +184,7 @@
   </ProjectExtensions>
   <Import Project="$(SolutionDir)\.nuget\nuget.targets" />
   <PropertyGroup>
-    <PostBuildEvent>xcopy "$(ProjectDir)bin\BundlingAndMinificationForTheMasses.Providers.Less*" "$(ProjectDir)..\TestSite\bin\" /Y
+    <PostBuildEvent>xcopy "$(ProjectDir)bin\Optimus.Providers.Less*" "$(ProjectDir)..\TestSite\bin\" /Y
 
 xcopy "$(ProjectDir)bin\BundleTransformer.Less.*" "$(ProjectDir)..\TestSite\bin\" /Y
 

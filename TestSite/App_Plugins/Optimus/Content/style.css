@@ -1,0 +1,26 @@
+﻿#file_tree,#selected_files
+{
+    width: 300px;
+    height: 500px;
+    overflow: scroll;
+    border-top: solid 1px #BBB;
+    border-left: solid 1px #BBB;
+    border-bottom: solid 1px #FFF;
+    border-right: solid 1px #FFF;
+    background: #FFF;
+    float: left;
+}
+
+    #selected_files {
+        padding-top: 0px;
+        margin-top: 0px;
+}
+
+#selected_files li {
+    cursor: move;
+}
+
+#selected_files li span
+{
+    cursor: pointer;
+}

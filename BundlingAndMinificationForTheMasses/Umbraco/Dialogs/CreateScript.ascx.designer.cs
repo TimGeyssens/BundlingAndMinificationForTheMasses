@@ -7,7 +7,8 @@
 // </auto-generated>
 //------------------------------------------------------------------------------
 
-namespace BundlingAndMinificationForTheMasses.Umbraco.Dialogs {
+namespace Optimus.Umbraco.Dialogs
+{
     
     
     public partial class CreateScript {

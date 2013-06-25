@@ -11,8 +11,8 @@
     <ProjectTypeGuids>{E3E379DF-F4C6-4180-9B81-6769533ABE47};{349c5851-65df-11da-9384-00065b846f21};{fae04ec0-301f-11d3-bf4b-00c04f79efbc}</ProjectTypeGuids>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>BundlingAndMinificationForTheMasses</RootNamespace>
-    <AssemblyName>BundlingAndMinificationForTheMasses</AssemblyName>
+    <RootNamespace>Optimus</RootNamespace>
+    <AssemblyName>Optimus</AssemblyName>
     <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
     <MvcBuildViews>false</MvcBuildViews>
     <UseIISExpress>true</UseIISExpress>
@@ -455,7 +455,7 @@
   <Import Project="$(SolutionDir)\.nuget\nuget.targets" />
   <PropertyGroup>
     <PostBuildEvent>
-xcopy "$(ProjectDir)bin\BundlingAndMinificationForTheMasses.*" "$(ProjectDir)..\TestSite\bin\" /Y
+xcopy "$(ProjectDir)bin\Optimus.*" "$(ProjectDir)..\TestSite\bin\" /Y
 
 xcopy "$(ProjectDir)bin\System.Web.Optimization.*" "$(ProjectDir)..\TestSite\bin\" /Y
 
@@ -473,21 +473,21 @@ xcopy "$(ProjectDir)bin\Antlr3.Runtime*" "$(ProjectDir)..\TestSite\bin\" /Y
 
 
 
-xcopy "$(ProjectDir)Views\*.*" "$(ProjectDir)..\TestSite\App_Plugins\BundlingAndMinificationForTheMasses\Views\" /Y   
+xcopy "$(ProjectDir)Views\*.*" "$(ProjectDir)..\TestSite\App_Plugins\Optimus\Views\" /Y   
 
-xcopy "$(ProjectDir)Scripts\*.*" "$(ProjectDir)..\TestSite\App_Plugins\BundlingAndMinificationForTheMasses\Scripts\" /Y   
+xcopy "$(ProjectDir)Scripts\*.*" "$(ProjectDir)..\TestSite\App_Plugins\Optimus\Scripts\" /Y   
 
-xcopy "$(ProjectDir)Content\*.*" "$(ProjectDir)..\TestSite\App_Plugins\BundlingAndMinificationForTheMasses\Content\" /Y   
+xcopy "$(ProjectDir)Content\*.*" "$(ProjectDir)..\TestSite\App_Plugins\Optimus\Content\" /Y   
 
-xcopy "$(ProjectDir)Content\Images\*.*" "$(ProjectDir)..\TestSite\App_Plugins\BundlingAndMinificationForTheMasses\Content\Images\" /Y   
+xcopy "$(ProjectDir)Content\Images\*.*" "$(ProjectDir)..\TestSite\App_Plugins\Optimus\Content\Images\" /Y   
 
-xcopy "$(ProjectDir)Services\*.*" "$(ProjectDir)..\TestSite\App_Plugins\BundlingAndMinificationForTheMasses\Services\" /Y
+xcopy "$(ProjectDir)Services\*.*" "$(ProjectDir)..\TestSite\App_Plugins\Optimus\Services\" /Y
 
-xcopy "$(ProjectDir)Umbraco\Dialogs\*.ascx" "$(ProjectDir)..\TestSite\App_Plugins\BundlingAndMinificationForTheMasses\Dialogs\" /Y
+xcopy "$(ProjectDir)Umbraco\Dialogs\*.ascx" "$(ProjectDir)..\TestSite\App_Plugins\Optimus\Dialogs\" /Y
 
-xcopy "$(ProjectDir)Umbraco\Pages\*.aspx" "$(ProjectDir)..\TestSite\App_Plugins\BundlingAndMinificationForTheMasses\Pages\" /Y
+xcopy "$(ProjectDir)Umbraco\Pages\*.aspx" "$(ProjectDir)..\TestSite\App_Plugins\Optimus\Pages\" /Y
 
-xcopy "$(ProjectDir)Umbraco\Icons\*.*" "$(ProjectDir)..\TestSite\App_Plugins\BundlingAndMinificationForTheMasses\Icons\" /Y</PostBuildEvent>
+xcopy "$(ProjectDir)Umbraco\Icons\*.*" "$(ProjectDir)..\TestSite\App_Plugins\Optimus\Icons\" /Y</PostBuildEvent>
   </PropertyGroup>
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

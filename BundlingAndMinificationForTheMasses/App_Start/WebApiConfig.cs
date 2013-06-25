@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Web.Http;
 
-namespace BundlingAndMinificationForTheMasses
+namespace Optimus
 {
     public static class WebApiConfig
     {
@@ -11,7 +11,7 @@ namespace BundlingAndMinificationForTheMasses
         {
             config.Routes.MapHttpRoute(
                 name: "BundleApi",
-                routeTemplate: "App_Plugins/BundlingAndMinificationForTheMasses/api/{action}/{id}",
+                routeTemplate: "App_Plugins/Optimus/api/{action}/{id}",
                 defaults: new {  controller = "BundleApi", id = RouteParameter.Optional }
             );
         }

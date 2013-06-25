@@ -5,7 +5,7 @@ using System.Web;
 using System.Xml.Linq;
 using umbraco.interfaces;
 
-namespace BundlingAndMinificationForTheMasses.Umbraco.Tasks
+namespace Optimus.Umbraco.Tasks
 {
     public class ScriptBundleTasks : BaseBundleTasks
     {

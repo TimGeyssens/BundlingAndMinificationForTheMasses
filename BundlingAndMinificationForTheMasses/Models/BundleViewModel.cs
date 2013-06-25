@@ -4,7 +4,7 @@ using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Web;
 
-namespace BundlingAndMinificationForTheMasses.Models
+namespace Optimus.Models
 {
     public class BundleViewModel
     {

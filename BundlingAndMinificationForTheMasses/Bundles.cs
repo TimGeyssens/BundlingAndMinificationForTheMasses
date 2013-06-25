@@ -3,9 +3,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Web;
 using System.Xml.Linq;
-using BundlingAndMinificationForTheMasses.Models;
+using Optimus.Models;
 
-namespace BundlingAndMinificationForTheMasses
+namespace Optimus
 {
     public class Bundles
     {

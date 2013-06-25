@@ -4,10 +4,10 @@ using System.Linq;
 using System.Web;
 using System.Web.Http;
 using System.Xml.Linq;
-using BundlingAndMinificationForTheMasses.Models;
-using BundlingAndMinificationForTheMasses.Umbraco;
+using Optimus.Models;
+using Optimus.Umbraco;
 
-namespace BundlingAndMinificationForTheMasses.Controllers
+namespace Optimus.Controllers
 {
     [UmbracoAuthorize]
     public class BundleApiController: ApiController

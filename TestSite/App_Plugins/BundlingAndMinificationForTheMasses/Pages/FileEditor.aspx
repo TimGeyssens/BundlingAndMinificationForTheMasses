@@ -1,4 +1,4 @@
-﻿<%@ Page Language="C#" AutoEventWireup="true" CodeBehind="FileEditor.aspx.cs" Inherits="BundlingAndMinificationForTheMasses.Umbraco.Pages.FileEditor" MasterPageFile="../../../umbraco/masterpages/umbracoPage.Master"%>
+﻿<%@ Page Language="C#" AutoEventWireup="true" CodeBehind="FileEditor.aspx.cs" Inherits="Optimus.Umbraco.Pages.FileEditor" MasterPageFile="../../../umbraco/masterpages/umbracoPage.Master"%>
 <%@ Register TagPrefix="umb" Namespace="umbraco.uicontrols" Assembly="controls" %>
 
 <asp:content ID="Content1" contentplaceholderid="body" runat="server">

@@ -10,7 +10,7 @@ using umbraco.businesslogic;
 using umbraco.cms.presentation.Trees;
 using umbraco.interfaces;
 
-namespace BundlingAndMinificationForTheMasses.Umbraco.Trees
+namespace Optimus.Umbraco.Trees
 {
     [Tree("settings", "stylesheetsNew", "Dynamic Stylesheets")]
     public class DynamicCSSTree : BaseTree
@@ -24,7 +24,7 @@ namespace BundlingAndMinificationForTheMasses.Umbraco.Trees
             Javascript.Append(
             @"
                 function openDyanmicCSSFileEditor(fileName, compiled) {
-                    UmbClientMgr.contentFrame('../App_Plugins/BundlingAndMinificationForTheMasses/Pages/FileEditor.aspx?file='+ fileName + '&path=/css/&compiled=' + compiled);
+                    UmbClientMgr.contentFrame('../App_Plugins/Optimus/Pages/FileEditor.aspx?file='+ fileName + '&path=/css/&compiled=' + compiled);
                 }");
         }
         

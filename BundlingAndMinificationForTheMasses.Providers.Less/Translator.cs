@@ -1,14 +1,14 @@
 ﻿using BundleTransformer.Core.Assets;
 using BundleTransformer.Core.Translators;
 using BundleTransformer.Less.Translators;
-using BundlingAndMinificationForTheMasses.Interfaces;
+using Optimus.Interfaces;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Web;
 
-namespace BundlingAndMinificationForTheMasses.Providers.Less
+namespace Optimus.Providers.Less
 {
     public class Translator: IFileTranslator
     {
@@ -24,7 +24,7 @@ namespace BundlingAndMinificationForTheMasses.Providers.Less
 
         public string FileIconPath
         {
-            get { return "../../../App_Plugins/BundlingAndMinificationForTheMasses/Icons/less-icon.png"; }
+            get { return "../../../App_Plugins/Optimus/Icons/less-icon.png"; }
         }
 
         public string FileMimeType

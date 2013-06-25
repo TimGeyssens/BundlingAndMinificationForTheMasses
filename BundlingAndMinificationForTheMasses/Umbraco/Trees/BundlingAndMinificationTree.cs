@@ -7,7 +7,7 @@ using umbraco.businesslogic;
 using umbraco.cms.presentation.Trees;
 using umbraco.interfaces;
 
-namespace BundlingAndMinificationForTheMasses.Umbraco.Trees
+namespace Optimus.Umbraco.Trees
 {
     [Tree("settings", "bundlingAndMinificationTree", "Bundling")]
     public class BundlingAndMinificationTree : BaseTree
@@ -116,7 +116,7 @@ namespace BundlingAndMinificationForTheMasses.Umbraco.Trees
         {
             Javascript.Append(
                @"function openBundlingAndMinificationEditPage(virtualPath,bundleType) {
-                 UmbClientMgr.contentFrame('../App_Plugins/BundlingAndMinificationForTheMasses/Index?virtualPath='+virtualPath +'&bundleType=' + bundleType);
+                 UmbClientMgr.contentFrame('../App_Plugins/Optimus/Index?virtualPath='+virtualPath +'&bundleType=' + bundleType);
     }       ");
         }
     }

@@ -1,14 +1,14 @@
 ﻿using BundleTransformer.Core.Assets;
 using BundleTransformer.Core.Translators;
 using BundleTransformer.SassAndScss.Translators;
-using BundlingAndMinificationForTheMasses.Interfaces;
+using Optimus.Interfaces;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Web;
 
-namespace BundlingAndMinificationForTheMasses.Providers.SassAndSCSS
+namespace Optimus.Providers.SassAndSCSS
 {
     public class SCSSTranslator : IFileTranslator
     {
@@ -24,7 +24,7 @@ namespace BundlingAndMinificationForTheMasses.Providers.SassAndSCSS
 
         public string FileIconPath 
         {
-            get { return "../../../App_Plugins/BundlingAndMinificationForTheMasses/Icons/sass-icon.png"; }  
+            get { return "../../../App_Plugins/Optimus/Icons/sass-icon.png"; }  
         }
         public string FileMimeType
         {
