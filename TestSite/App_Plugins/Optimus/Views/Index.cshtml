@@ -25,6 +25,8 @@
     <script src="scripts/jqueryFileTree.js"></script>
     <script src="scripts/underscore.js"></script>
    
+    <!-- Umbraco SpeechBubble -->
+
     <!-- Umbraco UI -->
     <link href="/umbraco_client/ui/default.css" rel="stylesheet" />
     <link href="/umbraco_client/menuicon/style.css" rel="stylesheet" />
@@ -88,6 +90,7 @@
             //Make list sortable & run FillData()    
             $("#selected_files").sortable();
             FillData();
+            
 
             //Save
             $('#save').click(function(event) {
@@ -108,7 +111,7 @@
                         //Saved file
                         console.log("Saved");
                         //Show notification success bubble
-                        UmbSpeechBubble.ShowMessage("Info", "Saved Bundle", "Bundle successfully saved");
+                        UmbClientMgr.mainWindow().UmbSpeechBubble.ShowMessage('save', 'Saved Bundle', 'Bundle successfully saved');
                     }
                 });
                 event.preventDefault();
