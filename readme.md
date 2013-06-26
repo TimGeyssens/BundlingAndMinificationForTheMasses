@@ -29,9 +29,56 @@ To install an addon package goto the Installed packages in the Umbraco backoffic
 ## Files Installed
 The following files are installed for the base Optimus package:
 
-* /App_Plugins/Optimus/
-* /App_Plugins/Optimus/
-* 
+* /App_Plugins/Optimus/config/bundles.config
+* /App_Plugins/Optimus/content/jQueryFileTree.css
+* /App_Plugins/Optimus/content/style.css
+* /App_Plugins/Optimus/content/images/application.png
+* /App_Plugins/Optimus/content/images/code.png
+* /App_Plugins/Optimus/content/images/css.png
+* /App_Plugins/Optimus/content/images/db.png
+* /App_Plugins/Optimus/content/images/directory.png
+* /App_Plugins/Optimus/content/images/doc.png
+* /App_Plugins/Optimus/content/images/file.png
+* /App_Plugins/Optimus/content/images/film.png
+* /App_Plugins/Optimus/content/images/flash.png
+* /App_Plugins/Optimus/content/images/folder_open.png
+* /App_Plugins/Optimus/content/images/html.png
+* /App_Plugins/Optimus/content/images/java.png
+* /App_Plugins/Optimus/content/images/linux.png
+* /App_Plugins/Optimus/content/images/music.png
+* /App_Plugins/Optimus/content/images/pdf.png
+* /App_Plugins/Optimus/content/images/php.png
+* /App_Plugins/Optimus/content/images/picture.png
+* /App_Plugins/Optimus/content/images/ppt.png
+* /App_Plugins/Optimus/content/images/psd.png
+* /App_Plugins/Optimus/content/images/ruby.png
+* /App_Plugins/Optimus/content/images/script.png
+* /App_Plugins/Optimus/content/images/spinner.png
+* /App_Plugins/Optimus/content/images/txt.png
+* /App_Plugins/Optimus/content/images/application.png
+* /App_Plugins/Optimus/content/images/xls.png
+* /App_Plugins/Optimus/content/images/zip.png
+* /App_Plugins/Optimus/dialogs/CreateScript.ascx
+* /App_Plugins/Optimus/dialogs/CreateStyleSheet.ascx
+* /App_Plugins/Optimus/pages/FileEditor.aspx
+* /App_Plugins/Optimus/scripts/jquery-2.0.0.intellisense.js
+* /App_Plugins/Optimus/scripts/jquery-2.0.0.js
+* /App_Plugins/Optimus/scripts/jquery-2.0.0.min.js
+* /App_Plugins/Optimus/scripts/jquery-2.0.0.min.map
+* /App_Plugins/Optimus/scripts/jquery-ui-1.10.2.js
+* /App_Plugins/Optimus/scripts/jquery-ui-1.10.2.min.js
+* /App_Plugins/Optimus/scripts/jqueryFileTree.js
+* /App_Plugins/Optimus/scripts/main.js
+* /App_Plugins/Optimus/scripts/underscore.js
+* /App_Plugins/Optimus/scripts/underscore.min.js
+* /App_Plugins/Optimus/services/jqueryFileTree.aspx
+* /App_Plugins/Optimus/views/index.cshtml
+* /App_Plugins/Optimus/views/web.config
+* /bin/Optimus.dll
+* /bin/Optimus.pdb
+* /bin/BundleTransformer.Core.dll
+* ??
+* ??
 
 The following files are installed for the SASS Transformer:
 
