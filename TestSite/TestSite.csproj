@@ -321,6 +321,7 @@
     <Content Include="masterpages\dummy.txt" />
     <Content Include="media\dummy.txt" />
     <Content Include="scripts\dummy.txt" />
+    <Content Include="umbraco\Config\Create\UI.xml" />
     <Content Include="usercontrols\dummy.txt" />
     <Content Include="Web.config">
       <SubType>Designer</SubType>

@@ -366,13 +366,13 @@
 		</tasks>
 	</nodeType>
 
-
+  <!-- Optimus NEW Stuff -->
   <nodeType alias="scriptBundle">
     <header>Script bundle</header>
     <usercontrol>/create/simple.ascx</usercontrol>
     <tasks>
-      <create assembly="BundlingAndMinificationForTheMasses" type="Umbraco.Tasks.ScriptBundleTasks" />
-      <delete assembly="BundlingAndMinificationForTheMasses" type="Umbraco.Tasks.ScriptBundleTasks" />
+      <create assembly="Optimus" type="Umbraco.Tasks.ScriptBundleTasks" />
+      <delete assembly="Optimus" type="Umbraco.Tasks.ScriptBundleTasks" />
     </tasks>
   </nodeType>
 
@@ -380,22 +380,22 @@
     <header>Style bundle</header>
     <usercontrol>/create/simple.ascx</usercontrol>
     <tasks>
-      <create assembly="BundlingAndMinificationForTheMasses" type="Umbraco.Tasks.StyleBundleTasks" />
-      <delete assembly="BundlingAndMinificationForTheMasses" type="Umbraco.Tasks.StyleBundleTasks" />
+      <create assembly="Optimus" type="Umbraco.Tasks.StyleBundleTasks" />
+      <delete assembly="Optimus" type="Umbraco.Tasks.StyleBundleTasks" />
     </tasks>
   </nodeType>
 
   <nodeType alias="initstylesheetsNew">
     <header>Stylesheet</header>
-    <usercontrol>../../App_Plugins/BundlingAndMinificationForTheMasses/Dialogs/CreateStyleSheet.ascx</usercontrol>
+    <usercontrol>../../App_Plugins/Optimus/Dialogs/CreateStyleSheet.ascx</usercontrol>
     <tasks>
-      <!--<create assembly="umbraco" type="StylesheetTasks" />-->
+      <delete assembly="Optimus" type="Umbraco.Tasks.DynamicStyleTasks" />
     </tasks>
   </nodeType>
 
   <nodeType alias="initscriptsNew">
     <header>Stylesheet</header>
-    <usercontrol>../../App_Plugins/BundlingAndMinificationForTheMasses/Dialogs/CreateScript.ascx</usercontrol>
+    <usercontrol>../../App_Plugins/Optimus/Dialogs/CreateScript.ascx</usercontrol>
     <tasks>
       <!--<create assembly="umbraco" type="StylesheetTasks" />-->
     </tasks>

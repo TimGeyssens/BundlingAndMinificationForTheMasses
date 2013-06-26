@@ -271,6 +271,7 @@
     </Compile>
     <Compile Include="Umbraco\StartUpHandlers.cs" />
     <Compile Include="Umbraco\Tasks\BaseBundleTasks.cs" />
+    <Compile Include="Umbraco\Tasks\DynamicStyleTasks.cs" />
     <Compile Include="Umbraco\Tasks\StyleBundleTasks.cs" />
     <Compile Include="Umbraco\Tasks\ScriptBundleTasks.cs" />
     <Compile Include="Umbraco\Trees\BundlingAndMinificationTree.cs" />
