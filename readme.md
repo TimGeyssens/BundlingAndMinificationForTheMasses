@@ -57,3 +57,9 @@ The following files are installed for the TypeScript Transformer:
 * /bin/...
 * /bin/....
 * 
+
+## Config Changes
+The following files have XML config changes to their files with the change & or addition shown below:
+
+* Some Config File
+* 
