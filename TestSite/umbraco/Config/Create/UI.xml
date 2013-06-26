@@ -392,5 +392,13 @@
       <!--<create assembly="umbraco" type="StylesheetTasks" />-->
     </tasks>
   </nodeType>
+
+  <nodeType alias="initscriptsNew">
+    <header>Stylesheet</header>
+    <usercontrol>../../App_Plugins/BundlingAndMinificationForTheMasses/Dialogs/CreateScript.ascx</usercontrol>
+    <tasks>
+      <!--<create assembly="umbraco" type="StylesheetTasks" />-->
+    </tasks>
+  </nodeType>
   
 </createUI>

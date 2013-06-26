@@ -275,6 +275,7 @@
     <Compile Include="Umbraco\Tasks\ScriptBundleTasks.cs" />
     <Compile Include="Umbraco\Trees\BundlingAndMinificationTree.cs" />
     <Compile Include="Umbraco\Trees\DynamicCSSTree.cs" />
+    <Compile Include="Umbraco\Trees\DynamicScriptTree.cs" />
     <Compile Include="Umbraco\Trees\ExtensionMethods.cs" />
     <Compile Include="Umbraco\UmbracoAuthorizeAttribute.cs" />
     <Compile Include="Translation\Core.cs" />
