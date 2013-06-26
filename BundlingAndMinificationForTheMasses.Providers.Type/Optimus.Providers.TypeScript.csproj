@@ -184,6 +184,11 @@
     </VisualStudio>
   </ProjectExtensions>
   <Import Project="$(SolutionDir)\.nuget\nuget.targets" />
+  <PropertyGroup>
+    <PostBuildEvent>xcopy "$(ProjectDir)bin\Optimus.Providers.TypeScript*" "$(ProjectDir)..\TestSite\bin\" /Y
+
+xcopy "$(ProjectDir)bin\BundleTransformer.TypeScript.*" "$(ProjectDir)..\TestSite\bin\" /Y</PostBuildEvent>
+  </PropertyGroup>
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
   <Target Name="BeforeBuild">
