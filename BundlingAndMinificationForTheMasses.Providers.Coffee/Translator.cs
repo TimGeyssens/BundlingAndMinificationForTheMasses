@@ -24,7 +24,7 @@ namespace Optimus.Providers.CoffeeScript
 
         public string FileIconPath
         {
-            get { return "../../../App_Plugins/Optimus/Icons/coffeescript-icon.png"; }
+            get { return "../../../App_Plugins/Optimus/Icons/coffee-icon.png"; }
         }
 
         public string FileMimeType
