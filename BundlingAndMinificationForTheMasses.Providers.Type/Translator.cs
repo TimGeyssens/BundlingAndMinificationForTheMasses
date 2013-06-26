@@ -24,7 +24,7 @@ namespace Optimus.Providers.TypeScript
 
         public string FileIconPath
         {
-            get { return "../../../App_Plugins/Optimus/Icons/page_white_code.png"; }
+            get { return "../../../App_Plugins/Optimus/Icons/typescript-icon.png"; }
         }
 
         public string FileMimeType
