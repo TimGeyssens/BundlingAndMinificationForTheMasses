@@ -15,7 +15,6 @@ Makes use of the [bundle transformers](http://bundletransformer.codeplex.com/) e
 ## Installation
 To get started with Optimus, you will need to install the base Optimus package which contains the core functionality and allows you to generate Scripts and Stylesheet file bundles with a new tree in the Settings section to allow you to manage this easily.
 
-***
 
 ## Addon Packages
 The following packages can be installed to make Optimus more powerful. 
@@ -26,7 +25,6 @@ To install an addon package goto the Installed packages in the Umbraco backoffic
 * CoffeeScript Transformer (JS)
 * TypeScript Transformer (JS)
 
-***
 
 ## Files Installed
 The following files are installed for the base Optimus package:
