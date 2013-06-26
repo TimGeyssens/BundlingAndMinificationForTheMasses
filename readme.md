@@ -27,3 +27,35 @@ To install an addon package goto the Installed packages in the Umbraco backoffic
 * TypeScript Transformer (JS)
 
 ***
+
+## Files Installed
+The following files are installed for the base Optimus package:
+
+* /App_Plugins/Optimus/
+* /App_Plugins/Optimus/
+* 
+
+The following files are installed for the SASS Transformer:
+
+* /bin/...
+* /bin/....
+* 
+
+
+The following files are installed for the LESS Transformer:
+
+* /bin/...
+* /bin/....
+* 
+
+The following files are installed for the CoffeeScript Transformer:
+
+* /bin/...
+* /bin/....
+* 
+
+The following files are installed for the TypeScript Transformer:
+
+* /bin/...
+* /bin/....
+* 
