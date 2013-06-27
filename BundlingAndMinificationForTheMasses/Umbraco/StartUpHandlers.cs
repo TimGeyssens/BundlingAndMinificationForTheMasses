@@ -5,6 +5,10 @@ using System.Web;
 using System.Web.Http;
 using System.Web.Optimization;
 using System.Web.Routing;
+using System.Web.UI;
+using System.Web.UI.WebControls;
+using umbraco.presentation.masterpages;
+using umbraco.uicontrols;
 using Umbraco.Core;
 
 namespace Optimus.Umbraco
@@ -21,8 +25,42 @@ namespace Optimus.Umbraco
             WebApiConfig.Register(GlobalConfiguration.Configuration);
             RouteConfig.RegisterRoutes(RouteTable.Routes);
             BundleConfig.RegisterBundles(BundleTable.Bundles);
-            
+
+            umbracoPage.Load += umbracoPage_Load;
         }
+
+        private Control GetPanel1Control(umbracoPage up)
+        {
+            ContentPlaceHolder cph = (ContentPlaceHolder)up.FindControl("body");
+            return cph.FindControl("Panel1");
+        }
+
+        void umbracoPage_Load(object sender, EventArgs e)
+        {
+            umbracoPage pageReference = (umbracoPage)sender;
+
+            string path = pageReference.Page.Request.Path.ToLower();
+
+
+            if (path.EndsWith("settings/views/editview.aspx") == true)
+            {
+                Control c2 = GetPanel1Control(pageReference);
+
+                if (c2 != null)
+                {
+                    UmbracoPanel panel = (UmbracoPanel)c2;
+
+                    //Insert splitter in menu to make menu nicer on the eye
+                    panel.Menu.InsertSplitter();
+
+                    //Add new image button 
+                    ImageButton bundleBtn = panel.Menu.NewImageButton();
+                    bundleBtn.ImageUrl = "../App_Plugins/Optimus/Icons/bundle.png";
+                    bundleBtn.OnClientClick = @"var selection = UmbEditor.IsSimpleEditor? jQuery('#body_editorSource').getSelection().text : UmbEditor._editor.getSelection();                                                UmbClientMgr.openModalWindow('/App_Plugins/Optimus/Dialog?snippet='+selection, 'Create Bundle', true, 550, 650);                                                return false;";
+                }
+            }
+        }
+
 
         public void OnApplicationStarting(UmbracoApplicationBase umbracoApplication, ApplicationContext applicationContext)
         {
