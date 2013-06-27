@@ -32,7 +32,11 @@ namespace Optimus.Controllers
             {
                 foreach (var scriptNode in doc.DocumentNode.SelectNodes("//script"))
                 {
-                    scripts.Add(scriptNode.Attributes["src"].Value);
+                    var scriptsource = scriptNode.Attributes["src"].Value;
+                    if (!scriptsource.StartsWith("~"))
+                        scriptsource = "~" + scriptsource;
+
+                    scripts.Add(scriptsource);
                 }
             }
             List<string> stylesheets = new List<string>();
@@ -40,11 +44,22 @@ namespace Optimus.Controllers
             {
                 foreach (var linkNode in doc.DocumentNode.SelectNodes("//link"))
                 {
-                    stylesheets.Add(linkNode.Attributes["href"].Value);
+                    var stylesheetlink = linkNode.Attributes["href"].Value;
+                    if (!stylesheetlink.StartsWith("~"))
+                        stylesheetlink = "~" + stylesheetlink;
+
+                    stylesheets.Add(stylesheetlink);
                 }
             }
 
-            return View(Config.DialogViewPath);
+            BundleViewModel m = new BundleViewModel();
+            m.VirtualPath = "~/bundles/";
+            if (scripts.Any())
+                m.Files = scripts;
+            else
+                m.Files = stylesheets;
+
+            return View(Config.DialogViewPath,m);
         }
     }
 }

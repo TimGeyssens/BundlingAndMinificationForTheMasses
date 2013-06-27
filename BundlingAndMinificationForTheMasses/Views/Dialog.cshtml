@@ -1,1 +1,85 @@
-﻿
+﻿@model Optimus.Models.BundleViewModel
+<html>
+<head>
+    <script src="/umbraco_client/Application/NamespaceManager.js?cdv=2" type="text/javascript"></script>
+    <script src="/umbraco_client/ui/jquery.js?cdv=2" type="text/javascript"></script>
+    <script src="/umbraco_client/Application/jQuery/jquery.cookie.js?cdv=2" type="text/javascript"></script>
+    <script src="/umbraco_client/ui/jqueryui.js?cdv=2" type="text/javascript"></script>
+    <script src="/umbraco_client/ui/base2.js?cdv=2" type="text/javascript"></script>
+    <script src="/umbraco_client/Application/UmbracoUtils.js?cdv=2" type="text/javascript"></script>
+    <script src="/umbraco_client/Application/UmbracoApplicationActions.js?cdv=2" type="text/javascript"></script>
+
+    <script src="/umbraco_client/Application/UmbracoClientManager.js?cdv=2" type="text/javascript"></script>
+
+    <script src="/umbraco_client/ui/default.js?cdv=2" type="text/javascript"></script>
+    <script src="/umbraco_client/modal/modal.js?cdv=2" type="text/javascript"></script>
+    <script src="/umbraco_client/Application/jQuery/jquery.hotkeys.js?cdv=2" type="text/javascript"></script>
+
+    <script>
+
+        var data = [];
+
+        function FillData() {
+
+            data.VirtualPath = $('#VirtualPath').val();
+            data.Files = [];
+            $('#selected_files .file').each(function () {
+                data.Files.push($(this).attr('rel'));
+            });
+        }
+
+        $(document).ready(function () {
+
+            //Save
+            $('#save').click(function (event) {
+                FillData();
+
+                var model = {
+                    VirtualPath: $('#VirtualPath').val(),
+                    Files: data.Files
+                };
+
+                $.ajax({
+                    type: "POST",
+                    url: 'api/PostBundleUpdate?bundleType=script',
+                    dataType: 'json',
+                    contenttype: 'application/json; charset=utf-8',
+                    data: model,
+                    success: function () {
+                        //Saved file
+                        console.log("Saved");
+
+                        UmbClientMgr.contentFrame().focus();
+                        UmbClientMgr.contentFrame().UmbEditor.Insert('@@Scripts.Render("' + $('#VirtualPath').val() + '")', '');
+                        UmbClientMgr.closeModalWindow();
+                    }
+                });
+                event.preventDefault();
+            });
+
+        });
+    </script>
+</head>
+<body>
+
+    @Html.EditorFor(m => m.VirtualPath)
+
+    @if(Model.Files.Any()){
+    <ul id="selected_files" class="jqueryFileTree">
+        @foreach (var file in Model.Files)
+        {
+            var ext = Path.GetExtension(file);
+            ext = ext.Substring(1, ext.Length - 1);
+            
+            <li class="file ext_@ext" rel="@file">@file <span class="delete"></span></li>
+        }
+    </ul>
+    }
+    <p>
+        <input type="submit" value="ok" id="save">
+        <em>or </em>
+        <a onclick="UmbClientMgr.closeModalWindow();" href="#">Cancel</a>
+    </p>
+
+</body>
+</html>
