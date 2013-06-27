@@ -1,4 +1,15 @@
 ﻿@model Optimus.Models.BundleViewModel
+@{
+    string bundleType = "script";
+    string bundleFunction = "Script";
+    
+    if(Model.Files.Any() && Model.Files.First().Contains(".css"))
+    {
+        bundleType = "style";
+        bundleFunction = "Styles";
+    }    
+
+}
 <html>
 <head>
     <script src="/umbraco_client/Application/NamespaceManager.js?cdv=2" type="text/javascript"></script>
@@ -41,7 +52,7 @@
 
                 $.ajax({
                     type: "POST",
-                    url: 'api/PostBundleUpdate?bundleType=script',
+                    url: 'api/PostBundleUpdate?bundleType=@bundleType',
                     dataType: 'json',
                     contenttype: 'application/json; charset=utf-8',
                     data: model,
@@ -50,7 +61,7 @@
                         console.log("Saved");
 
                         UmbClientMgr.contentFrame().focus();
-                        UmbClientMgr.contentFrame().UmbEditor.Insert('@@Scripts.Render("' + $('#VirtualPath').val() + '")', '');
+                        UmbClientMgr.contentFrame().UmbEditor.Insert('@@@{@bundleFunction}.Render("' + $('#VirtualPath').val() + '")', '');
                         UmbClientMgr.closeModalWindow();
                     }
                 });
