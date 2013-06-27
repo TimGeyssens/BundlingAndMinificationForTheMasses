@@ -9,6 +9,7 @@ using umbraco.BusinessLogic.Actions;
 using umbraco.businesslogic;
 using umbraco.cms.presentation.Trees;
 using umbraco.interfaces;
+using umbraco.uicontrols;
 
 namespace Optimus.Umbraco.Trees
 {
@@ -37,9 +38,28 @@ namespace Optimus.Umbraco.Trees
 
             if (!string.IsNullOrEmpty(this.NodeKey))
             {
-                orgPath = this.NodeKey;
-                path = IOHelper.MapPath(FilePath + orgPath);
-                orgPath += "/";
+                //Path still the same...
+                path = IOHelper.MapPath(FilePath);
+
+                XmlTreeNode xFileNode   = XmlTreeNode.Create(this);
+                xFileNode.NodeID        = orgPath + this.NodeKey;
+                xFileNode.Text          = this.NodeKey;
+                xFileNode.OpenIcon      = "doc.gif";
+                xFileNode.Menu          = null;
+                xFileNode.NodeType      = "initstylesheetsNew";
+                xFileNode.Icon          = new Optimus.Translation.Core().GetTranslatorTreeIconPath(this.NodeKey);
+                xFileNode.Action        = "javascript:openDyanmicCSSFileEditor('" + orgPath + this.NodeKey + "', true');";
+
+                OnBeforeNodeRender(ref tree, ref xFileNode, EventArgs.Empty);
+
+                if (xFileNode != null)
+                {
+                    tree.Add(xFileNode);
+                    OnAfterNodeRender(ref tree, ref xFileNode, EventArgs.Empty);
+                }
+
+                //Don't carry on running
+                //return;
             }
             else
             {
@@ -51,31 +71,6 @@ namespace Optimus.Umbraco.Trees
 
             var args = new TreeEventArgs(tree);
             OnBeforeTreeRender(dirInfo, args);
-
-            //Loop through directories
-            //foreach (DirectoryInfo dir in dirInfos)
-            //{
-            //    if ((dir.Attributes & FileAttributes.Hidden) == 0)
-            //    {
-            //        XmlTreeNode xDirNode    = XmlTreeNode.Create(this);
-            //        xDirNode.Menu.Clear();
-            //        xDirNode.NodeID         = orgPath + dir.Name;
-            //        xDirNode.Text           = dir.Name;
-            //        xDirNode.Action         = string.Empty;
-            //        xDirNode.Source         = GetTreeServiceUrl(orgPath + dir.Name);
-            //        xDirNode.Icon           = FolderIcon;
-            //        xDirNode.OpenIcon       = FolderIconOpen;
-            //        xDirNode.HasChildren    = dir.GetFiles().Length > 0 || dir.GetDirectories().Length > 0;
-
-            //        //OnRenderFolderNode(ref xDirNode);
-            //        OnBeforeNodeRender(ref tree, ref xDirNode, EventArgs.Empty);
-            //        if (xDirNode != null)
-            //        {
-            //            tree.Add(xDirNode);
-            //            OnAfterNodeRender(ref tree, ref xDirNode, EventArgs.Empty);
-            //        }
-            //    }
-            //}
 
             //Loop through files
             var fileInfo = dirInfo.GetFilesByExtensions(new Translation.Core().GetPossibleExtensions(Enums.TranslatorType.StyleSheet).ToArray());
@@ -89,13 +84,27 @@ namespace Optimus.Umbraco.Trees
                     xFileNode.Text          = file.Name;
                     xFileNode.OpenIcon      = "doc.gif";
                     xFileNode.Menu          = new List<IAction> { ActionDelete.Instance };
-                    xFileNode.NodeType      = "initstylesheetsNew";  
-
-                    xFileNode.Icon = new Optimus.Translation.Core().GetTranslatorTreeIconPath(file.Name);
-
+                    xFileNode.NodeType      = "initstylesheetsNew";
+                    xFileNode.Icon          = new Optimus.Translation.Core().GetTranslatorTreeIconPath(file.Name);
                     
+                    //Check for compiled version of file
+                    var fileName        = file.FullName.TrimStart('/');
+                    var staticFileName  = fileName.Replace(".scss", ".css").Replace(".sass", ".css").Replace(".less", ".css");
 
-                    //JS Action link...
+                    //Check if compileFileName exists
+                    if (System.IO.File.Exists(staticFileName))
+                    {
+                        //Add a child node to the current node to display the static CSS file
+                        xFileNode.HasChildren       = true;
+                        var functionToCall          = "javascript:openDyanmicCSSFileEditor('" + orgPath + staticFileName + "', true')";
+                        var nodeSourceURL           = TreeUrlGenerator.GetServiceUrl(-1, "stylesheetsNew", false, false, "settings",
+                                                                          orgPath + staticFileName, functionToCall);
+
+                        //TODO: Need to set source URL correctly & understand how it works...
+                        xFileNode.Source = nodeSourceURL;
+                    }
+
+                    //CSS Action link...
                     //Only run/set an action if it's empty (as in not been set above as static/compiled file)
                     if (string.IsNullOrEmpty(xFileNode.Action))
                     {
