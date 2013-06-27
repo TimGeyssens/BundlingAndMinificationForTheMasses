@@ -36,9 +36,12 @@ namespace Optimus.Controllers
                 }
             }
             List<string> stylesheets = new List<string>();
-            foreach(var linkNode in doc.DocumentNode.SelectNodes("//link"))
+            if (doc.DocumentNode.SelectNodes("//link") != null)
             {
-                stylesheets.Add(linkNode.Attributes["href"].Value);
+                foreach (var linkNode in doc.DocumentNode.SelectNodes("//link"))
+                {
+                    stylesheets.Add(linkNode.Attributes["href"].Value);
+                }
             }
 
             return View(Config.DialogViewPath);
