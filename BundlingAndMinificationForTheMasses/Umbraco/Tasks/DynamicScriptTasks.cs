@@ -19,7 +19,10 @@ namespace Optimus.Umbraco.Tasks
 
         public bool Delete()
         {
-            string path = IOHelper.MapPath(SystemDirectories.Scripts + "/" + Alias.TrimStart('/'));
+            var fileName        = Alias.TrimStart('/');
+            var staticFileName  = fileName.Replace(".ts", ".js").Replace(".coffee", ".js");
+            var path            = IOHelper.MapPath(SystemDirectories.Scripts + "/" + fileName);
+            var staticPath      = IOHelper.MapPath(SystemDirectories.Scripts + "/" + staticFileName);
 
             System.Web.HttpContext.Current.Trace.Warn("", "*" + path + "*");
 
@@ -31,7 +34,14 @@ namespace Optimus.Umbraco.Tasks
                 }
                 else if (System.IO.File.Exists(path))
                 {
+                    //Delete .ts or .coffee
                     System.IO.File.Delete(path);
+
+                    if (System.IO.File.Exists(staticPath))
+                    {
+                        //Delete compiled JS file (fileName) - ie matching compile .js file as in from .coffee
+                        System.IO.File.Delete(staticPath);
+                    }
                 }
                     
             }

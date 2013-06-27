@@ -19,7 +19,11 @@ namespace Optimus.Umbraco.Tasks
 
         public bool Delete()
         {
-            string path = IOHelper.MapPath(SystemDirectories.Css + "/" + Alias.TrimStart('/'));
+            var fileName        = Alias.TrimStart('/');
+            var staticFileName  = fileName.Replace(".scss", ".css").Replace(".sass", ".css").Replace(".less", ".css");
+            var path            = IOHelper.MapPath(SystemDirectories.Css + "/" + fileName);
+            var staticPath      = IOHelper.MapPath(SystemDirectories.Css + "/" + staticFileName);
+
 
             System.Web.HttpContext.Current.Trace.Warn("", "*" + path + "*");
 
@@ -31,7 +35,14 @@ namespace Optimus.Umbraco.Tasks
                 }
                 else if (System.IO.File.Exists(path))
                 {
+                    //Delete .sass .scss or .less
                     System.IO.File.Delete(path);
+
+                    if (System.IO.File.Exists(staticPath))
+                    {
+                        //Delete compiled CSS file (fileName) - ie matching compile .css file as in from .less
+                        System.IO.File.Delete(staticPath);
+                    }
                 }
                     
             }
