@@ -386,7 +386,7 @@
   </nodeType>
 
   <nodeType alias="initstylesheetsNew">
-    <header>Stylesheet</header>
+    <header>Dynamic Stylesheets</header>
     <usercontrol>../../App_Plugins/Optimus/Dialogs/CreateStyleSheet.ascx</usercontrol>
     <tasks>
       <delete assembly="Optimus" type="Umbraco.Tasks.DynamicStyleTasks" />
@@ -394,10 +394,10 @@
   </nodeType>
 
   <nodeType alias="initscriptsNew">
-    <header>Stylesheet</header>
+    <header>Dynamic Scripts</header>
     <usercontrol>../../App_Plugins/Optimus/Dialogs/CreateScript.ascx</usercontrol>
     <tasks>
-      <!--<create assembly="umbraco" type="StylesheetTasks" />-->
+      <delete assembly="Optimus" type="Umbraco.Tasks.DynamicScriptTasks" />
     </tasks>
   </nodeType>
   

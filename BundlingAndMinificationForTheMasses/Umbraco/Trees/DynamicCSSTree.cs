@@ -89,6 +89,7 @@ namespace Optimus.Umbraco.Trees
                     xFileNode.Text          = file.Name;
                     xFileNode.OpenIcon      = "doc.gif";
                     xFileNode.Menu          = new List<IAction> { ActionDelete.Instance };
+                    xFileNode.NodeType      = "initstylesheetsNew";  
 
                     xFileNode.Icon = new Optimus.Translation.Core().GetTranslatorTreeIconPath(file.Name);
 
