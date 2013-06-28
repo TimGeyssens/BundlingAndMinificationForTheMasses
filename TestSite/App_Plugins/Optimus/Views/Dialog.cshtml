@@ -77,6 +77,8 @@
 </head>
 <body class="umbracoDialog">
 
+    @if(Model.Files.Any())
+    {
     <div class="propertypane" style=''>
         <div>
 
@@ -113,5 +115,12 @@
         <em>or </em>
         <a onclick="UmbClientMgr.closeModalWindow();" href="#">Cancel</a>
     </p>
+    }
+    else
+    {
+        <p>Please select at least 1 script or stylesheet on your template before creating a bundle. <br />
+            <a onclick="UmbClientMgr.closeModalWindow();" href="#">Ok</a>
+        </p>
+    }
 </body>
 </html>
