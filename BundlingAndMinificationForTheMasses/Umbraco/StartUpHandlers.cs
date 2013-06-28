@@ -70,7 +70,7 @@ namespace Optimus.Umbraco
                     ImageButton bundleBtn = panel.Menu.NewImageButton();
                     bundleBtn.ToolTip = "Create script/style bundle";
                     bundleBtn.ImageUrl = "../../../App_Plugins/Optimus/Icons/bundle_menu_icon.png";
-                    bundleBtn.OnClientClick = @"var selection = UmbEditor.IsSimpleEditor? jQuery('#body_editorSource').getSelection().text : UmbEditor._editor.getSelection();                                                UmbClientMgr.openModalWindow('/App_Plugins/Optimus/Dialog?snippet='+selection, 'Create Bundle', true, 550, 650);                                                return false;";
+                    bundleBtn.OnClientClick = @"var selection = UmbEditor.IsSimpleEditor? jQuery('#body_editorSource').getSelection().text : UmbEditor._editor.getSelection();                                                UmbClientMgr.openModalWindow('/App_Plugins/Optimus/Dialog?snippet='+selection, 'Create Bundle', true, 550, 350);                                                return false;";
                 }
             }
         }
