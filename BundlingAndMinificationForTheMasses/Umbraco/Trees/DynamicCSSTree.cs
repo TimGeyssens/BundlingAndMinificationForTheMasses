@@ -7,6 +7,7 @@ using System.Web;
 using Umbraco.Core.IO;
 using umbraco.BusinessLogic.Actions;
 using umbraco.businesslogic;
+using umbraco.cms.presentation;
 using umbraco.cms.presentation.Trees;
 using umbraco.interfaces;
 using umbraco.uicontrols;
@@ -28,43 +29,49 @@ namespace Optimus.Umbraco.Trees
                     UmbClientMgr.contentFrame('../App_Plugins/Optimus/Pages/FileEditor.aspx?file='+ fileName + '&path=/css/&compiled=' + compiled);
                 }");
         }
-        
+
+        protected override void OnBeforeNodeRender(ref XmlTree sender, ref XmlTreeNode node, EventArgs e)
+        {
+            
+        }
+
+        protected override void OnAfterNodeRender(ref XmlTree sender, ref XmlTreeNode node, EventArgs e)
+        {
+           
+        }
+
+        protected override void OnBeforeTreeRender(object sender, TreeEventArgs e)
+        {
+           
+        }
+
+        protected override void OnAfterTreeRender(object sender, TreeEventArgs e)
+        {
+            
+        }
 
         public override void Render(ref XmlTree tree)
+        {
+            if (String.IsNullOrEmpty(this.NodeKey))
+            {
+                //Create Top Level SASS or LESS nodes
+                TopLevelCSSNodes(ref tree);
+            }
+            else
+            {
+                //A SASS or LESS file has been selected with child static CSS file
+                CreateChildNodes(ref tree);
+            }
+        }
+
+
+        protected void TopLevelCSSNodes(ref XmlTree tree)
         {
             string orgPath  = string.Empty;
             string path     = string.Empty;
             string FilePath = "/css/";
+            path            = IOHelper.MapPath(FilePath);
 
-            if (!string.IsNullOrEmpty(this.NodeKey))
-            {
-                //Path still the same...
-                path = IOHelper.MapPath(FilePath);
-
-                XmlTreeNode xFileNode   = XmlTreeNode.Create(this);
-                xFileNode.NodeID        = orgPath + this.NodeKey;
-                xFileNode.Text          = this.NodeKey;
-                xFileNode.OpenIcon      = "doc.gif";
-                xFileNode.Menu          = null;
-                xFileNode.NodeType      = "initstylesheetsNew";
-                xFileNode.Icon          = new Optimus.Translation.Core().GetTranslatorTreeIconPath(this.NodeKey);
-                xFileNode.Action        = "javascript:openDyanmicCSSFileEditor('" + orgPath + this.NodeKey + "', true');";
-
-                OnBeforeNodeRender(ref tree, ref xFileNode, EventArgs.Empty);
-
-                if (xFileNode != null)
-                {
-                    tree.Add(xFileNode);
-                    OnAfterNodeRender(ref tree, ref xFileNode, EventArgs.Empty);
-                }
-
-                //Don't carry on running
-                //return;
-            }
-            else
-            {
-                path = IOHelper.MapPath(FilePath);
-            }
 
             DirectoryInfo dirInfo       = new DirectoryInfo(path);
             DirectoryInfo[] dirInfos    = dirInfo.GetDirectories();
@@ -86,7 +93,7 @@ namespace Optimus.Umbraco.Trees
                     xFileNode.Menu          = new List<IAction> { ActionDelete.Instance };
                     xFileNode.NodeType      = "initstylesheetsNew";
                     xFileNode.Icon          = new Optimus.Translation.Core().GetTranslatorTreeIconPath(file.Name);
-                    
+
                     //Check for compiled version of file
                     var fileName        = file.FullName.TrimStart('/');
                     var staticFileName  = fileName.Replace(".scss", ".css").Replace(".sass", ".css").Replace(".less", ".css");
@@ -95,13 +102,10 @@ namespace Optimus.Umbraco.Trees
                     if (System.IO.File.Exists(staticFileName))
                     {
                         //Add a child node to the current node to display the static CSS file
-                        xFileNode.HasChildren       = true;
-                        var functionToCall          = "javascript:openDyanmicCSSFileEditor('" + orgPath + staticFileName + "', true')";
-                        var nodeSourceURL           = TreeUrlGenerator.GetServiceUrl(-1, "stylesheetsNew", false, false, "settings",
-                                                                          orgPath + staticFileName, functionToCall);
-
-                        //TODO: Need to set source URL correctly & understand how it works...
-                        xFileNode.Source = nodeSourceURL;
+                        xFileNode.HasChildren   = true;
+                        var functionToCall      = "javascript:openDyanmicCSSFileEditor('" + orgPath + staticFileName + "', true')";
+                        var nodeSourceURL       = TreeUrlGenerator.GetServiceUrl(-1, "stylesheetsNew", false, false, "settings", orgPath + staticFileName, functionToCall);
+                        xFileNode.Source        = nodeSourceURL;
                     }
 
                     //CSS Action link...
@@ -117,7 +121,7 @@ namespace Optimus.Umbraco.Trees
                             xFileNode.Action = "javascript:openDyanmicCSSFileEditor('" + file.Name + "', 'false');";
                         }
                     }
-                    
+
 
                     //OnRenderFileNode(ref xFileNode);
                     OnBeforeNodeRender(ref tree, ref xFileNode, EventArgs.Empty);
@@ -132,8 +136,39 @@ namespace Optimus.Umbraco.Trees
 
             //After TREE Rendering
             OnAfterTreeRender(dirInfo, args);
+
         }
 
+        protected void CreateChildNodes(ref XmlTree tree)
+        {
+            if (!string.IsNullOrEmpty(this.NodeKey))
+            {
+                string orgPath  = string.Empty;
+                string path     = string.Empty;
+                string FilePath = "/css/";
+                path            = IOHelper.MapPath(FilePath);
+
+
+                XmlTreeNode xFileNode   = XmlTreeNode.Create(this);
+                xFileNode.NodeID        = orgPath + this.NodeKey;
+                xFileNode.Text = "BADGER";
+                xFileNode.OpenIcon      = "doc.gif";
+                xFileNode.Menu          = null;
+                xFileNode.NodeType      = "initstylesheetsNew-Compiled";
+                xFileNode.Icon          = new Optimus.Translation.Core().GetTranslatorTreeIconPath(this.NodeKey);
+                xFileNode.Action        = "javascript:openDyanmicCSSFileEditor('" + orgPath + this.NodeKey + "', true');";
+
+
+                OnBeforeNodeRender(ref tree, ref xFileNode, EventArgs.Empty);
+
+                //Y U NO Add Child Node?!
+                if (xFileNode != null)
+                {
+                    tree.Add(xFileNode);
+                    OnAfterNodeRender(ref tree, ref xFileNode, EventArgs.Empty);
+                }
+            }
+        }
 
         protected override void CreateRootNode(ref XmlTreeNode rootNode)
         {
