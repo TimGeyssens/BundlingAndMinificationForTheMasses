@@ -402,6 +402,7 @@
     <Content Include="Services\jqueryFileTree.aspx" />
     <Content Include="Umbraco\Dialogs\CreateScript.ascx" />
     <Content Include="Umbraco\Dialogs\CreateStyleSheet.ascx" />
+    <Content Include="Umbraco\Icons\bundle_menu_icon.png" />
     <Content Include="Umbraco\Icons\coffee-icon.png" />
     <Content Include="Umbraco\Icons\less-icon.png" />
     <Content Include="Umbraco\Icons\page_white_code.png" />
