@@ -2,8 +2,8 @@
 @{
     string bundleType = "script";
     string bundleFunction = "Script";
-    
-    if(Model.Files.Any() && Model.Files.First().Contains(".css"))
+
+    if (Model.Files.Any() && Model.Files.First().Contains(".css"))
     {
         bundleType = "style";
         bundleFunction = "Styles";
@@ -12,19 +12,21 @@
 }
 <html>
 <head>
-    <script src="/umbraco_client/Application/NamespaceManager.js?cdv=2" type="text/javascript"></script>
-    <script src="/umbraco_client/ui/jquery.js?cdv=2" type="text/javascript"></script>
-    <script src="/umbraco_client/Application/jQuery/jquery.cookie.js?cdv=2" type="text/javascript"></script>
-    <script src="/umbraco_client/ui/jqueryui.js?cdv=2" type="text/javascript"></script>
-    <script src="/umbraco_client/ui/base2.js?cdv=2" type="text/javascript"></script>
-    <script src="/umbraco_client/Application/UmbracoUtils.js?cdv=2" type="text/javascript"></script>
-    <script src="/umbraco_client/Application/UmbracoApplicationActions.js?cdv=2" type="text/javascript"></script>
+    <link href="~/umbraco_client/propertypane/style.css?cdv=2" type="text/css" rel="stylesheet"/>
+    <link href="~/umbraco_client/ui/default.css?cdv=2" type="text/css" rel="stylesheet"/>
+    <script src="~/umbraco_client/Application/NamespaceManager.js?cdv=2" type="text/javascript"></script>
+    <script src="~/umbraco_client/ui/jquery.js?cdv=2" type="text/javascript"></script>
+    <script src="~/umbraco_client/Application/jQuery/jquery.cookie.js?cdv=2" type="text/javascript"></script>
+    <script src="~/umbraco_client/ui/jqueryui.js?cdv=2" type="text/javascript"></script>
+    <script src="~/umbraco_client/ui/base2.js?cdv=2" type="text/javascript"></script>
+    <script src="~/umbraco_client/Application/UmbracoUtils.js?cdv=2" type="text/javascript"></script>
+    <script src="~/umbraco_client/Application/UmbracoApplicationActions.js?cdv=2" type="text/javascript"></script>
 
-    <script src="/umbraco_client/Application/UmbracoClientManager.js?cdv=2" type="text/javascript"></script>
+    <script src="~/umbraco_client/Application/UmbracoClientManager.js?cdv=2" type="text/javascript"></script>
 
-    <script src="/umbraco_client/ui/default.js?cdv=2" type="text/javascript"></script>
-    <script src="/umbraco_client/modal/modal.js?cdv=2" type="text/javascript"></script>
-    <script src="/umbraco_client/Application/jQuery/jquery.hotkeys.js?cdv=2" type="text/javascript"></script>
+    <script src="~/umbraco_client/ui/default.js?cdv=2" type="text/javascript"></script>
+    <script src="~/umbraco_client/modal/modal.js?cdv=2" type="text/javascript"></script>
+    <script src="~/umbraco_client/Application/jQuery/jquery.hotkeys.js?cdv=2" type="text/javascript"></script>
 
     <script>
 
@@ -71,26 +73,43 @@
         });
     </script>
 </head>
-<body>
+<body class="umbracoDialog">
 
-    @Html.EditorFor(m => m.VirtualPath)
+    <div class="propertypane" style=''>
+        <div>
 
-    @if(Model.Files.Any()){
-    <ul id="selected_files" class="jqueryFileTree">
-        @foreach (var file in Model.Files)
-        {
-            var ext = Path.GetExtension(file);
-            ext = ext.Substring(1, ext.Length - 1);
+            <div class="propertyItem">
+                <div class="propertyItemheader">Virtual path:</div>
+                <div class="propertyItemContent">
+                    @Html.EditorFor(m => m.VirtualPath)
+                </div>
+            </div>
+
+            <div class="propertyItem">
+                <div class="propertyItemheader">Files in bundle:</div>
+                <div class="propertyItemContent">
+                    @if (Model.Files.Any())
+                    {
+                        <ul id="selected_files" class="jqueryFileTree">
+                            @foreach (var file in Model.Files)
+                            {
+                                var ext = Path.GetExtension(file);
+                                ext = ext.Substring(1, ext.Length - 1);
             
-            <li class="file ext_@ext" rel="@file">@file <span class="delete"></span></li>
-        }
-    </ul>
-    }
+                                <li class="file ext_@ext" rel="@file">@file <span class="delete"></span></li>
+                            }
+                        </ul>
+                    }
+                </div>
+            </div>
+            <div class="propertyPaneFooter">-</div>
+        </div>
+    </div>
+
     <p>
         <input type="submit" value="ok" id="save">
         <em>or </em>
         <a onclick="UmbClientMgr.closeModalWindow();" href="#">Cancel</a>
     </p>
-
 </body>
 </html>
