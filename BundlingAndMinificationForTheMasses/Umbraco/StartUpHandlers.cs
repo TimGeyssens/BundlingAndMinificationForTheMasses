@@ -1,5 +1,7 @@
-﻿using System;
+﻿using Optimus.Translation;
+using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Web;
 using System.Web.Http;
@@ -7,6 +9,7 @@ using System.Web.Optimization;
 using System.Web.Routing;
 using System.Web.UI;
 using System.Web.UI.WebControls;
+using umbraco.cms.presentation.Trees;
 using umbraco.presentation.masterpages;
 using umbraco.uicontrols;
 using Umbraco.Core;
@@ -27,6 +30,16 @@ namespace Optimus.Umbraco
             BundleConfig.RegisterBundles(BundleTable.Bundles);
 
             umbracoPage.Load += umbracoPage_Load;
+
+            FileSystemTree.AfterNodeRender += FileSystemTree_AfterNodeRender;
+        }
+
+        void FileSystemTree_AfterNodeRender(ref XmlTree sender, ref XmlTreeNode node, EventArgs e)
+        {
+            if (node.TreeType == "scripts" && new Core().GetPossibleExtensions(Enums.TranslatorType.Script).Contains(Path.GetExtension(node.NodeID)))
+            {
+                sender.Remove(node);
+            }
         }
 
         private Control GetPanel1Control(umbracoPage up)
