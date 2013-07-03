@@ -1,0 +1,19 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<package xmlns="http://schemas.microsoft.com/packaging/2010/07/nuspec.xsd">
+    <metadata>
+        <id>Optimus.Less</id>
+        <version>1.0.0</version>
+        <authors>Tim Geyssens &amp; Warren Buckley</authors>
+        <owners>Tim Geyssens &amp; Warren Buckley</owners>
+        <requireLicenseAcceptance>false</requireLicenseAcceptance>
+        <description>Optimus for Umbraco is a bundle and transformer package, to make creating bundles &amp; editing Sass, LESS, CoffeeScript files a breeze from the Umbraco backoffice.</description>
+        <dependencies>
+            <dependency id="BundleTransformer.Less" version="1.6.26" />
+            <dependency id="Optimus.Core" version="1.0.0" />
+        </dependencies>
+    </metadata>
+    <files>
+        <file src="BundlingAndMinificationForTheMasses.Providers.Less\bin\Optimus.Providers.Less.dll" target="lib\Optimus.Providers.Less.dll" />
+        <file src="BundlingAndMinificationForTheMasses.Providers.Less\bin\Optimus.Providers.Less.pdb" target="lib\Optimus.Providers.Less.pdb" />
+    </files>
+</package>
