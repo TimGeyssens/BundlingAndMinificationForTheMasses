@@ -42,7 +42,7 @@
     <script>
 
         var data = [];
-        
+        var snd = new Audio("Content/Morphing.mp3");
         
         function FillData() {
 
@@ -59,6 +59,8 @@
 
         $(document).ready(function () {
             
+           
+
             //Setup file tree
             $('#file_tree').fileTree({
                 script: 'Services/jqueryfiletree.aspx',
@@ -112,6 +114,9 @@
                     success: function() {
                         //Saved file
                         console.log("Saved");
+                        //play sound effect
+                        
+                        snd.play();
                         //Show notification success bubble
                         UmbClientMgr.mainWindow().UmbSpeechBubble.ShowMessage('save', 'Saved Bundle', 'Bundle successfully saved');
                     }
