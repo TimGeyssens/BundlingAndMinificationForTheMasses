@@ -18,7 +18,7 @@ namespace Optimus.Umbraco.Dialogs
     public partial class ProviderInstaller : System.Web.UI.UserControl
     {
         private const string REPO_GUID = "65194810-1f85-11dd-bd0b-0800200c9a66";
-        private const string PROVIDER_FEED_URL_FORMAT = @"http://pipes.yahoo.com/pipes/pipe.run?_id=8ff62d37682341e28ddf6f8a38bad52c&_render=rss&rnd={0}";
+        private const string PROVIDER_FEED_URL_FORMAT = @"http://pipes.yahoo.com/pipes/pipe.run?_id=bef44ed4c28b4b105cfd21c533486591&_render=rss&rnd={0}";
 
         protected void Page_Load(object sender, EventArgs e)
         {
