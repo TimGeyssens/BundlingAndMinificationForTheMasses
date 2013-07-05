@@ -4,9 +4,9 @@ using System.IO;
 using System.Linq;
 using System.Web;
 
-namespace Optimus.Umbraco.Trees
+namespace Optimus.Extensions
 {
-    public static class ExtensionMethods
+    public static class FileExtensions
     {
         public static IEnumerable<FileInfo> GetFilesByExtensions(this DirectoryInfo dirInfo, params string[] extensions)
         {

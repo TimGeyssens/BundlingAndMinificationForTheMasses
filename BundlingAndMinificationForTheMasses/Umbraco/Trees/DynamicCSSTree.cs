@@ -11,6 +11,7 @@ using umbraco.cms.presentation;
 using umbraco.cms.presentation.Trees;
 using umbraco.interfaces;
 using umbraco.uicontrols;
+using Optimus.Extensions;
 
 namespace Optimus.Umbraco.Trees
 {

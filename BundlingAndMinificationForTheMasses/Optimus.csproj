@@ -241,6 +241,7 @@
     <Compile Include="Controllers\BundleApiController.cs" />
     <Compile Include="Controllers\BundleController.cs" />
     <Compile Include="Enums\TranslatorType.cs" />
+    <Compile Include="Extensions\DateTimeExtensions.cs" />
     <Compile Include="Interfaces\IFileTranslator.cs" />
     <Compile Include="Models\BundleViewModel.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -261,6 +262,13 @@
     <Compile Include="Umbraco\Dialogs\CreateStyleSheet.ascx.designer.cs">
       <DependentUpon>CreateStyleSheet.ascx</DependentUpon>
     </Compile>
+    <Compile Include="Umbraco\Dialogs\ProviderInstaller.ascx.cs">
+      <DependentUpon>ProviderInstaller.ascx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="Umbraco\Dialogs\ProviderInstaller.ascx.designer.cs">
+      <DependentUpon>ProviderInstaller.ascx</DependentUpon>
+    </Compile>
     <Compile Include="Umbraco\Installer\PackageActions.cs" />
     <Compile Include="Umbraco\Pages\FileEditor.aspx.cs">
       <DependentUpon>FileEditor.aspx</DependentUpon>
@@ -278,7 +286,7 @@
     <Compile Include="Umbraco\Trees\BundlingAndMinificationTree.cs" />
     <Compile Include="Umbraco\Trees\DynamicCSSTree.cs" />
     <Compile Include="Umbraco\Trees\DynamicScriptTree.cs" />
-    <Compile Include="Umbraco\Trees\ExtensionMethods.cs" />
+    <Compile Include="Extensions\FileExtensions.cs" />
     <Compile Include="Umbraco\UmbracoAuthorizeAttribute.cs" />
     <Compile Include="Translation\Core.cs" />
   </ItemGroup>
@@ -402,6 +410,7 @@
     <Content Include="Services\jqueryFileTree.aspx" />
     <Content Include="Umbraco\Dialogs\CreateScript.ascx" />
     <Content Include="Umbraco\Dialogs\CreateStyleSheet.ascx" />
+    <Content Include="Umbraco\Dialogs\ProviderInstaller.ascx" />
     <Content Include="Umbraco\Icons\bundle-icon.png" />
     <Content Include="Umbraco\Icons\bundle_menu_icon.png" />
     <Content Include="Umbraco\Icons\coffee-icon.png" />

@@ -10,6 +10,7 @@ using umbraco.businesslogic;
 using umbraco.cms.presentation.Trees;
 using umbraco.interfaces;
 using umbraco.cms.businesslogic.translation;
+using Optimus.Extensions;
 
 namespace Optimus.Umbraco.Trees
 {
