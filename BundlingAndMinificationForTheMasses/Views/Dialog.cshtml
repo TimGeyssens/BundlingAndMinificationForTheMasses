@@ -65,7 +65,18 @@
                         console.log("Saved");
 
                         UmbClientMgr.contentFrame().focus();
-                        UmbClientMgr.contentFrame().UmbEditor.Insert('@@@{@bundleFunction}.Render("' + $('#VirtualPath').val() + '")', '');
+                        @if(Request["webforms"] != null)
+                        {
+                            <text>
+                                UmbClientMgr.contentFrame().UmbEditor.Insert('<%: @{@bundleFunction}.Render("' + $('#VirtualPath').val() + '") %>', '');
+                            </text>
+                        }
+                        else
+                        {
+                            <text>
+                                UmbClientMgr.contentFrame().UmbEditor.Insert('@@@{@bundleFunction}.Render("' + $('#VirtualPath').val() + '")', '');
+                            </text>
+                        }
                         UmbClientMgr.closeModalWindow();
                     }
                 });
@@ -77,7 +88,7 @@
 </head>
 <body class="umbracoDialog">
 
-    @if(Model.Files.Any())
+    @if (Model.Files.Any())
     {
     <div class="propertypane" style=''>
         <div>

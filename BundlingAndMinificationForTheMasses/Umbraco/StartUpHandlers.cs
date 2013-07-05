@@ -55,8 +55,10 @@ namespace Optimus.Umbraco
             string path = pageReference.Page.Request.Path.ToLower();
 
 
-            if (path.EndsWith("settings/views/editview.aspx") == true)
+            if (path.EndsWith("settings/views/editview.aspx") == true || path.EndsWith("settings/edittemplate.aspx"))
             {
+                bool webforms = path.EndsWith("settings/edittemplate.aspx");
+
                 Control c2 = GetPanel1Control(pageReference);
 
                 if (c2 != null)
@@ -70,7 +72,8 @@ namespace Optimus.Umbraco
                     ImageButton bundleBtn = panel.Menu.NewImageButton();
                     bundleBtn.ToolTip = "Create script/style bundle";
                     bundleBtn.ImageUrl = "../../../App_Plugins/Optimus/Icons/bundle_menu_icon.png";
-                    bundleBtn.OnClientClick = @"var selection = UmbEditor.IsSimpleEditor? jQuery('#body_editorSource').getSelection().text : UmbEditor._editor.getSelection();                                                UmbClientMgr.openModalWindow('/App_Plugins/Optimus/Dialog?snippet='+selection, 'Create Bundle', true, 550, 350);                                                return false;";
+                    bundleBtn.OnClientClick = webforms ?
+                                                 @"var selection = UmbEditor.IsSimpleEditor? jQuery('#body_editorSource').getSelection().text : UmbEditor._editor.getSelection();                                                UmbClientMgr.openModalWindow('/App_Plugins/Optimus/Dialog?webforms=true&snippet='+selection, 'Create Bundle', true, 550, 350);                                                return false;"                                                :                                                 @"var selection = UmbEditor.IsSimpleEditor? jQuery('#body_editorSource').getSelection().text : UmbEditor._editor.getSelection();                                                UmbClientMgr.openModalWindow('/App_Plugins/Optimus/Dialog?snippet='+selection, 'Create Bundle', true, 550, 350);                                                return false;";
                 }
             }
         }
