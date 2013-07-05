@@ -71,7 +71,7 @@ namespace Optimus.Umbraco
                     //Add new image button 
                     ImageButton bundleBtn = panel.Menu.NewImageButton();
                     bundleBtn.ToolTip = "Create script/style bundle";
-                    bundleBtn.ImageUrl = "../../../App_Plugins/Optimus/Icons/bundle_menu_icon.png";
+                    bundleBtn.ImageUrl = webforms ? "../../App_Plugins/Optimus/Icons/bundle_menu_icon.png" : "../../../App_Plugins/Optimus/Icons/bundle_menu_icon.png";
                     bundleBtn.OnClientClick = webforms ?
                                                  @"var selection = UmbEditor.IsSimpleEditor? jQuery('#body_editorSource').getSelection().text : UmbEditor._editor.getSelection();                                                UmbClientMgr.openModalWindow('/App_Plugins/Optimus/Dialog?webforms=true&snippet='+selection, 'Create Bundle', true, 550, 350);                                                return false;"                                                :                                                 @"var selection = UmbEditor.IsSimpleEditor? jQuery('#body_editorSource').getSelection().text : UmbEditor._editor.getSelection();                                                UmbClientMgr.openModalWindow('/App_Plugins/Optimus/Dialog?snippet='+selection, 'Create Bundle', true, 550, 350);                                                return false;";
                 }
