@@ -12,6 +12,12 @@ appsetting needs ~/bundles/
 
 	<add key="umbracoReservedPaths" value="~/umbraco,~/install/,~/bundles/" />
 
+#### pages element
+
+	<namespaces>
+		<add namespace="System.Web.Optimization" />
+	</namespaces>
+
 #### configSections element
 
 	<sectionGroup name="bundleTransformer">
