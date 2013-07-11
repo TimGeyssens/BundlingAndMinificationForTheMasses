@@ -159,7 +159,15 @@
                                     <div class="propertyItemheader">@Html.LabelFor(m => m.VirtualPath)</div>
                                     <div class="propertyItemContent">
                                         @Html.EditorFor(m => m.VirtualPath)
+                                   
+                                        @if (UmbracoSettings.GetKey("/settings/templates/defaultRenderingEngine").ToLower() == "mvc")
+                                        {
                                         <small>use with @@@{@exampleScript}.Render("@Model.VirtualPath")</small>
+                                        }
+                                        else
+                                        {
+                                        <small>use with <%: @{@exampleScript}.Render("@Model.VirtualPath") %></small>    
+                                        }
                                     </div>
                                 </div>
 
