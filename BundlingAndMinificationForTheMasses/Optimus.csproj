@@ -240,6 +240,7 @@
     <Compile Include="App_Start\BundleConfig.cs" />
     <Compile Include="App_Start\WebApiConfig.cs" />
     <Compile Include="Bundles.cs" />
+    <Compile Include="CacheService.cs" />
     <Compile Include="Config.cs" />
     <Compile Include="Controllers\BundleApiController.cs" />
     <Compile Include="Controllers\BundleController.cs" />
@@ -251,6 +252,7 @@
     <Compile Include="Services\jqueryFileTree.aspx.designer.cs">
       <DependentUpon>jqueryFileTree.aspx</DependentUpon>
     </Compile>
+    <Compile Include="Settings.cs" />
     <Compile Include="Umbraco\Dialogs\CreateScript.ascx.cs">
       <DependentUpon>CreateScript.ascx</DependentUpon>
       <SubType>ASPXCodeBehind</SubType>

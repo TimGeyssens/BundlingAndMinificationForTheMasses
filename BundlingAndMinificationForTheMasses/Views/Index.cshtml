@@ -3,14 +3,14 @@
     var startDir = "/css/";
     var exampleScript = "Styles";
     var ext = "css";
-    var filter = "*.css";
+    var filter = Optimus.Settings.GetSetting("onlyAllowCssFilesInEditor") == "True" ? "*.css" : "*.*";
     
     if (Request["bundleType"] == "script")
     {
         startDir = "/scripts/";
         exampleScript = "Scripts";
         ext = "js";
-        filter = "*.js";
+        filter = Optimus.Settings.GetSetting("onlyAllowJsFilesInEditor") == "True" ? "*.js" : "*.*";
     }
 
     //startDir = "/";
@@ -165,6 +165,7 @@
                                 <div class="propertyItem">
                                     <div class="propertyItemheader">Bundle Path</div>
                                     <div class="propertyItemContent">
+                                       
                                         use with @@@{@exampleScript}.Render("@Model.VirtualPath")
                                     </div>
                                 </div>

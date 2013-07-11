@@ -11,7 +11,8 @@
 	<link rel="shortcut icon" type="image/x-icon" href="/css/images/favicon.ico" />
 	
 	@Styles.Render("~/bundles/style")
-
+	@Styles.RenderFormat("<link href=\"{0}\" rel=\"stylesheet\" type=\"text/css\" media=\"print\" />", "~/bundles/style")
+	@Styles.Render("~/bundles/testless")
 	
 	<!--
 	<link rel="stylesheet" href="/css/style.css" type="text/css" media="all" />
