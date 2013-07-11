@@ -6,6 +6,7 @@ using System.Web.Optimization;
 using System.Xml.Linq;
 using BundleTransformer.Core.Orderers;
 using BundleTransformer.Core.Transformers;
+using umbraco.BusinessLogic;
 
 namespace Optimus
 {
@@ -59,7 +60,10 @@ namespace Optimus
                 }
 
             }
-            catch { }
+            catch (Exception e)
+            {
+                Log.Add(LogTypes.Error, new User(0), -1, "Error adding bundles: " + e.ToString());
+            }
 
 
         }
