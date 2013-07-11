@@ -20,6 +20,10 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Optimus.Providers.CoffeeScr
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Optimus.Providers.TypeScript", "BundlingAndMinificationForTheMasses.Providers.Type\Optimus.Providers.TypeScript.csproj", "{034575BA-E003-4C09-BDD2-ECC66B6589C2}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Optimus.Trees.Stylesheets", "Optimus.Trees.Stylesheets\Optimus.Trees.Stylesheets.csproj", "{F2E815DB-B7FB-44A4-BB42-450D1A51A299}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Optimus.Trees.Scripts", "Optimus.Trees.Scripts\Optimus.Trees.Scripts.csproj", "{63A7396E-8187-4111-BB71-990955F19948}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -50,6 +54,14 @@ Global
 		{034575BA-E003-4C09-BDD2-ECC66B6589C2}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{034575BA-E003-4C09-BDD2-ECC66B6589C2}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{034575BA-E003-4C09-BDD2-ECC66B6589C2}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F2E815DB-B7FB-44A4-BB42-450D1A51A299}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F2E815DB-B7FB-44A4-BB42-450D1A51A299}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F2E815DB-B7FB-44A4-BB42-450D1A51A299}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F2E815DB-B7FB-44A4-BB42-450D1A51A299}.Release|Any CPU.Build.0 = Release|Any CPU
+		{63A7396E-8187-4111-BB71-990955F19948}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{63A7396E-8187-4111-BB71-990955F19948}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{63A7396E-8187-4111-BB71-990955F19948}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{63A7396E-8187-4111-BB71-990955F19948}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

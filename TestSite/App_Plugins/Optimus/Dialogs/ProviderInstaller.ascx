@@ -8,15 +8,14 @@
 </style>
 
 <div style="padding: 10px 10px 0;">
-    <img src="/umbraco/plugins/theoutfield/universalmediapicker/ump.png" alt="Universal Media Picker" />
-    <br /><br />
-    <umb:feedback ID="Feedback1" runat="server" type="success" text="Universal Media Picker successfully installed!" />
+   
+    <umb:feedback ID="Feedback1" runat="server" type="success" text="Optimus core successfully installed!" />
     <%= @"</div></div></div><div class='propertypane' style=''><div><div style='padding: 0 10px 0;'>" %>
     <h1 style="margin-top: 10px;">Install Providers</h1>
     <umb:feedback id="feedback" runat="server" />
     <asp:panel id="pnlInstall" runat="server">
-        <p>Now that you have the <strong>Universal Media Picker</strong> installed, you'll need to install one or more providers before you can really get going.</p>
-    	<p>Below is a list of community contributed providers to get you started.</p>
+        <p>Now that you have the <strong>Optimus core</strong> installed, you can also install one or more additional providers.</p>
+    	<p>Below is a list of providers to get you started.</p>
     	<p>To install these providers, simply mark the ones you would like to install, and click the "Install Selected Providers" button.</p>
         <asp:CheckBoxList id="chkProviders" runat="server" CssClass="provider-list"></asp:CheckBoxList>
         <p>

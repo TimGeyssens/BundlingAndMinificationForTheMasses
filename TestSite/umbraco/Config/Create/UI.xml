@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <createUI>
   <nodeType alias="nodeTypes">
     <header>Nodetype</header>
@@ -260,36 +260,34 @@
       <delete assembly="umbraco" type="cacheTasks" />
     </tasks>
   </nodeType>
-    <nodeType alias="initpython">
-        <header>Scripting file</header>
-        <usercontrol>/create/DLRScripting.ascx</usercontrol>
-        <tasks>
-            <create assembly="umbraco" type="PythonTasks" />
-        </tasks>
-    </nodeType>
-    <nodeType alias="python">
-        <header>Macro</header>
-        <usercontrol>/create/DLRScripting.ascx</usercontrol>
-        <tasks>
-            <delete assembly="umbraco" type="PythonTasks" />
-        </tasks>
-    </nodeType>
-
-    <nodeType alias="initdlrscripting">
-        <header>Scripting file</header>
-        <usercontrol>/create/DLRScripting.ascx</usercontrol>
-        <tasks>
-            <create assembly="umbraco" type="DLRScriptingTasks" />
-        </tasks>
-    </nodeType>
-
-    <nodeType alias="dlrscripting">
-        <header>Macro</header>
-        <usercontrol>/create/DLRScripting.ascx</usercontrol>
-        <tasks>
-            <delete assembly="umbraco" type="DLRScriptingTasks" />
-        </tasks>
-    </nodeType>
+  <nodeType alias="initpython">
+    <header>Scripting file</header>
+    <usercontrol>/create/DLRScripting.ascx</usercontrol>
+    <tasks>
+      <create assembly="umbraco" type="PythonTasks" />
+    </tasks>
+  </nodeType>
+  <nodeType alias="python">
+    <header>Macro</header>
+    <usercontrol>/create/DLRScripting.ascx</usercontrol>
+    <tasks>
+      <delete assembly="umbraco" type="PythonTasks" />
+    </tasks>
+  </nodeType>
+  <nodeType alias="initdlrscripting">
+    <header>Scripting file</header>
+    <usercontrol>/create/DLRScripting.ascx</usercontrol>
+    <tasks>
+      <create assembly="umbraco" type="DLRScriptingTasks" />
+    </tasks>
+  </nodeType>
+  <nodeType alias="dlrscripting">
+    <header>Macro</header>
+    <usercontrol>/create/DLRScripting.ascx</usercontrol>
+    <tasks>
+      <delete assembly="umbraco" type="DLRScriptingTasks" />
+    </tasks>
+  </nodeType>
   <nodeType alias="initscripts">
     <header>Script file</header>
     <usercontrol>/create/script.ascx</usercontrol>
@@ -348,25 +346,24 @@
       <delete assembly="umbraco" type="cms.presentation.user.UserTypeTasks" />
     </tasks>
   </nodeType>
-	
-	<nodeType alias="partialViews">
-		<header>Macro</header>
-		<usercontrol>/create/simple.ascx</usercontrol>
-		<tasks>
-			<create assembly="umbraco" type="PartialViewTasks" />
-			<delete assembly="umbraco" type="PartialViewTasks" />
-		</tasks>
-	</nodeType>
-	<nodeType alias="partialViewMacros">
-		<header>Macro</header>
-		<usercontrol>/Create/PartialViewMacro.ascx</usercontrol>
-		<tasks>
-			<create assembly="umbraco" type="MacroPartialViewTasks" />
-			<delete assembly="umbraco" type="MacroPartialViewTasks" />
-		</tasks>
-	</nodeType>
-
+  <nodeType alias="partialViews">
+    <header>Macro</header>
+    <usercontrol>/create/simple.ascx</usercontrol>
+    <tasks>
+      <create assembly="umbraco" type="PartialViewTasks" />
+      <delete assembly="umbraco" type="PartialViewTasks" />
+    </tasks>
+  </nodeType>
+  <nodeType alias="partialViewMacros">
+    <header>Macro</header>
+    <usercontrol>/Create/PartialViewMacro.ascx</usercontrol>
+    <tasks>
+      <create assembly="umbraco" type="MacroPartialViewTasks" />
+      <delete assembly="umbraco" type="MacroPartialViewTasks" />
+    </tasks>
+  </nodeType>
   <!-- Optimus NEW Stuff -->
+  <!--
   <nodeType alias="scriptBundle">
     <header>Script bundle</header>
     <usercontrol>/create/simple.ascx</usercontrol>
@@ -400,5 +397,35 @@
       <delete assembly="Optimus" type="Umbraco.Tasks.DynamicScriptTasks" />
     </tasks>
   </nodeType>
-  
+  -->
+  <nodeType alias="scriptBundle">
+    <header>Script bundle</header>
+    <usercontrol>/create/simple.ascx</usercontrol>
+    <tasks>
+      <create assembly="Optimus" type="Umbraco.Tasks.ScriptBundleTasks" />
+      <delete assembly="Optimus" type="Umbraco.Tasks.ScriptBundleTasks" />
+    </tasks>
+  </nodeType>
+  <nodeType alias="styleBundle">
+    <header>Style bundle</header>
+    <usercontrol>/create/simple.ascx</usercontrol>
+    <tasks>
+      <create assembly="Optimus" type="Umbraco.Tasks.StyleBundleTasks" />
+      <delete assembly="Optimus" type="Umbraco.Tasks.StyleBundleTasks" />
+    </tasks>
+  </nodeType>
+  <nodeType alias="initstylesheetsNew">
+    <header>Dynamic Stylesheets</header>
+    <usercontrol>../../App_Plugins/Optimus/Dialogs/CreateStyleSheet.ascx</usercontrol>
+    <tasks>
+      <delete assembly="Optimus" type="Umbraco.Tasks.DynamicStyleTasks" />
+    </tasks>
+  </nodeType>
+  <nodeType alias="initscriptsNew">
+    <header>Dynamic Scripts</header>
+    <usercontrol>../../App_Plugins/Optimus/Dialogs/CreateScript.ascx</usercontrol>
+    <tasks>
+      <delete assembly="Optimus" type="Umbraco.Tasks.DynamicScriptTasks" />
+    </tasks>
+  </nodeType>
 </createUI>

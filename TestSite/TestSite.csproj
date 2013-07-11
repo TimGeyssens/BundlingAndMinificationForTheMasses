@@ -241,52 +241,9 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="App_Plugins\Optimus\Services\jqueryFileTree.aspx.designer.cs">
-      <DependentUpon>jqueryFileTree.aspx</DependentUpon>
-    </Compile>
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
-    <Content Include="App_Plugins\Optimus\Content\Images\application.png" />
-    <Content Include="App_Plugins\Optimus\Content\Images\code.png" />
-    <Content Include="App_Plugins\Optimus\Content\Images\css.png" />
-    <Content Include="App_Plugins\Optimus\Content\Images\db.png" />
-    <Content Include="App_Plugins\Optimus\Content\Images\directory.png" />
-    <Content Include="App_Plugins\Optimus\Content\Images\doc.png" />
-    <Content Include="App_Plugins\Optimus\Content\Images\file.png" />
-    <Content Include="App_Plugins\Optimus\Content\Images\film.png" />
-    <Content Include="App_Plugins\Optimus\Content\Images\flash.png" />
-    <Content Include="App_Plugins\Optimus\Content\Images\folder_open.png" />
-    <Content Include="App_Plugins\Optimus\Content\Images\html.png" />
-    <Content Include="App_Plugins\Optimus\Content\Images\java.png" />
-    <Content Include="App_Plugins\Optimus\Content\Images\linux.png" />
-    <Content Include="App_Plugins\Optimus\Content\Images\music.png" />
-    <Content Include="App_Plugins\Optimus\Content\Images\pdf.png" />
-    <Content Include="App_Plugins\Optimus\Content\Images\php.png" />
-    <Content Include="App_Plugins\Optimus\Content\Images\picture.png" />
-    <Content Include="App_Plugins\Optimus\Content\Images\ppt.png" />
-    <Content Include="App_Plugins\Optimus\Content\Images\psd.png" />
-    <Content Include="App_Plugins\Optimus\Content\Images\ruby.png" />
-    <Content Include="App_Plugins\Optimus\Content\Images\script.png" />
-    <Content Include="App_Plugins\Optimus\Content\Images\spinner.gif" />
-    <Content Include="App_Plugins\Optimus\Content\Images\txt.png" />
-    <Content Include="App_Plugins\Optimus\Content\Images\xls.png" />
-    <Content Include="App_Plugins\Optimus\Content\Images\zip.png" />
-    <Content Include="App_Plugins\Optimus\Content\jqueryFileTree.css" />
-    <Content Include="App_Plugins\Optimus\Content\style.css" />
-    <Content Include="App_Plugins\Optimus\Dialogs\CreateScript.ascx" />
-    <Content Include="App_Plugins\Optimus\Dialogs\CreateStyleSheet.ascx" />
-    <Content Include="App_Plugins\Optimus\Pages\FileEditor.aspx" />
-    <None Include="App_Plugins\Optimus\Scripts\jquery-2.0.0.intellisense.js" />
-    <Content Include="App_Plugins\Optimus\Scripts\jquery-2.0.0.js" />
-    <Content Include="App_Plugins\Optimus\Scripts\jquery-2.0.0.min.js" />
-    <Content Include="App_Plugins\Optimus\Scripts\jquery-ui-1.10.2.js" />
-    <Content Include="App_Plugins\Optimus\Scripts\jquery-ui-1.10.2.min.js" />
-    <Content Include="App_Plugins\Optimus\Scripts\jqueryFileTree.js" />
-    <Content Include="App_Plugins\Optimus\Scripts\main.js" />
-    <Content Include="App_Plugins\Optimus\Scripts\underscore.js" />
-    <Content Include="App_Plugins\Optimus\Scripts\underscore.min.js" />
-    <Content Include="App_Plugins\Optimus\Services\jqueryFileTree.aspx" />
     <Content Include="bin\amd64\Microsoft.VC90.CRT\msvcr90.dll" />
     <Content Include="bin\amd64\Microsoft.VC90.CRT\README_ENU.txt" />
     <Content Include="bin\amd64\sqlceca40.dll" />
@@ -335,7 +292,9 @@
     <Content Include="xslt\dummy.txt" />
   </ItemGroup>
   <ItemGroup>
+    <Folder Include="App_Code\" />
     <Folder Include="App_Data\" />
+    <Folder Include="App_Plugins\" />
     <Folder Include="App_Start\" />
     <Folder Include="Controllers\" />
     <Folder Include="css\" />
@@ -414,10 +373,6 @@
     <Content Include="bin\amd64\Microsoft.VC90.CRT\Microsoft.VC90.CRT.manifest" />
   </ItemGroup>
   <ItemGroup>
-    <Content Include="App_Plugins\Optimus\config\bundles.config" />
-    <Content Include="App_Plugins\Optimus\Scripts\jquery-2.0.0.min.map" />
-    <Content Include="App_Plugins\Optimus\Views\Index.cshtml" />
-    <Content Include="App_Plugins\Optimus\Views\Web.config" />
     <None Include="BundleTransformer.Configuration.xsd">
       <SubType>Designer</SubType>
     </None>
