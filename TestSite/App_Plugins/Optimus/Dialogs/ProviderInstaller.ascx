@@ -8,8 +8,11 @@
 </style>
 
 <div style="padding: 10px 10px 0;">
-   
+    
     <umb:feedback ID="Feedback1" runat="server" type="success" text="Optimus core successfully installed!" />
+    <img src="/App_Plugins/Optimus/Content/Images/OptimusLogo.png" alt="Optimus" width="150"/>
+  
+
     <%= @"</div></div></div><div class='propertypane' style=''><div><div style='padding: 0 10px 0;'>" %>
     <h1 style="margin-top: 10px;">Install Providers</h1>
     <umb:feedback id="feedback" runat="server" />

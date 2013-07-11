@@ -324,6 +324,7 @@
     <Content Include="Content\images\java.png" />
     <Content Include="Content\images\linux.png" />
     <Content Include="Content\images\music.png" />
+    <Content Include="Content\images\OptimusLogo.png" />
     <Content Include="Content\images\pdf.png" />
     <Content Include="Content\images\php.png" />
     <Content Include="Content\images\picture.png" />
