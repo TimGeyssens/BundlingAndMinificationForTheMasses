@@ -13,17 +13,23 @@ namespace Optimus
         {
             var doc = XDocument.Load(HttpContext.Current.Server.MapPath(Config.BundlesConfigPath));
             var files = new List<string>();
+            var disableMinifcation = false;
 
             if (doc.Descendants(bundleType + "Bundle")
                    .Any(x => x.Attribute("virtualPath").Value == virtualPath))
             {
-                foreach (var file in doc.Descendants(bundleType + "Bundle")
-                                        .Single(x => x.Attribute("virtualPath").Value == virtualPath).Descendants())
+
+                var bundleElement = doc.Descendants(bundleType + "Bundle")
+                                        .Single(x => x.Attribute("virtualPath").Value == virtualPath);
+
+                disableMinifcation = bundleElement.Attribute("disableMinification") != null ? bundleElement.Attribute("disableMinification").Value == true.ToString() : false;
+                
+                foreach (var file in bundleElement.Descendants())
                 {
                     files.Add(file.Attribute("virtualPath").Value);
                 }
             }
-            return new BundleViewModel { VirtualPath = virtualPath, Files = files };
+            return new BundleViewModel { VirtualPath = virtualPath, DisableMinification = disableMinifcation, Files = files };
         }
 
         public static void SaveBundleFromViewModel(BundleViewModel bundle, string bundleType)
@@ -38,9 +44,12 @@ namespace Optimus
                        .Single(x => x.Attribute("virtualPath").Value == bundle.VirtualPath);
             else
             {
+                
                 bundleEl.SetAttributeValue("virtualPath", bundle.VirtualPath);
                 doc.Descendants("bundles").Single().Add(bundleEl);
             }
+
+            bundleEl.SetAttributeValue("disableMinification", bundle.DisableMinification.ToString());
 
             bundleEl.Elements().Remove();
 

@@ -11,6 +11,9 @@ namespace Optimus.Models
         [Display(Name = "Virtual path:")]
         public string VirtualPath { get; set; }
 
+        [Display(Name = "Disable minification:")]
+        public bool DisableMinification { get; set; }
+
         [Display(Name = "Files in bundle:")]
         public IEnumerable<string> Files { get; set; }
     }

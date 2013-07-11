@@ -31,6 +31,7 @@ namespace Optimus
                     {
                         var bundle = new Bundle(bundleElement.Attribute("virtualPath").Value);
                         var bundleHasFiles = false;
+                        var dontMinify = bundleElement.Attribute("disableMinification") != null ? bundleElement.Attribute("disableMinification").Value == true.ToString() : false;
 
                         foreach (var includeElement in bundleElement.Elements())
                         {
@@ -43,12 +44,14 @@ namespace Optimus
                             if (bundleType == "script")
                             {
                                 bundle.Transforms.Add(jsTransformer);
-                                bundle.Transforms.Add(new JsMinify());
+                                if(!dontMinify)
+                                    bundle.Transforms.Add(new JsMinify());
                             }
                             else
                             {
                                 bundle.Transforms.Add(cssTransformer);
-                                bundle.Transforms.Add(new CssMinify());
+                                if(!dontMinify)
+                                    bundle.Transforms.Add(new CssMinify());
                             }
                             bundle.Orderer = nullOrderer;
 

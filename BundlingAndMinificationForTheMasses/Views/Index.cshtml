@@ -102,6 +102,7 @@
                 
                 var model = {
                     VirtualPath: $('#VirtualPath').val(),
+                    DisableMinification: $('#DisableMinification').is(':checked'),
                     Files: data.Files
                 };
                 
@@ -161,7 +162,13 @@
                                     </div>
                                 </div>
 
-                        
+                                <div class="propertyItem">
+                                    <div class="propertyItemheader">@Html.LabelFor(m => m.DisableMinification)</div>
+                                    <div class="propertyItemContent">
+                                        @Html.EditorFor(m => m.DisableMinification)
+                                    </div>
+                                </div>
+
                                 <div class="propertyItem">
                                     <div class="propertyItemheader">Bundle Path</div>
                                     <div class="propertyItemContent">
