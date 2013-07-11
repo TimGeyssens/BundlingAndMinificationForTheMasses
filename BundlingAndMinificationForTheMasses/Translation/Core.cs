@@ -11,6 +11,8 @@ namespace Optimus.Translation
 {
     public class Core
     {
+        private static object configCacheSyncLock = new object();
+
         public List<IFileTranslator> GetStyleSheetTranslators()
         {
             return GetTranslators(TranslatorType.StyleSheet);
@@ -93,58 +95,71 @@ namespace Optimus.Translation
 
         private IFileTranslator GetTranslator(string fileExtension)
         {
-            var types = GetAllTypesUsingInterface(typeof(IFileTranslator));
-            foreach (var type in types)
-            {
-                IFileTranslator trans = Activator.CreateInstance(type) as IFileTranslator;
+            return CacheService.GetCacheItem<IFileTranslator>("OptimusKeyGetTranslator" + fileExtension, configCacheSyncLock, TimeSpan.FromHours(6),
+                   delegate
+                   {
+                       var types = GetAllTypesUsingInterface(typeof(IFileTranslator));
+                       foreach (var type in types)
+                       {
+                           IFileTranslator trans = Activator.CreateInstance(type) as IFileTranslator;
 
-                if (trans.FileExtension == fileExtension)
-                    return trans;
-            }
+                           if (trans.FileExtension == fileExtension)
+                               return trans;
+                       }
 
-            return null;
+                       return null;
+                   });
         }
 
         private List<IFileTranslator> GetTranslators(TranslatorType transType)
         {
-            var retVal = new List<IFileTranslator>();
+            return CacheService.GetCacheItem<List<IFileTranslator>>("OptimusKeyGetTranslators" + transType, configCacheSyncLock, TimeSpan.FromHours(6),
+                   delegate
+                   {
+                       var retVal = new List<IFileTranslator>();
 
-            var types = GetAllTypesUsingInterface(typeof(IFileTranslator));
-            foreach (var type in types)
-            {
-                IFileTranslator trans = Activator.CreateInstance(type) as IFileTranslator;
+                       var types = GetAllTypesUsingInterface(typeof(IFileTranslator));
+                       foreach (var type in types)
+                       {
+                           IFileTranslator trans = Activator.CreateInstance(type) as IFileTranslator;
 
-                if (trans.TranslatorType == transType)
-                    retVal.Add(trans);
-            }
+                           if (trans.TranslatorType == transType)
+                               retVal.Add(trans);
+                       }
 
-            return retVal;
+                       return retVal;
+                   });
         }
 
         private List<Type> GetAllTypesUsingInterface(Type interFaceType)
         {
-            var retVal = new List<Type>();
+            return CacheService.GetCacheItem<List<Type>>("OptimusKeyGetAllTypesUsingInterface" + interFaceType.Name, configCacheSyncLock, TimeSpan.FromHours(6),
+                  delegate
+                  {
+                      var retVal = new List<Type>();
 
-            var assemblies = AppDomain.CurrentDomain.GetAssemblies();
+                      var assemblies = AppDomain.CurrentDomain.GetAssemblies();
 
-            // NOTE: The similar functionality is located in the method above
-            foreach (var assembly in assemblies)
-            {
-                var modules = assembly.GetLoadedModules();
+                      // NOTE: The similar functionality is located in the method above
+                      foreach (var assembly in assemblies)
+                      {
+                          var modules = assembly.GetLoadedModules();
 
-                foreach (var module in modules)
-                {
-                    try
-                    {
-                        Type[] types = null;
-                        types = module.GetTypes();
-                        retVal.AddRange(types.Where(t=> interFaceType.IsAssignableFrom(t) && !t.IsInterface));
-                    }
-                    catch { } // required because Exception is thrown for some dlls when .GetTypes method is called
-                }
-            }
+                          foreach (var module in modules)
+                          {
+                              try
+                              {
+                                  Type[] types = null;
+                                  types = module.GetTypes();
+                                  retVal.AddRange(types.Where(t => interFaceType.IsAssignableFrom(t) && !t.IsInterface));
+                              }
+                              catch { } // required because Exception is thrown for some dlls when .GetTypes method is called
+                          }
+                      }
 
-            return retVal;
+                      return retVal;
+
+                  });
         }
     }
 }
