@@ -7,6 +7,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Web;
+using System.Web.Hosting;
 
 namespace Optimus.Providers.CoffeeScript
 {
@@ -73,7 +74,7 @@ namespace Optimus.Providers.CoffeeScript
 
             var normalScript = path.Replace("." + FileExtension, ".js");
 
-            using (var compiledScript = File.CreateText(normalScript))
+            using (var compiledScript = File.CreateText(HostingEnvironment.MapPath(normalScript)))
             {
                 compiledScript.Write(compiled.Content);
                 compiledScript.Close();

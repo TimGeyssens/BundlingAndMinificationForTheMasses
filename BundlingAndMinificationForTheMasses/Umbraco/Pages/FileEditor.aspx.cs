@@ -110,8 +110,9 @@ namespace Optimus.Umbraco.Pages
         private bool SaveConfigFile(string filename, string contents)
         {
            
-            var path = Server.MapPath(Request.QueryString["path"]) + filename;
-            using (var text = File.CreateText(path))
+            var path = Request.QueryString["path"] + filename;
+            var fullPath = Server.MapPath(Request.QueryString["path"]) + filename;
+            using (var text = File.CreateText(fullPath))
             {
                 //Save the file
                 text.Write(contents);

@@ -102,6 +102,7 @@
                 
                 var model = {
                     VirtualPath: $('#VirtualPath').val(),
+                    DisableMinification: $('#DisableMinification').is(':checked'),
                     Files: data.Files
                 };
                 
@@ -158,17 +159,26 @@
                                     <div class="propertyItemheader">@Html.LabelFor(m => m.VirtualPath)</div>
                                     <div class="propertyItemContent">
                                         @Html.EditorFor(m => m.VirtualPath)
+                                   
+                                        @if (UmbracoSettings.GetKey("/settings/templates/defaultRenderingEngine").ToLower() == "mvc")
+                                        {
+                                        <small>use with @@@{@exampleScript}.Render("@Model.VirtualPath")</small>
+                                        }
+                                        else
+                                        {
+                                        <small>use with <%: @{@exampleScript}.Render("@Model.VirtualPath") %></small>    
+                                        }
                                     </div>
                                 </div>
 
-                        
                                 <div class="propertyItem">
-                                    <div class="propertyItemheader">Bundle Path</div>
+                                    <div class="propertyItemheader">@Html.LabelFor(m => m.DisableMinification)</div>
                                     <div class="propertyItemContent">
-                                       
-                                        use with @@@{@exampleScript}.Render("@Model.VirtualPath")
+                                        @Html.EditorFor(m => m.DisableMinification)
                                     </div>
                                 </div>
+
+                               
 
                                 <div class="propertyItem">
                                     <div class="propertyItemheader">@Html.LabelFor(m => m.Files)</div>

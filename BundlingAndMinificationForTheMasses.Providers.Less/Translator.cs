@@ -7,6 +7,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Web;
+using System.Web.Hosting;
 
 namespace Optimus.Providers.Less
 {
@@ -73,7 +74,7 @@ namespace Optimus.Providers.Less
 
             var normalCSS = path.Replace("." + FileExtension, ".css");
 
-            using (var compiledCSS = File.CreateText(normalCSS))
+            using (var compiledCSS = File.CreateText(HostingEnvironment.MapPath(normalCSS)))
             {
                 compiledCSS.Write(compiled.Content);
                 compiledCSS.Close();
