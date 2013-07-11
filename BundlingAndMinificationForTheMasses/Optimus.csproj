@@ -283,6 +283,7 @@
     <Compile Include="Umbraco\Tasks\DynamicStyleTasks.cs" />
     <Compile Include="Umbraco\Tasks\StyleBundleTasks.cs" />
     <Compile Include="Umbraco\Tasks\ScriptBundleTasks.cs" />
+    <Compile Include="Umbraco\Trees\BaseDynamicFileTree.cs" />
     <Compile Include="Umbraco\Trees\BundlingAndMinificationTree.cs" />
     <Compile Include="Umbraco\Trees\DynamicCSSTree.cs" />
     <Compile Include="Umbraco\Trees\DynamicScriptTree.cs" />
