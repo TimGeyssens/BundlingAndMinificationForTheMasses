@@ -27,7 +27,12 @@ namespace Optimus.Umbraco
         {
             WebApiConfig.Register(GlobalConfiguration.Configuration);
             RouteConfig.RegisterRoutes(RouteTable.Routes);
-            BundleConfig.RegisterBundles(BundleTable.Bundles);
+
+            try
+            {
+                BundleConfig.RegisterBundles(BundleTable.Bundles);
+            }
+            catch { }
 
             umbracoPage.Load += umbracoPage_Load;
 
