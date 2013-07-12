@@ -238,10 +238,10 @@ namespace Optimus.Umbraco.Installer
             XmlNode rootNode = configDocument.SelectSingleNode(xPath);
 
             //Check if XML already exists
-            var checkExists = configDocument.SelectSingleNode(".//" + xmlFragment.SelectSingleNode(".").Name.ToString());
-
-            if (checkExists == null)
-            {
+            //var checkExists = configDocument.SelectSingleNode(".//" + xmlFragment.SelectSingleNode(".").Name.ToString());
+            
+            //if (checkExists == null)
+            //{
                 if (position.Equals("beginning", StringComparison.CurrentCultureIgnoreCase))
                 {
                     //Add xml fragment to the beginning of the selected rootnode
@@ -257,11 +257,11 @@ namespace Optimus.Umbraco.Installer
                 configDocument.Save(HttpContext.Current.Server.MapPath(configFileName));
 
                 result = true;
-            }
-            else
-            {
-                result = false;
-            }
+            //}
+            //else
+            //{
+            //    result = false;
+            //}
 
             return result;
         }
