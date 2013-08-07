@@ -85,12 +85,17 @@ namespace Optimus.Translation
 
         public void SaveTranslation(string filePath)
         {
+
+            var compileDynamicStyleSheets = Optimus.Settings.GetSetting("compileDynamicStyleSheetsToCss") == "True" || String.IsNullOrEmpty(Optimus.Settings.GetSetting("compileDynamicStyleSheetsToCss"));
+            var compileDynamicJavaScript = Optimus.Settings.GetSetting("compileDynamicJavaScriptToJs") == "True" || String.IsNullOrEmpty(Optimus.Settings.GetSetting("compileDynamicJavaScriptToJs"));
+
             var extension = Path.GetExtension(filePath);
             extension = extension.Substring(1, extension.Length - 1);
             var translator = GetTranslator(extension);
-
-            translator.SaveTranslation(filePath);
-
+            if ((translator.TranslatorType == TranslatorType.StyleSheet && compileDynamicStyleSheets)||(translator.TranslatorType == TranslatorType.Script && compileDynamicJavaScript))
+            {
+                translator.SaveTranslation(filePath); 
+            }             
         }
 
         private IFileTranslator GetTranslator(string fileExtension)
