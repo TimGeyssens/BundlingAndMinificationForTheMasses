@@ -16,7 +16,7 @@ namespace Optimus
         {
             try
             {
-                BundleTable.EnableOptimizations = true;
+                //BundleTable.EnableOptimizations = true;
 
                 var cssTransformer = new CssTransformer();
                 var jsTransformer = new JsTransformer();

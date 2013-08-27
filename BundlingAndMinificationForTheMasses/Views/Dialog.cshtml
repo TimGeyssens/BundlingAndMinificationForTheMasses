@@ -2,8 +2,10 @@
 @{
     string bundleType = "script";
     string bundleFunction = "Scripts";
+    
+    string[] styleSheetExtensions = { ".css", ".less", ".scss", ".sass" };
 
-    if (Model.Files.Any() && Model.Files.First().Contains(".css"))
+    if (Model.Files.Any() && styleSheetExtensions.Any(Model.Files.First().Contains))
     {
         bundleType = "style";
         bundleFunction = "Styles";
