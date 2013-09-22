@@ -91,6 +91,6 @@ UL.jqueryFileTree A:hover {
 .jqueryFileTree LI.ext_zip { background: url(images/zip.png) left top no-repeat; }
 
 .jqueryFileTree LI.ext_less { background: url(../icons/less-icon.png) left top no-repeat; }
-.jqueryFileTree LI.ext_sass { background: url(../icons/sass-icon.png) left top no-repeat; }
+.jqueryFileTree LI.ext_sass, .jqueryFileTree LI.ext_scss { background: url(../icons/sass-icon.png) left top no-repeat; }
 .jqueryFileTree LI.ext_coffee { background: url(../icons/coffee-icon.png) left top no-repeat; }
 .jqueryFileTree LI.ext_ts { background: url(../icons/typescript-icon.png) left top no-repeat; }
