@@ -8,10 +8,72 @@ using umbraco;
 using umbraco.BasePages;
 using umbraco.BusinessLogic;
 using umbraco.interfaces;
-using umbraco.cms.businesslogic.packager.standardPackageActions;
 
 namespace Optimus.Umbraco.Installer
 {
+    using System.IO;
+    using System.Xml.XPath;
+
+    using umbraco.cms.businesslogic.packager.standardPackageActions;
+
+    public class AddAssemblyBinding : IPackageAction
+    {
+        public string Alias()
+        {
+            return "Umbundle.AddAssemblyBinding";
+        }
+
+        public bool Execute(string packageName, XmlNode xmlData)
+        {
+
+            string filename = HttpContext.Current.Server.MapPath("/web.config");
+            XmlDocument document = new XmlDocument();
+            try
+            {
+                document.Load(filename);
+            }
+            catch (FileNotFoundException)
+            {
+            }
+
+            XmlNamespaceManager nsmgr = new XmlNamespaceManager(document.NameTable);
+            nsmgr.AddNamespace("bindings", "urn:schemas-microsoft-com:asm.v1");
+
+            XPathNavigator nav = document.CreateNavigator().SelectSingleNode("//bindings:assemblyBinding", nsmgr);
+            if (nav == null)
+            {
+                throw new Exception("Invalid Configuration File");
+            }
+           
+            XmlNode node = xmlData.SelectSingleNode("./*");
+            if (node == null)
+            {
+                throw new Exception("Invalid Configuration File");
+            }
+
+            nav.AppendChild(node.OuterXml);
+
+            document.Save(filename);
+            return true;
+        }
+
+        public XmlNode SampleXml()
+        {
+            string str = "<Action runat=\"install\" undo=\"false\" alias=\"Umbundle.AddAssemblyBindin\">" +
+                            "<dependentAssembly>" +
+                                "<assemblyIdentity name=\"newone\" publicKeyToken=\"608967\" />" +
+                                "<bindingRedirect oldVersion=\"1\" newwVersion=\"2\" />" +
+                            "</dependentAssembly>" +
+                         "</Action>";
+            return helper.parseStringToXmlNode(str);
+        }
+
+        public bool Undo(string packageName, XmlNode xmlData)
+        {
+            return false;
+        }
+    }
+ 
     public class AddUIPackageAction : IPackageAction 
     {
         //Set the UI.xml full path
