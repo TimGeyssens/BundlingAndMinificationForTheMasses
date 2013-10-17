@@ -88,8 +88,20 @@ Desktop.ini
 
 
 # Data folders/files
-*/ExamineIndexes/*
-www/App_Data/umbraco.config
-*/App_Browsers/*
-*/App_Data/TEMP/*
+TestSite/App_Data/umbraco.config
+TestSite/App_Data/preview/*.config
+TestSite/App_Data/TEMP/ClientDependency/
+TestSite/App_Data/ClientDependency/
+TestSite/App_Data/TEMP/ExamineIndexes/
+TestSite/App_Data/TEMP/PluginCache/*
+TestSite/App_Data/TEMP/SEOChecker/
+TestSite/App_Data/Logs/*
+TestSite/App_Data/TEMP/Razor/
+TestSite/App_Data/FeedCache/
+TestSite/App_Data/courier/revisions/
+TestSite/App_Data/courier/cache/*
+TestSite/App_Data/umbraco.licensing.log.txt
+TestSite/aspnet_client/
+TestSite/App_Data/*.udt
+
 */_systemUmbracoIndexDontDelete/*
