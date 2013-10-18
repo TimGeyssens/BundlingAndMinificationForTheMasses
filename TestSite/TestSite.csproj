@@ -91,6 +91,10 @@
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\packages\JavaScriptEngineSwitcher.Core.0.9.2\lib\net40\JavaScriptEngineSwitcher.Core.dll</HintPath>
     </Reference>
+    <Reference Include="JavaScriptEngineSwitcher.Msie, Version=0.9.2.0, Culture=neutral, PublicKeyToken=c608b2a8cc9e4472, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\packages\JavaScriptEngineSwitcher.Msie.0.9.2\lib\net40\JavaScriptEngineSwitcher.Msie.dll</HintPath>
+    </Reference>
     <Reference Include="log4net">
       <HintPath>..\packages\UmbracoCms.Core.6.0.5\lib\log4net.dll</HintPath>
     </Reference>
