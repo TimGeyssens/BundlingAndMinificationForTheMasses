@@ -16,7 +16,12 @@ namespace Optimus
         {
             try
             {
-                //BundleTable.EnableOptimizations = true;
+                var ignoreCompilationDebug = Settings.GetSetting("ignoreCompilationDebug") == "True" || string.IsNullOrEmpty(Settings.GetSetting("ignoreCompilationDebug"));
+
+                if (ignoreCompilationDebug)
+                {                    
+                    BundleTable.EnableOptimizations = true;
+                }
 
                 var cssTransformer = new CssTransformer();
                 var jsTransformer = new JsTransformer();
