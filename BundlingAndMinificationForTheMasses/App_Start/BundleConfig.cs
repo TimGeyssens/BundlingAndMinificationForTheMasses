@@ -10,6 +10,10 @@ using umbraco.BusinessLogic;
 
 namespace Optimus
 {
+    using System.IO;
+
+    using global::Umbraco.Core.Logging;
+
     public class BundleConfig
     {
         public static void RegisterBundles(BundleCollection bundles)
@@ -39,9 +43,23 @@ namespace Optimus
                         var dontMinify = bundleElement.Attribute("disableMinification") != null ? bundleElement.Attribute("disableMinification").Value == true.ToString() : false;
 
                         foreach (var includeElement in bundleElement.Elements())
-                        {
-                            bundle.Include(includeElement.Attribute("virtualPath").Value);
-                            bundleHasFiles = true;
+                        {                                                        
+                            var filePath = includeElement.Attribute("virtualPath").Value;
+                            string fullPath = null;
+                            try
+                            {
+                                fullPath = HttpContext.Current.Server.MapPath(filePath);
+                            }
+                            catch (Exception ex)
+                            {
+                                LogHelper.Warn<Exception>("Optmius skipped '" + filePath + "' in Bundle '" + bundle.Path + "' as the file path was invalid. Only application relative URLs (~/url) are allowed.");
+                            }
+
+                            if (fullPath != null)
+                            {
+                                bundle.Include(filePath);
+                                bundleHasFiles = true;
+                            }
                         }
 
                         if (bundleHasFiles)
@@ -70,7 +88,7 @@ namespace Optimus
             }
             catch (Exception e)
             {
-                Log.Add(LogTypes.Error, new User(0), -1, "Error adding bundles: " + e.ToString());
+                LogHelper.Error(typeof(BundleCollection), "Error adding bundles: " + e.ToString(),e);
             }
 
 
