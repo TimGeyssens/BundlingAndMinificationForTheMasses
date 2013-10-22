@@ -33,8 +33,10 @@
 *.dotCover
 
 ##NuGet
-packages/*
+/packages/*
 !packages/repositories.config
+!TestSite/App_Data/packages
+!TestSite/Umbraco/Developer/Packages
 
 #Allow NuGet.exe (do not ignore)
 !NuGet.exe
