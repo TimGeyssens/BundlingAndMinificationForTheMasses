@@ -1911,3 +1911,7 @@ System.Web.HttpUnhandledException (0x80004005): Exception of type 'System.Web.Ht
    at ASP.umbraco_create_aspx.ProcessRequest(HttpContext context) in c:\Users\Timbo\AppData\Local\Temp\Temporary ASP.NET Files\root\a79e91a7\903c4e19\App_Web_create.aspx.5f2dec3.2yn0ulxt.0.cs:line 0
    at System.Web.HttpApplication.CallHandlerExecutionStep.System.Web.HttpApplication.IExecutionStep.Execute()
    at System.Web.HttpApplication.ExecuteStep(IExecutionStep step, Boolean& completedSynchronously)
+2013-10-30 20:29:52,732 [17] INFO  Umbraco.Core.PluginManager - [Thread 20] Starting resolution types of Umbraco.Web.Trees.TreeController
+2013-10-30 20:29:52,732 [17] INFO  Umbraco.Core.PluginManager - [Thread 20] Completed resolution of types of Umbraco.Web.Trees.TreeController, found 4 (took 0ms)
+2013-10-30 20:29:54,606 [17] INFO  Umbraco.Core.PluginManager - [Thread 36] Starting resolution types of Umbraco.Core.Persistence.Mappers.BaseMapper
+2013-10-30 20:29:54,615 [17] INFO  Umbraco.Core.PluginManager - [Thread 36] Completed resolution of types of Umbraco.Core.Persistence.Mappers.BaseMapper, found 20 (took 9ms)
