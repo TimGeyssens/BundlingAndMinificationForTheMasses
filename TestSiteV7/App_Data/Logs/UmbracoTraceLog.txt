@@ -979,3 +979,72 @@
 2013-10-30 20:00:11,847 [20] INFO  Umbraco.Core.PluginManager - [Thread 19] Completed resolution of types of umbraco.BusinessLogic.Actions.IActionHandler, found 1 (took 7ms)
 2013-10-30 20:04:27,878 [20] INFO  umbraco.BusinessLogic.Log - [Thread 14] Log scrubbed.  Removed all items older than 2013-08-31 20:04:27
 2013-10-30 20:04:27,879 [20] INFO  Umbraco.Core.UmbracoApplicationBase - [Thread 14] Application shutdown. Reason: BinDirChangeOrDirectoryRename
+2013-10-30 20:07:13,956 [7] INFO  Umbraco.Core.PluginManager - [Thread 1] Determining hash of code files on disk
+2013-10-30 20:07:13,972 [7] INFO  Umbraco.Core.PluginManager - [Thread 1] Hash determined (took 11ms)
+2013-10-30 20:07:13,978 [7] INFO  Umbraco.Core.PluginManager - [Thread 1] Starting resolution types of umbraco.interfaces.IApplicationStartupHandler
+2013-10-30 20:07:14,393 [7] INFO  Umbraco.Core.PluginManager - [Thread 1] Completed resolution of types of umbraco.interfaces.IApplicationStartupHandler, found 29 (took 413ms)
+2013-10-30 20:07:14,494 [7] INFO  Umbraco.Core.PluginManager - [Thread 1] Starting resolution types of Umbraco.Core.PropertyEditors.IPropertyEditorValueConverter
+2013-10-30 20:07:14,499 [7] INFO  Umbraco.Core.PluginManager - [Thread 1] Completed resolution of types of Umbraco.Core.PropertyEditors.IPropertyEditorValueConverter, found 0 (took 4ms)
+2013-10-30 20:07:14,500 [7] INFO  Umbraco.Core.PluginManager - [Thread 1] Starting resolution types of Umbraco.Core.PropertyEditors.IPropertyValueConverter
+2013-10-30 20:07:14,513 [7] INFO  Umbraco.Core.PluginManager - [Thread 1] Completed resolution of types of Umbraco.Core.PropertyEditors.IPropertyValueConverter, found 12 (took 13ms)
+2013-10-30 20:07:14,530 [7] INFO  Umbraco.Core.PluginManager - [Thread 1] Starting resolution types of Umbraco.Web.Mvc.SurfaceController
+2013-10-30 20:07:14,539 [7] INFO  Umbraco.Core.PluginManager - [Thread 1] Completed resolution of types of Umbraco.Web.Mvc.SurfaceController, found 4 (took 9ms)
+2013-10-30 20:07:14,540 [7] INFO  Umbraco.Core.PluginManager - [Thread 1] Starting resolution types of Umbraco.Web.WebApi.UmbracoApiController
+2013-10-30 20:07:14,547 [7] INFO  Umbraco.Core.PluginManager - [Thread 1] Completed resolution of types of Umbraco.Web.WebApi.UmbracoApiController, found 26 (took 7ms)
+2013-10-30 20:07:14,558 [7] INFO  Umbraco.Core.PluginManager - [Thread 1] Starting resolution types of Umbraco.Core.Media.IThumbnailProvider
+2013-10-30 20:07:14,569 [7] INFO  Umbraco.Core.PluginManager - [Thread 1] Completed resolution of types of Umbraco.Core.Media.IThumbnailProvider, found 3 (took 10ms)
+2013-10-30 20:07:14,570 [7] INFO  Umbraco.Core.PluginManager - [Thread 1] Starting resolution types of Umbraco.Core.Media.IImageUrlProvider
+2013-10-30 20:07:14,579 [7] INFO  Umbraco.Core.PluginManager - [Thread 1] Completed resolution of types of Umbraco.Core.Media.IImageUrlProvider, found 1 (took 9ms)
+2013-10-30 20:07:15,225 [7] INFO  Umbraco.Core.PluginManager - [Thread 1] Starting resolution types of umbraco.interfaces.IApplication
+2013-10-30 20:07:15,248 [7] INFO  Umbraco.Core.PluginManager - [Thread 1] Completed resolution of types of umbraco.interfaces.IApplication, found 7 (took 23ms)
+2013-10-30 20:07:17,056 [7] INFO  umbraco.BusinessLogic.Log - [Thread 8] Redirected log call (please use Umbraco.Core.Logging.LogHelper instead of umbraco.BusinessLogic.Log) | Type: Error | User: 0 | NodeId: -1 | Comment: Error reading bundles.config file: System.IO.DirectoryNotFoundException: Could not find a part of the path 'C:\Users\Timbo\Documents\GitHub\BundlingAndMinificationForTheMasses\TestSiteV7\App_Plugins\Optimus\config\bundles.config'.
+   at System.IO.__Error.WinIOError(Int32 errorCode, String maybeFullPath)
+   at System.IO.FileStream.Init(String path, FileMode mode, FileAccess access, Int32 rights, Boolean useRights, FileShare share, Int32 bufferSize, FileOptions options, SECURITY_ATTRIBUTES secAttrs, String msgPath, Boolean bFromProxy, Boolean useLongPath, Boolean checkHost)
+   at System.IO.FileStream..ctor(String path, FileMode mode, FileAccess access, FileShare share, Int32 bufferSize)
+   at System.Xml.XmlDownloadManager.GetStream(Uri uri, ICredentials credentials, IWebProxy proxy, RequestCachePolicy cachePolicy)
+   at System.Xml.XmlUrlResolver.GetEntity(Uri absoluteUri, String role, Type ofObjectToReturn)
+   at System.Xml.XmlTextReaderImpl.OpenUrlDelegate(Object xmlResolver)
+   at System.Threading.CompressedStack.runTryCode(Object userData)
+   at System.Runtime.CompilerServices.RuntimeHelpers.ExecuteCodeWithGuaranteedCleanup(TryCode code, CleanupCode backoutCode, Object userData)
+   at System.Threading.CompressedStack.Run(CompressedStack compressedStack, ContextCallback callback, Object state)
+   at System.Xml.XmlTextReaderImpl.OpenUrl()
+   at System.Xml.XmlTextReaderImpl.Read()
+   at System.Xml.XmlLoader.Load(XmlDocument doc, XmlReader reader, Boolean preserveWhitespace)
+   at System.Xml.XmlDocument.Load(XmlReader reader)
+   at Optimus.Settings.ensureSettingsDocument() in c:\Users\Timbo\Documents\GitHub\BundlingAndMinificationForTheMasses\BundlingAndMinificationForTheMasses\Settings.cs:line 37
+2013-10-30 20:07:17,075 [7] ERROR System.Web.Optimization.BundleCollection - [Thread 1] Error adding bundles: System.NullReferenceException: Object reference not set to an instance of an object.
+   at BundleTransformer.Core.Transformers.CssTransformer.CreateDefaultMinifier()
+   at BundleTransformer.Core.Transformers.CssTransformer..ctor(IMinifier minifier, IList`1 translators, String[] ignorePatterns, IHttpApplicationInfo applicationInfo, CoreSettings coreConfig)
+   at BundleTransformer.Core.Transformers.CssTransformer..ctor(IMinifier minifier, IList`1 translators, String[] ignorePatterns, IHttpApplicationInfo applicationInfo)
+   at BundleTransformer.Core.Transformers.CssTransformer..ctor(IMinifier minifier, IList`1 translators, String[] ignorePatterns)
+   at BundleTransformer.Core.Transformers.CssTransformer..ctor()
+   at Optimus.BundleConfig.RegisterBundles(BundleCollection bundles) in c:\Users\Timbo\Documents\GitHub\BundlingAndMinificationForTheMasses\BundlingAndMinificationForTheMasses\App_Start\BundleConfig.cs:line 30
+System.NullReferenceException: Object reference not set to an instance of an object.
+   at BundleTransformer.Core.Transformers.CssTransformer.CreateDefaultMinifier()
+   at BundleTransformer.Core.Transformers.CssTransformer..ctor(IMinifier minifier, IList`1 translators, String[] ignorePatterns, IHttpApplicationInfo applicationInfo, CoreSettings coreConfig)
+   at BundleTransformer.Core.Transformers.CssTransformer..ctor(IMinifier minifier, IList`1 translators, String[] ignorePatterns, IHttpApplicationInfo applicationInfo)
+   at BundleTransformer.Core.Transformers.CssTransformer..ctor(IMinifier minifier, IList`1 translators, String[] ignorePatterns)
+   at BundleTransformer.Core.Transformers.CssTransformer..ctor()
+   at Optimus.BundleConfig.RegisterBundles(BundleCollection bundles) in c:\Users\Timbo\Documents\GitHub\BundlingAndMinificationForTheMasses\BundlingAndMinificationForTheMasses\App_Start\BundleConfig.cs:line 30
+2013-10-30 20:07:17,091 [7] INFO  Umbraco.Core.PluginManager - [Thread 1] Starting resolution types of Umbraco.Web.Trees.TreeController
+2013-10-30 20:07:17,097 [7] INFO  Umbraco.Core.PluginManager - [Thread 1] Completed resolution of types of Umbraco.Web.Trees.TreeController, found 4 (took 6ms)
+2013-10-30 20:07:17,107 [7] INFO  Umbraco.Core.PluginManager - [Thread 1] Starting resolution types of umbraco.interfaces.ITree
+2013-10-30 20:07:17,175 [7] INFO  Umbraco.Core.PluginManager - [Thread 1] Completed resolution of types of umbraco.interfaces.ITree, found 22 (took 67ms)
+2013-10-30 20:07:17,182 [7] INFO  Umbraco.Web.Search.ExamineEvents - [Thread 1] Initializing Examine and binding to business logic events
+2013-10-30 20:07:17,374 [7] INFO  Umbraco.Web.Search.ExamineEvents - [Thread 1] Adding examine event handlers for index providers: 3
+2013-10-30 20:07:17,569 [7] INFO  umbraco.content - [Thread 9] Loading content from database...
+2013-10-30 20:07:17,622 [7] WARN  Umbraco.Web.UmbracoModule - [Thread 9] Umbraco has no content
+2013-10-30 20:07:19,508 [7] INFO  Umbraco.Web.UI.Install.InstallerRestService - [Thread 9] Hitting Page_Load on InstallerRestService.aspx for the requested 'developervids' feed
+2013-10-30 20:07:19,508 [7] INFO  Umbraco.Web.UI.Install.InstallerRestService - [Thread 8] Hitting Page_Load on InstallerRestService.aspx for the requested 'sitebuildervids' feed
+2013-10-30 20:07:24,913 [7] INFO  Umbraco.Core.PluginManager - [Thread 12] Starting resolution types of Umbraco.Web.Trees.TreeController
+2013-10-30 20:07:24,914 [7] INFO  Umbraco.Core.PluginManager - [Thread 12] Completed resolution of types of Umbraco.Web.Trees.TreeController, found 4 (took 0ms)
+2013-10-30 20:07:26,311 [7] INFO  Umbraco.Core.PluginManager - [Thread 10] Starting resolution types of umbraco.interfaces.ITree
+2013-10-30 20:07:26,406 [7] INFO  Umbraco.Core.PluginManager - [Thread 10] Completed resolution of types of umbraco.interfaces.ITree, found 39 (took 94ms)
+2013-10-30 20:07:26,540 [7] INFO  Umbraco.Core.PluginManager - [Thread 10] Starting resolution types of umbraco.interfaces.IAction
+2013-10-30 20:07:26,625 [7] INFO  Umbraco.Core.PluginManager - [Thread 10] Completed resolution of types of umbraco.interfaces.IAction, found 34 (took 84ms)
+2013-10-30 20:07:26,640 [7] INFO  Umbraco.Core.PluginManager - [Thread 10] Starting resolution types of umbraco.BusinessLogic.Actions.IActionHandler
+2013-10-30 20:07:26,646 [7] INFO  Umbraco.Core.PluginManager - [Thread 10] Completed resolution of types of umbraco.BusinessLogic.Actions.IActionHandler, found 1 (took 5ms)
+2013-10-30 20:07:45,103 [7] INFO  Umbraco.Core.PluginManager - [Thread 10] Starting resolution types of Umbraco.Core.Persistence.Mappers.BaseMapper
+2013-10-30 20:07:45,109 [7] INFO  Umbraco.Core.PluginManager - [Thread 10] Completed resolution of types of Umbraco.Core.Persistence.Mappers.BaseMapper, found 20 (took 5ms)
+2013-10-30 20:08:23,174 [7] INFO  umbraco.BusinessLogic.Log - [Thread 8] Log scrubbed.  Removed all items older than 2013-08-31 20:08:23
+2013-10-30 20:08:23,178 [7] INFO  Umbraco.Core.UmbracoApplicationBase - [Thread 8] Application shutdown. Reason: ConfigurationChange

@@ -249,6 +249,7 @@
     <Compile Include="Controllers\BundleController.cs" />
     <Compile Include="Enums\TranslatorType.cs" />
     <Compile Include="Extensions\DateTimeExtensions.cs" />
+    <Compile Include="Helpers\CompatibilityHelper.cs" />
     <Compile Include="Helpers\XmlHelper.cs" />
     <Compile Include="Interfaces\IFileTranslator.cs" />
     <Compile Include="Models\BundleViewModel.cs" />
