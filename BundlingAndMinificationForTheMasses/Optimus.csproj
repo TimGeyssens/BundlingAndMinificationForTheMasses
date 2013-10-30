@@ -484,8 +484,7 @@
   </ProjectExtensions>
   <Import Project="$(SolutionDir)\.nuget\nuget.targets" />
   <PropertyGroup>
-    <PostBuildEvent>
-xcopy "$(ProjectDir)bin\Optimus.*" "$(ProjectDir)..\TestSite\bin\" /Y
+    <PostBuildEvent>xcopy "$(ProjectDir)bin\Optimus.*" "$(ProjectDir)..\TestSite\bin\" /Y
 
 xcopy "$(ProjectDir)bin\System.Web.Optimization.*" "$(ProjectDir)..\TestSite\bin\" /Y
 
@@ -493,15 +492,7 @@ xcopy "$(ProjectDir)bin\BundleTransformer.Core.*" "$(ProjectDir)..\TestSite\bin\
 
 xcopy "$(ProjectDir)bin\WebGrease.*" "$(ProjectDir)..\TestSite\bin\" /Y
 
-
 xcopy "$(ProjectDir)bin\Antlr3.Runtime*" "$(ProjectDir)..\TestSite\bin\" /Y
-
-
-
-
-
-
-
 
 xcopy "$(ProjectDir)Views\*.*" "$(ProjectDir)..\TestSite\App_Plugins\Optimus\Views\" /Y   
 
@@ -517,7 +508,34 @@ xcopy "$(ProjectDir)Umbraco\Dialogs\*.ascx" "$(ProjectDir)..\TestSite\App_Plugin
 
 xcopy "$(ProjectDir)Umbraco\Pages\*.aspx" "$(ProjectDir)..\TestSite\App_Plugins\Optimus\Pages\" /Y
 
-xcopy "$(ProjectDir)Umbraco\Icons\*.*" "$(ProjectDir)..\TestSite\App_Plugins\Optimus\Icons\" /Y</PostBuildEvent>
+xcopy "$(ProjectDir)Umbraco\Icons\*.*" "$(ProjectDir)..\TestSite\App_Plugins\Optimus\Icons\" /Y
+
+
+xcopy "$(ProjectDir)bin\Optimus.*" "$(ProjectDir)..\TestSiteV7\bin\" /Y
+
+xcopy "$(ProjectDir)bin\System.Web.Optimization.*" "$(ProjectDir)..\TestSiteV7\bin\" /Y
+
+xcopy "$(ProjectDir)bin\BundleTransformer.Core.*" "$(ProjectDir)..\TestSiteV7\bin\" /Y
+
+xcopy "$(ProjectDir)bin\WebGrease.*" "$(ProjectDir)..\TestSiteV7\bin\" /Y
+
+xcopy "$(ProjectDir)bin\Antlr3.Runtime*" "$(ProjectDir)..\TestSiteV7\bin\" /Y
+
+xcopy "$(ProjectDir)Views\*.*" "$(ProjectDir)..\TestSiteV7\App_Plugins\Optimus\Views\" /Y   
+
+xcopy "$(ProjectDir)Scripts\*.*" "$(ProjectDir)..\TestSiteV7\App_Plugins\Optimus\Scripts\" /Y   
+
+xcopy "$(ProjectDir)Content\*.*" "$(ProjectDir)..\TestSiteV7\App_Plugins\Optimus\Content\" /Y   
+
+xcopy "$(ProjectDir)Content\Images\*.*" "$(ProjectDir)..\TestSiteV7\App_Plugins\Optimus\Content\Images\" /Y   
+
+xcopy "$(ProjectDir)Services\*.*" "$(ProjectDir)..\TestSiteV7\App_Plugins\Optimus\Services\" /Y
+
+xcopy "$(ProjectDir)Umbraco\Dialogs\*.ascx" "$(ProjectDir)..\TestSiteV7\App_Plugins\Optimus\Dialogs\" /Y
+
+xcopy "$(ProjectDir)Umbraco\Pages\*.aspx" "$(ProjectDir)..\TestSiteV7\App_Plugins\Optimus\Pages\" /Y
+
+xcopy "$(ProjectDir)Umbraco\Icons\*.*" "$(ProjectDir)..\TestSiteV7\App_Plugins\Optimus\Icons\" /Y</PostBuildEvent>
   </PropertyGroup>
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

@@ -198,12 +198,17 @@
 
 xcopy "$(ProjectDir)bin\BundleTransformer.CoffeeScript.*" "$(ProjectDir)..\TestSite\bin\" /Y
 
-
-
 xcopy "$(ProjectDir)bin\MsieJavaScriptEngine.*" "$(ProjectDir)..\TestSite\bin\" /Y
 
+xcopy "$(ProjectDir)bin\Newtonsoft.Json.*" "$(ProjectDir)..\TestSite\bin\" /Y
 
-xcopy "$(ProjectDir)bin\Newtonsoft.Json.*" "$(ProjectDir)..\TestSite\bin\" /Y</PostBuildEvent>
+xcopy "$(ProjectDir)bin\Optimus.Providers.CoffeeScript*" "$(ProjectDir)..\TestSiteV7\bin\" /Y
+
+xcopy "$(ProjectDir)bin\BundleTransformer.CoffeeScript.*" "$(ProjectDir)..\TestSiteV7\bin\" /Y
+
+xcopy "$(ProjectDir)bin\MsieJavaScriptEngine.*" "$(ProjectDir)..\TestSiteV7\bin\" /Y
+
+xcopy "$(ProjectDir)bin\Newtonsoft.Json.*" "$(ProjectDir)..\TestSiteV7\bin\" /Y</PostBuildEvent>
   </PropertyGroup>
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

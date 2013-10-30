@@ -1,0 +1,52 @@
+﻿#file_tree,#selected_files
+{
+    width: 300px;
+    height: 500px;
+    overflow: scroll;
+    border: 1px solid #bbb;
+    background: #FFF;
+    float: left;
+    padding: 5px;
+}
+
+    #selected_files {
+        margin-top: 0px;
+        margin-left: 5px;
+}
+
+#selected_files li {
+    cursor: move;
+}
+
+#selected_files li:hover {
+    background-color: #BDF;
+}
+
+#selected_files li span
+{
+    cursor: pointer;
+}
+
+#selected_files li span.delete {
+    float: right;
+    color: darkred;
+    background: url(images/cross.png) no-repeat top left;
+    display: inline-block;
+    height: 16px;
+    width: 16px;
+}
+
+#save {
+    height: 26px;
+    margin: 0;
+    padding: 0;
+}
+
+#save img {
+    padding: 0;
+    margin: 0;
+}
+
+.panel {
+    width: 100% !important;
+}

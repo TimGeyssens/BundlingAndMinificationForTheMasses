@@ -197,7 +197,13 @@
 
 xcopy "$(ProjectDir)bin\BundleTransformer.Less.*" "$(ProjectDir)..\TestSite\bin\" /Y
 
-xcopy "$(ProjectDir)bin\dotless.Core.*" "$(ProjectDir)..\TestSite\bin\" /Y</PostBuildEvent>
+xcopy "$(ProjectDir)bin\dotless.Core.*" "$(ProjectDir)..\TestSite\bin\" /Y
+
+xcopy "$(ProjectDir)bin\Optimus.Providers.Less*" "$(ProjectDir)..\TestSiteV7\bin\" /Y
+
+xcopy "$(ProjectDir)bin\BundleTransformer.Less.*" "$(ProjectDir)..\TestSiteV7\bin\" /Y
+
+xcopy "$(ProjectDir)bin\dotless.Core.*" "$(ProjectDir)..\TestSiteV7\bin\" /Y</PostBuildEvent>
   </PropertyGroup>
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

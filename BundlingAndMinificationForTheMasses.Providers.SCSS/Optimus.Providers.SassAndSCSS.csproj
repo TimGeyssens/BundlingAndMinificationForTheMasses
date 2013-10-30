@@ -215,6 +215,18 @@ xcopy "$(ProjectDir)bin\IronRuby.*" "$(ProjectDir)..\TestSite\bin\" /Y
 
 xcopy "$(ProjectDir)CodeMirror\*.*" "$(ProjectDir)..\TestSite\umbraco_client\CodeMirror\Js\Mode\sass\" /Y
 
+xcopy "$(ProjectDir)bin\Optimus.Providers.SassAndSCSS*" "$(ProjectDir)..\TestSiteV7\bin\" /Y
+
+xcopy "$(ProjectDir)bin\BundleTransformer.SassAndScss.*" "$(ProjectDir)..\TestSiteV7\bin\" /Y
+
+xcopy "$(ProjectDir)bin\Microsoft.Scripting.*" "$(ProjectDir)..\TestSiteV7\bin\" /Y
+
+xcopy "$(ProjectDir)bin\Microsoft.Dynamic.*" "$(ProjectDir)..\TestSiteV7\bin\" /Y
+
+xcopy "$(ProjectDir)bin\IronRuby.*" "$(ProjectDir)..\TestSiteV7\bin\" /Y
+
+xcopy "$(ProjectDir)CodeMirror\*.*" "$(ProjectDir)..\TestSiteV7\umbraco_client\CodeMirror\Js\Mode\sass\" /Y
+
 </PostBuildEvent>
   </PropertyGroup>
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
