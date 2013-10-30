@@ -1,6 +1,7 @@
 ﻿using BundleTransformer.Core.Assets;
 using BundleTransformer.Core.Translators;
 using BundleTransformer.TypeScript.Translators;
+using Optimus.Helpers;
 using Optimus.Interfaces;
 using System;
 using System.Collections.Generic;
@@ -25,7 +26,7 @@ namespace Optimus.Providers.TypeScript
 
         public string FileIconPath
         {
-            get { return "../../../App_Plugins/Optimus/Icons/typescript-icon.png"; }
+            get { return CompatibilityHelper.IsVersion7OrNewer ? "../App_Plugins/Optimus/Icons/typescript-icon-grey.png" : "../../../App_Plugins/Optimus/Icons/typescript-icon.png"; }
         }
 
         public string FileMimeType

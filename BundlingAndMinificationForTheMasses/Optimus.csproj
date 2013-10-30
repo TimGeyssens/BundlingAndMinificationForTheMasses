@@ -424,11 +424,14 @@
     <Content Include="Umbraco\Dialogs\ProviderInstaller.ascx" />
     <Content Include="Umbraco\Icons\bundle-icon.png" />
     <Content Include="Umbraco\Icons\bundle_menu_icon.png" />
+    <Content Include="Umbraco\Icons\coffee-icon-grey.png" />
     <Content Include="Umbraco\Icons\coffee-icon.png" />
+    <Content Include="Umbraco\Icons\less-icon-grey.png" />
     <Content Include="Umbraco\Icons\less-icon.png" />
-    <Content Include="Umbraco\Icons\page_white_code.png" />
-    <Content Include="Umbraco\Icons\page_white_cup.png" />
+    <Content Include="Umbraco\Icons\sass-icon-grey.png" />
     <Content Include="Umbraco\Icons\sass-icon.png" />
+    <Content Include="Umbraco\Icons\typescript-icon-grey.png" />
+    <Content Include="Umbraco\Icons\typescript-icon.png" />
     <Content Include="Umbraco\Pages\FileEditor.aspx" />
     <Content Include="Web.config">
       <SubType>Designer</SubType>

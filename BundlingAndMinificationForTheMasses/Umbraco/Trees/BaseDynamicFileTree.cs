@@ -4,6 +4,7 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Web;
+using Optimus.Helpers;
 using umbraco.cms.presentation.Trees;
 using Umbraco.Core.IO;
 using Optimus.Extensions;
@@ -69,7 +70,10 @@ namespace Optimus.Umbraco.Trees
                     xDirNode.Menu = new List<IAction>(new IAction[] { ActionDelete.Instance, ContextMenuSeperator.Instance, ActionNew.Instance, ContextMenuSeperator.Instance, ActionRefresh.Instance });
                     xDirNode.Text = dir.Name;
                     xDirNode.Source = GetTreeServiceUrl(orgPath + dir.Name);
-                    xDirNode.Icon = FolderIcon;
+                    if (CompatibilityHelper.IsVersion7OrNewer)
+                        xDirNode.Icon = "icon-folder";
+                    else
+                        xDirNode.Icon = FolderIcon;
                     xDirNode.OpenIcon = FolderIconOpen;
                     xDirNode.HasChildren = dir.GetFiles().Length > 0 || dir.GetDirectories().Length > 0;
 
