@@ -1048,3 +1048,54 @@ System.NullReferenceException: Object reference not set to an instance of an obj
 2013-10-30 20:07:45,109 [7] INFO  Umbraco.Core.PluginManager - [Thread 10] Completed resolution of types of Umbraco.Core.Persistence.Mappers.BaseMapper, found 20 (took 5ms)
 2013-10-30 20:08:23,174 [7] INFO  umbraco.BusinessLogic.Log - [Thread 8] Log scrubbed.  Removed all items older than 2013-08-31 20:08:23
 2013-10-30 20:08:23,178 [7] INFO  Umbraco.Core.UmbracoApplicationBase - [Thread 8] Application shutdown. Reason: ConfigurationChange
+2013-10-30 20:10:09,931 [9] INFO  Umbraco.Core.PluginManager - [Thread 13] Determining hash of code files on disk
+2013-10-30 20:10:09,942 [9] INFO  Umbraco.Core.PluginManager - [Thread 13] Hash determined (took 6ms)
+2013-10-30 20:10:09,951 [9] INFO  Umbraco.Core.PluginManager - [Thread 13] Starting resolution types of umbraco.interfaces.IApplicationStartupHandler
+2013-10-30 20:10:10,292 [9] INFO  Umbraco.Core.PluginManager - [Thread 13] Completed resolution of types of umbraco.interfaces.IApplicationStartupHandler, found 29 (took 339ms)
+2013-10-30 20:10:10,406 [9] INFO  Umbraco.Core.PluginManager - [Thread 13] Starting resolution types of Umbraco.Core.PropertyEditors.IPropertyEditorValueConverter
+2013-10-30 20:10:10,413 [9] INFO  Umbraco.Core.PluginManager - [Thread 13] Completed resolution of types of Umbraco.Core.PropertyEditors.IPropertyEditorValueConverter, found 0 (took 7ms)
+2013-10-30 20:10:10,416 [9] INFO  Umbraco.Core.PluginManager - [Thread 13] Starting resolution types of Umbraco.Core.PropertyEditors.IPropertyValueConverter
+2013-10-30 20:10:10,428 [9] INFO  Umbraco.Core.PluginManager - [Thread 13] Completed resolution of types of Umbraco.Core.PropertyEditors.IPropertyValueConverter, found 12 (took 12ms)
+2013-10-30 20:10:10,441 [9] INFO  Umbraco.Core.PluginManager - [Thread 13] Starting resolution types of Umbraco.Web.Mvc.SurfaceController
+2013-10-30 20:10:10,449 [9] INFO  Umbraco.Core.PluginManager - [Thread 13] Completed resolution of types of Umbraco.Web.Mvc.SurfaceController, found 4 (took 7ms)
+2013-10-30 20:10:10,449 [9] INFO  Umbraco.Core.PluginManager - [Thread 13] Starting resolution types of Umbraco.Web.WebApi.UmbracoApiController
+2013-10-30 20:10:10,457 [9] INFO  Umbraco.Core.PluginManager - [Thread 13] Completed resolution of types of Umbraco.Web.WebApi.UmbracoApiController, found 26 (took 8ms)
+2013-10-30 20:10:10,460 [9] INFO  Umbraco.Core.PluginManager - [Thread 13] Starting resolution types of Umbraco.Core.Media.IThumbnailProvider
+2013-10-30 20:10:10,471 [9] INFO  Umbraco.Core.PluginManager - [Thread 13] Completed resolution of types of Umbraco.Core.Media.IThumbnailProvider, found 3 (took 10ms)
+2013-10-30 20:10:10,472 [9] INFO  Umbraco.Core.PluginManager - [Thread 13] Starting resolution types of Umbraco.Core.Media.IImageUrlProvider
+2013-10-30 20:10:10,482 [9] INFO  Umbraco.Core.PluginManager - [Thread 13] Completed resolution of types of Umbraco.Core.Media.IImageUrlProvider, found 1 (took 10ms)
+2013-10-30 20:10:11,235 [9] ERROR System.Web.Optimization.BundleCollection - [Thread 13] Error adding bundles: System.NullReferenceException: Object reference not set to an instance of an object.
+   at BundleTransformer.Core.Transformers.CssTransformer.CreateDefaultMinifier()
+   at BundleTransformer.Core.Transformers.CssTransformer..ctor()
+   at Optimus.BundleConfig.RegisterBundles(BundleCollection bundles) in c:\Users\Timbo\Documents\GitHub\BundlingAndMinificationForTheMasses\BundlingAndMinificationForTheMasses\App_Start\BundleConfig.cs:line 30
+System.NullReferenceException: Object reference not set to an instance of an object.
+   at BundleTransformer.Core.Transformers.CssTransformer.CreateDefaultMinifier()
+   at BundleTransformer.Core.Transformers.CssTransformer..ctor()
+   at Optimus.BundleConfig.RegisterBundles(BundleCollection bundles) in c:\Users\Timbo\Documents\GitHub\BundlingAndMinificationForTheMasses\BundlingAndMinificationForTheMasses\App_Start\BundleConfig.cs:line 30
+2013-10-30 20:10:11,238 [9] INFO  Umbraco.Core.PluginManager - [Thread 13] Starting resolution types of umbraco.interfaces.IApplication
+2013-10-30 20:10:11,255 [9] INFO  Umbraco.Core.PluginManager - [Thread 13] Completed resolution of types of umbraco.interfaces.IApplication, found 7 (took 17ms)
+2013-10-30 20:10:11,304 [9] INFO  Umbraco.Core.PluginManager - [Thread 13] Starting resolution types of Umbraco.Web.Trees.TreeController
+2013-10-30 20:10:11,313 [9] INFO  Umbraco.Core.PluginManager - [Thread 13] Completed resolution of types of Umbraco.Web.Trees.TreeController, found 4 (took 9ms)
+2013-10-30 20:10:11,328 [9] INFO  Umbraco.Core.PluginManager - [Thread 13] Starting resolution types of umbraco.interfaces.ITree
+2013-10-30 20:10:11,413 [9] INFO  Umbraco.Core.PluginManager - [Thread 13] Completed resolution of types of umbraco.interfaces.ITree, found 22 (took 85ms)
+2013-10-30 20:10:11,427 [9] INFO  Umbraco.Web.Search.ExamineEvents - [Thread 13] Initializing Examine and binding to business logic events
+2013-10-30 20:10:11,744 [9] INFO  Umbraco.Web.Search.ExamineEvents - [Thread 13] Adding examine event handlers for index providers: 3
+2013-10-30 20:10:12,341 [9] INFO  Umbraco.Core.PluginManager - [Thread 14] Starting resolution types of umbraco.interfaces.ITree
+2013-10-30 20:10:12,438 [9] INFO  Umbraco.Core.PluginManager - [Thread 14] Completed resolution of types of umbraco.interfaces.ITree, found 39 (took 96ms)
+2013-10-30 20:10:16,696 [9] ERROR Umbraco.Core.UmbracoApplicationBase - [Thread 14] An unhandled exception occurred
+System.Web.HttpUnhandledException (0x80004005): Exception of type 'System.Web.HttpUnhandledException' was thrown. ---> System.InvalidOperationException: Cannot find an item that matches node type initstylesheetsNew
+   at Umbraco.Web.UI.LegacyDialogHandler.GetTaskForOperation(HttpContextBase httpContext, User umbracoUser, Operation op, String nodeType)
+   at Umbraco.Web.UI.LegacyDialogHandler.UserHasCreateAccess(HttpContextBase httpContext, User umbracoUser, String nodeType)
+   at Umbraco.Web.UI.Umbraco.CreateDialog.SecurityCheck(String nodeTypeAlias)
+   at Umbraco.Web.UI.Umbraco.CreateDialog.OnLoad(EventArgs e)
+   at System.Web.UI.Control.LoadRecursive()
+   at System.Web.UI.Page.ProcessRequestMain(Boolean includeStagesBeforeAsyncPoint, Boolean includeStagesAfterAsyncPoint)
+   at System.Web.UI.Page.HandleError(Exception e)
+   at System.Web.UI.Page.ProcessRequestMain(Boolean includeStagesBeforeAsyncPoint, Boolean includeStagesAfterAsyncPoint)
+   at System.Web.UI.Page.ProcessRequest(Boolean includeStagesBeforeAsyncPoint, Boolean includeStagesAfterAsyncPoint)
+   at System.Web.UI.Page.ProcessRequest()
+   at System.Web.UI.Page.ProcessRequestWithNoAssert(HttpContext context)
+   at System.Web.UI.Page.ProcessRequest(HttpContext context)
+   at ASP.umbraco_create_aspx.ProcessRequest(HttpContext context) in c:\Users\Timbo\AppData\Local\Temp\Temporary ASP.NET Files\root\a79e91a7\903c4e19\App_Web_create.aspx.5f2dec3.eiscujv-.0.cs:line 0
+   at System.Web.HttpApplication.CallHandlerExecutionStep.System.Web.HttpApplication.IExecutionStep.Execute()
+   at System.Web.HttpApplication.ExecuteStep(IExecutionStep step, Boolean& completedSynchronously)
