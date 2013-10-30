@@ -1,0 +1,7 @@
+<select
+	ng-controller="Umbraco.PropertyEditors.UserPickerController" 
+	name="{{ model.alias }}" 
+	ng-model=" model.value" 
+	ng-options="user.id as user.name for user in users">
+    <option value="">Select User</option>
+</select>
