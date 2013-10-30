@@ -24,7 +24,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Optimus.Trees.Stylesheets",
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Optimus.Trees.Scripts", "Optimus.Trees.Scripts\Optimus.Trees.Scripts.csproj", "{63A7396E-8187-4111-BB71-990955F19948}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Optimus.Providers.V8JavaScriptEngine", "Optimus.Providers.V8JavaScriptEngine\Optimus.Providers.V8JavaScriptEngine.csproj", "{AB157E90-DC19-4A2B-BD52-4365089F2AB8}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Optimus.AddOns.V8JavaScriptEngine", "Optimus.AddOns.V8JavaScriptEngine\Optimus.AddOns.V8JavaScriptEngine.csproj", "{AB157E90-DC19-4A2B-BD52-4365089F2AB8}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
