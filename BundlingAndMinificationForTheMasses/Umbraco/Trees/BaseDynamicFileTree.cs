@@ -1,5 +1,4 @@
-﻿
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -18,10 +17,7 @@ namespace Optimus.Umbraco.Trees
     {
         public abstract TranslatorType TranslatorType { get; }
 
-        public BaseDynamicFileTree(string application)
-            : base(application)
-        {
-        }
+        public BaseDynamicFileTree(string application) : base(application) { }
 
         public override void RenderJS(ref StringBuilder Javascript)
         {
@@ -39,88 +35,85 @@ namespace Optimus.Umbraco.Trees
             );
         }
 
-       
-
         public override void Render(ref XmlTree tree)
         {
-            if (String.IsNullOrEmpty(this.NodeKey))
-            {
-                //Create Top Level SASS or LESS nodes
-                TopLevelNodes(ref tree);
-            }
-            //else
-            //{
-            //    //A SASS or LESS file has been selected with child static CSS file
-            //    CreateChildNodes(ref tree);
-            //}
-        }
-
-
-        protected void TopLevelNodes(ref XmlTree tree)
-        {
-            string orgPath  = string.Empty;
-            string path     = string.Empty;
             string FilePath = TranslatorType == Enums.TranslatorType.StyleSheet ? "/css/" : "/scripts/";
-            path            = IOHelper.MapPath(FilePath);
+            string orgPath = String.Empty;
+            string path = String.Empty;
 
+            if (!string.IsNullOrEmpty(this.NodeKey))
+            {
+                orgPath = this.NodeKey;
+                path = IOHelper.MapPath(FilePath + orgPath);
+                orgPath += "/";
+            }
+            else
+            {
+                path = IOHelper.MapPath(FilePath);
+            }
 
-            DirectoryInfo dirInfo       = new DirectoryInfo(path);
-            DirectoryInfo[] dirInfos    = dirInfo.GetDirectories();
+            DirectoryInfo dirInfo = new DirectoryInfo(path);
+            DirectoryInfo[] dirInfos = dirInfo.GetDirectories();
+            var allowedExts = new Translation.Core().GetPossibleExtensions(TranslatorType).ToArray();
 
             var args = new TreeEventArgs(tree);
             OnBeforeTreeRender(dirInfo, args);
 
-            //Loop through files
-            var fileInfo = dirInfo.GetFilesByExtensions(new Translation.Core().GetPossibleExtensions(TranslatorType).ToArray());
+            foreach (DirectoryInfo dir in dirInfos)
+            {
+                if ((dir.Attributes & FileAttributes.Hidden) == 0)
+                {
+                    XmlTreeNode xDirNode = XmlTreeNode.Create(this);
+                    xDirNode.NodeID = orgPath + dir.Name;
+                    xDirNode.NodeType = TranslatorType == Enums.TranslatorType.StyleSheet ? "initstylesheetsNew" : "initscriptsNew";
+                    xDirNode.Menu = new List<IAction>(new IAction[] { ActionDelete.Instance, ContextMenuSeperator.Instance, ActionNew.Instance, ContextMenuSeperator.Instance, ActionRefresh.Instance });
+                    xDirNode.Text = dir.Name;
+                    xDirNode.Source = GetTreeServiceUrl(orgPath + dir.Name);
+                    xDirNode.Icon = FolderIcon;
+                    xDirNode.OpenIcon = FolderIconOpen;
+                    xDirNode.HasChildren = dir.GetFiles().Length > 0 || dir.GetDirectories().Length > 0;
 
+                    OnRenderFolderNode(ref xDirNode);
+                    OnBeforeNodeRender(ref tree, ref xDirNode, EventArgs.Empty);
+                    if (xDirNode != null)
+                    {
+                        tree.Add(xDirNode);
+                        OnAfterNodeRender(ref tree, ref xDirNode, EventArgs.Empty);
+                    }
+                }
+            }
+
+            FileInfo[] fileInfo = dirInfo.GetFiles("*.*");
             foreach (FileInfo file in fileInfo)
             {
-                if ((file.Attributes & FileAttributes.Hidden) == 0)
+                if ((file.Attributes & FileAttributes.Hidden) == 0 && allowedExts.Contains(file.Extension))
                 {
-                    XmlTreeNode xFileNode   = XmlTreeNode.Create(this);
-                    xFileNode.NodeID        = orgPath + file.Name;
-                    xFileNode.Text          = file.Name;
-                    xFileNode.OpenIcon      = "doc.gif";
-                    xFileNode.Menu          = new List<IAction> { ActionDelete.Instance };
-                    xFileNode.NodeType      = TranslatorType == Enums.TranslatorType.StyleSheet ? "initstylesheetsNew" : "initscriptsNew";
-                    xFileNode.Icon          = new Optimus.Translation.Core().GetTranslatorTreeIconPath(file.Name);
+                    XmlTreeNode xFileNode = XmlTreeNode.Create(this);
+                    xFileNode.NodeID = orgPath + file.Name;
+                    xFileNode.Text = file.Name;
+                    xFileNode.Icon = new Optimus.Translation.Core().GetTranslatorTreeIconPath(file.Name);
+                    xFileNode.OpenIcon = "doc.gif";
+                    xFileNode.Menu = new List<IAction> { ActionDelete.Instance };
+                    xFileNode.NodeType = TranslatorType == Enums.TranslatorType.StyleSheet ? "initstylesheetsNew" : "initscriptsNew";
 
-                    ////Check for compiled version of file
-                    //var fileName        = file.FullName.TrimStart('/');
-                    //var staticFileName  = fileName.Replace(".scss", ".css").Replace(".sass", ".css").Replace(".less", ".css");
-
-                    ////Check if compileFileName exists
-                    //if (System.IO.File.Exists(staticFileName))
-                    //{
-                    //    //Add a child node to the current node to display the static CSS file
-                    //    xFileNode.HasChildren   = true;
-                    //    var functionToCall      = "javascript:openDyanmicCSSFileEditor('" + orgPath + staticFileName + "', true')";
-                    //    var nodeSourceURL       = TreeUrlGenerator.GetServiceUrl(-1, "stylesheetsNew", false, false, "settings", orgPath + staticFileName, functionToCall);
-                    //    xFileNode.Source        = nodeSourceURL;
-                    //}
-
-                    //CSS Action link...
-                    //Only run/set an action if it's empty (as in not been set above as static/compiled file)
                     if (string.IsNullOrEmpty(xFileNode.Action))
                     {
                         if (orgPath != string.Empty)
                         {
-                            xFileNode.Action =  TranslatorType == Enums.TranslatorType.StyleSheet ?
-                                "javascript:openDyanmicCSSFileEditor('" + orgPath + file.Name + "', false');" :
-                                "javascript:openDyanmicScriptFileEditor('" + orgPath + file.Name + "', false');"; ;
+                            xFileNode.Action = TranslatorType == Enums.TranslatorType.StyleSheet ?
+                                "javascript:openDyanmicCSSFileEditor('" + orgPath + file.Name + "', 'false');" :
+                                "javascript:openDyanmicScriptFileEditor('" + orgPath + file.Name + "', 'false');";
                         }
                         else
                         {
                             xFileNode.Action = TranslatorType == Enums.TranslatorType.StyleSheet ?
                                 "javascript:openDyanmicCSSFileEditor('" + file.Name + "', 'false');" :
-                                "javascript:openDyanmicScriptFileEditor('" + file.Name + "', 'false');"; ;
+                                "javascript:openDyanmicScriptFileEditor('" + file.Name + "', 'false');";
                         }
                     }
 
-
-                    //OnRenderFileNode(ref xFileNode);
+                    OnRenderFileNode(ref xFileNode);
                     OnBeforeNodeRender(ref tree, ref xFileNode, EventArgs.Empty);
-
                     if (xFileNode != null)
                     {
                         tree.Add(xFileNode);
@@ -128,20 +121,28 @@ namespace Optimus.Umbraco.Trees
                     }
                 }
             }
-
-            //After TREE Rendering
             OnAfterTreeRender(dirInfo, args);
-
         }
 
+        /// <summary>
+        /// Inheritors can override this method to modify the file node that is created.
+        /// </summary>
+        /// <param name="xNode"></param>
+        protected virtual void OnRenderFileNode(ref XmlTreeNode xNode) { }
+
+        /// <summary>
+        /// Inheritors can override this method to modify the folder node that is created.
+        /// </summary>
+        /// <param name="xNode"></param>
+        protected virtual void OnRenderFolderNode(ref XmlTreeNode xNode) { }
 
         protected override void CreateRootNode(ref XmlTreeNode rootNode)
         {
-            rootNode.Icon       = ".sprTreeFolder";
-            rootNode.OpenIcon   = ".sprTreeFolder_o";
-            rootNode.NodeID     = "init";
-            rootNode.NodeType   = rootNode.NodeID + TreeAlias;
-            rootNode.Menu       = new List<IAction> { ActionNew.Instance, ActionRefresh.Instance };
+            rootNode.Icon = ".sprTreeFolder";
+            rootNode.OpenIcon = ".sprTreeFolder_o";
+            rootNode.NodeID = "init";
+            rootNode.NodeType = rootNode.NodeID + TreeAlias;
+            rootNode.Menu = new List<IAction> { ActionNew.Instance, ActionRefresh.Instance };
         }
     }
 }

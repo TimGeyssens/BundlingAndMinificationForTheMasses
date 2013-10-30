@@ -20,6 +20,9 @@ namespace Optimus.Umbraco.Dialogs
             {
                 //scriptType.Items.Add(new ListItem("Plain script", "js"));
 
+                scriptType.Items.Add(new ListItem(ui.Text("folder"), ""));
+                scriptType.Items.FindByText(ui.Text("folder")).Selected = true;
+
                 foreach (var trans in new Translation.Core().GetScriptTranslators())
                 {
                     scriptType.Items.Add(new ListItem(trans.Name, trans.FileExtension));
@@ -31,16 +34,36 @@ namespace Optimus.Umbraco.Dialogs
         {
             if (Page.IsValid)
             {
-                var fileName = rename.Text + "." + scriptType.SelectedValue;
-                var fullFilePath = Server.MapPath("/scripts/") + fileName;
+                //get file new path info
+                var fileName = !String.IsNullOrEmpty(scriptType.SelectedValue) ? rename.Text + "."
+                    + scriptType.SelectedValue : rename.Text;
+                var helperPath = helper.Request("nodeID") == "init" ? String.Empty : helper.Request("nodeID");
+                var cmsPath = !String.IsNullOrEmpty(helperPath) ? ("/scripts/" + helperPath + "/") : "/scripts/";
+                var fullFilePath = Server.MapPath(cmsPath) + fileName;
 
-                File.Create(fullFilePath).Close();
+                //make sure not create folder
+                if (!String.IsNullOrEmpty(scriptType.SelectedValue))
+                {
+                    //create new file
+                    File.Create(fullFilePath).Close();
 
-                BasePage.Current.ClientTools
-                    .ChangeContentFrameUrl(".." + Config.EditFilePagePath + "?file=" + fileName + "&path=/scripts/")
-                    .ChildNodeCreated()
-                    .CloseModalWindow();
+                    //redirect to new file edit mode
+                    BasePage.Current.ClientTools
+                        .ChangeContentFrameUrl(".." + Config.EditFilePagePath + "?file=" + fileName + "&path=" + cmsPath)
+                        .ChildNodeCreated()
+                        .CloseModalWindow();
+                }
+                else
+                {
+                    //create new directory if not already exists
+                    if (!Directory.Exists(fullFilePath))
+                        Directory.CreateDirectory(fullFilePath);
 
+                    //redirect to new file edit mode
+                    BasePage.Current.ClientTools
+                        .ChildNodeCreated()
+                        .CloseModalWindow();
+                }
             }
         }
     }
