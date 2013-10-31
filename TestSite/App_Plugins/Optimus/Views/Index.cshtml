@@ -1,4 +1,5 @@
 ﻿@model Optimus.Models.BundleViewModel
+@using umbraco
 @{
     var startDir = "/css/";
     var exampleScript = "Styles";
@@ -160,14 +161,14 @@
                                     <div class="propertyItemContent">
                                         @Html.EditorFor(m => m.VirtualPath)
                                    
-                                        @if (UmbracoSettings.GetKey("/settings/templates/defaultRenderingEngine").ToLower() == "mvc")
+                                      @*  @if (UmbracoSettings.GetKey("/settings/templates/defaultRenderingEngine").ToLower() == "mvc")
                                         {
-                                        <small>use with @@@{@exampleScript}.Render("@Model.VirtualPath")</small>
-                                        }
+                                        *@<small>use with @@@{@exampleScript}.Render("@Model.VirtualPath")</small>
+                                       @* }
                                         else
                                         {
                                         <small>use with <%: @{@exampleScript}.Render("@Model.VirtualPath") %></small>    
-                                        }
+                                        }*@
                                     </div>
                                 </div>
 
