@@ -26,7 +26,7 @@ namespace Optimus.Providers.Less
 
         public string FileIconPath
         {
-            get { return CompatibilityHelper.IsVersion7OrNewer ? "../App_Plugins/Optimus/Icons/less-icon-grey.png" : "../../../App_Plugins/Optimus/Icons/less-icon.png"; }
+            get { return CompatibilityHelper.IsVersion7OrNewer ? "~/../../../App_Plugins/Optimus/Icons/less-icon-grey.png" : "../../../App_Plugins/Optimus/Icons/less-icon.png"; }
         }
 
         public string FileMimeType

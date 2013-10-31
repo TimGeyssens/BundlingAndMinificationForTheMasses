@@ -1,0 +1,30 @@
+{
+    propertyEditors: [
+        {
+		alias: "Demo.CharLimitEditor",
+		name: "Char limit",
+		editor: {
+		view: "~/App_Plugins/CharLimitEditor/charlimiteditor.html"
+		},
+		prevalues: {
+			fields: [
+				{
+					label: "Number of chars",
+					description: "Enter the number of chars to limit on",
+					key: "limit",
+					view: "requiredfield",
+					validation: [
+						{
+							type: "Required" 
+						}						
+					]
+				}
+			]
+		}
+        }
+    ]
+    ,
+    javascript: [
+        '~/App_Plugins/CharLimitEditor/charlimiteditor.controller.js'
+    ]
+}

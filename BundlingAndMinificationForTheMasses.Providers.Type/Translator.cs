@@ -26,7 +26,7 @@ namespace Optimus.Providers.TypeScript
 
         public string FileIconPath
         {
-            get { return CompatibilityHelper.IsVersion7OrNewer ? "../App_Plugins/Optimus/Icons/typescript-icon-grey.png" : "../../../App_Plugins/Optimus/Icons/typescript-icon.png"; }
+            get { return CompatibilityHelper.IsVersion7OrNewer ? "~/../../../App_Plugins/Optimus/Icons/typescript-icon-grey.png" : "../../../App_Plugins/Optimus/Icons/typescript-icon.png"; }
         }
 
         public string FileMimeType

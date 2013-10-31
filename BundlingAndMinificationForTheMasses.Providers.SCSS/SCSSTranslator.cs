@@ -26,7 +26,7 @@ namespace Optimus.Providers.SassAndSCSS
 
         public string FileIconPath 
         {
-            get { return CompatibilityHelper.IsVersion7OrNewer ? "../App_Plugins/Optimus/Icons/sass-icon-grey.png" : "../../../App_Plugins/Optimus/Icons/sass-icon.png"; }  
+            get { return CompatibilityHelper.IsVersion7OrNewer ? "~/../../../App_Plugins/Optimus/Icons/sass-icon-grey.png" : "../../../App_Plugins/Optimus/Icons/sass-icon.png"; }  
         }
         public string FileMimeType
         {

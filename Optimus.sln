@@ -26,7 +26,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Optimus.Trees.Scripts", "Op
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Optimus.AddOns.V8JavaScriptEngine", "Optimus.AddOns.V8JavaScriptEngine\Optimus.AddOns.V8JavaScriptEngine.csproj", "{AB157E90-DC19-4A2B-BD52-4365089F2AB8}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TestSiteV7", "TestSiteV7\TestSiteV7.csproj", "{DD3B82B2-E022-427F-85B3-367B69CA88C9}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TestSiteV7", "TestSiteV7\TestSiteV7.csproj", "{21A4C258-7456-46CB-969C-58B6314C728C}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -70,10 +70,10 @@ Global
 		{AB157E90-DC19-4A2B-BD52-4365089F2AB8}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{AB157E90-DC19-4A2B-BD52-4365089F2AB8}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{AB157E90-DC19-4A2B-BD52-4365089F2AB8}.Release|Any CPU.Build.0 = Release|Any CPU
-		{DD3B82B2-E022-427F-85B3-367B69CA88C9}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{DD3B82B2-E022-427F-85B3-367B69CA88C9}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{DD3B82B2-E022-427F-85B3-367B69CA88C9}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{DD3B82B2-E022-427F-85B3-367B69CA88C9}.Release|Any CPU.Build.0 = Release|Any CPU
+		{21A4C258-7456-46CB-969C-58B6314C728C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{21A4C258-7456-46CB-969C-58B6314C728C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{21A4C258-7456-46CB-969C-58B6314C728C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{21A4C258-7456-46CB-969C-58B6314C728C}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
