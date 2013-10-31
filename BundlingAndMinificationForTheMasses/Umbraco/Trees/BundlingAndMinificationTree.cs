@@ -104,9 +104,9 @@ namespace Optimus.Umbraco.Trees
                     bundleNode.Action       = string.Format("javascript:openBundlingAndMinificationEditPage('{0}','{1}');",
                         bundleElement.Attribute("virtualPath").Value, bundleType);
                     if (CompatibilityHelper.IsVersion7OrNewer)
-                        bundleNode.Icon = "../../../App_Plugins/Optimus/Icons/bundle-icon.png";
-                    else
                         bundleNode.Icon = "icon-box";
+                    else
+                        bundleNode.Icon = "../../../App_Plugins/Optimus/Icons/bundle-icon.png";
 
                     bundleNode.OpenIcon = "../../../App_Plugins/Optimus/Icons/bundle-icon.png";
                     bundleNode.HasChildren  = false;

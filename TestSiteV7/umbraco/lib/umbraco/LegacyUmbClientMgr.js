@@ -84,12 +84,44 @@ Umbraco.Sys.registerNamespace("Umbraco.Application");
                 var injector = getRootInjector();
                 var navService = injector.get("navigationService");
 
+                //mimic the API of the legacy tree
                 var tree = {
                     setActiveTreeType : function(treeType){
-                         navService.syncTree(null, treeType, null);
+                         navService.setActiveTreeType(treeType);
                     },
                     syncTree : function(path,forceReload){
-                        navService.syncPath(path);
+                        navService.syncPath(path, forceReload);
+                    },
+                    getActionNode: function () {
+                        //need to replicate the legacy tree node
+                        var legacyNode = {
+                            nodeId: navService.ui.currentNode.id,
+                            nodeName: navService.ui.currentNode.name,
+                            nodeType: navService.ui.currentNode.nodeType,
+                            treeType: navService.ui.currentNode.nodeType,
+                            sourceUrl: navService.ui.currentNode.childNodesUrl,
+                            updateDefinition: function() {
+                                throw "'updateDefinition' method is not supported in Umbraco 7, consider upgrading to the new v7 APIs";
+                            }
+                        };
+                        //defined getters that will throw a not implemented/supported exception
+                        Object.defineProperty(legacyNode, "menu", {
+                            get: function () {
+                                throw "'menu' property is not supported in Umbraco 7, consider upgrading to the new v7 APIs";
+                            }
+                        });
+                        Object.defineProperty(legacyNode, "jsNode", {
+                            get: function () {
+                                throw "'jsNode' property is not supported in Umbraco 7, consider upgrading to the new v7 APIs";
+                            }
+                        });
+                        Object.defineProperty(legacyNode, "jsTree", {
+                            get: function () {
+                                throw "'jsTree' property is not supported in Umbraco 7, consider upgrading to the new v7 APIs";
+                            }
+                        });
+
+                        return legacyNode;
                     }
                 };
 
@@ -204,27 +236,50 @@ Umbraco.Sys.registerNamespace("Umbraco.Application");
                 
                 //get our angular navigation service
                 var injector = getRootInjector();
-                var dialogService = injector.get("dialogService");
+                var navService = injector.get("navigationService");
+                var dialogService = injector.get("dialogService"); 
 
                 var self = this;
 
-                var dialog = dialogService.open({
-                    template: url,
-                    width: width,
-                    height: height,
-                    iframe: true,
-                    show: true
-                });
+                //based on what state the nav ui is in, depends on how we are going to launch a model / dialog. A modal
+                // will show up on the right hand side and a dialog will show up as if it is in the menu.
+                // with the legacy API we cannot know what is expected so we can only check if the menu is active, if it is
+                // we'll launch a dialog, otherwise a modal.
+                var dialog;
+                if (navService.ui.currentMode === "menu") {
+                    dialog = navService.showDialog({
+                        //create a 'fake' action to passin with the specified actionUrl since it needs to load into an iframe
+                        action: {
+                            name: name,
+                            metaData: {
+                                actionUrl: url
+                            }
+                        },
+                        node: {}
+                    });
+                }
+                else {
+                    dialog = dialogService.open({
+                        template: url,
+                        width: width,
+                        height: height,
+                        iframe: true,
+                        show: true
+                    });
+                }
+                
 
                 //add the callback to the jquery data for the modal so we can call it on close to support the legacy way dialogs worked.
                 dialog.element.data("modalCb", onCloseCallback);
                 //add the close triggers
-                for (var i = 0; i < closeTriggers.length; i++) {
-                    var e = dialog.find(closeTriggers[i]);
-                    if (e.length > 0) {
-                        e.click(function() {
-                            self.closeModalWindow();
-                        });
+                if (angular.isArray(closeTriggers)) {
+                    for (var i = 0; i < closeTriggers.length; i++) {
+                        var e = dialog.find(closeTriggers[i]);
+                        if (e.length > 0) {
+                            e.click(function () {
+                                self.closeModalWindow();
+                            });
+                        }
                     }
                 }
 

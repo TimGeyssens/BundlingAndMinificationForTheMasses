@@ -1,4 +1,4 @@
-/*! umbraco - v0.0.1-TechnicalPReview - 2013-10-11
+/*! umbraco - v0.0.1-TechnicalPReview - 2013-10-30
  * https://github.com/umbraco/umbraco-cms/tree/7.0.0
  * Copyright (c) 2013 Umbraco HQ;
  * Licensed MIT
@@ -64,6 +64,17 @@ function authResource($q, $http, umbRequestHelper, angularHelper) {
                         "IsAuthenticated")),
                 'Server call failed for checking authentication');
         },
+        
+        /** Gets the user's remaining seconds before their login times out */
+        getRemainingTimeoutSeconds: function () {
+
+            return umbRequestHelper.resourcePromise(
+                $http.get(
+                    umbRequestHelper.getApiUrl(
+                        "authenticationApiBaseUrl",
+                        "GetRemainingTimeoutSeconds")),
+                'Server call failed for checking remaining seconds');
+        }
 
     };
 }
@@ -397,7 +408,7 @@ function contentResource($q, $http, umbDataFormatter, umbRequestHelper) {
                        "contentApiBaseUrl",
                        "GetByIds",
                        idQuery)),
-               'Failed to retreive data for content id ' + id);
+               'Failed to retreive data for content with multiple ids');
         },
 
         
@@ -650,21 +661,7 @@ function contentTypeResource($q, $http, umbRequestHelper) {
             deferred.resolve(data);
             return deferred.promise;
         },
-        //return all available types
-        all: function () {
-            return [];
-        },
-
-        //return children inheriting a given type
-        children: function (id) {
-            return [];
-        },
-
-        //return all content types a type inherits from
-        parents: function (id) {
-            return [];
-        },
-
+        
         //return all types allowed under given document
         getAllowedTypes: function (contentId) {
            
@@ -757,10 +754,37 @@ function dataTypeResource($q, $http, umbDataFormatter, umbRequestHelper) {
                    umbRequestHelper.getApiUrl(
                        "dataTypeApiBaseUrl",
                        "GetEmpty")),
-               'Failed to retreive data for empty media item type ' + alias);
-
+               'Failed to retreive data for empty datatype ' + alias);
         },
-
+        /**
+         * @ngdoc method
+         * @name umbraco.resources.dataTypeResource#deleteById
+         * @methodOf umbraco.resources.dataTypeResource
+         *
+         * @description
+         * Deletes a content item with a given id
+         *
+         * ##usage
+         * <pre>
+         * dataTypeResource.deleteById(1234)
+         *    .then(function() {
+         *        alert('its gone!');
+         *    });
+         * </pre> 
+         * 
+         * @param {Int} id id of content item to delete        
+         * @returns {Promise} resourcePromise object.
+         *
+         */
+        deleteById: function(id) {
+            return umbRequestHelper.resourcePromise(
+                $http.delete(
+                    umbRequestHelper.getApiUrl(
+                        "dataTypeApiBaseUrl",
+                        "DeleteById",
+                        [{ id: id }])),
+                'Failed to delete item ' + id);
+        },
         /** saves or updates a data type object */
         save: function (dataType, preValues, isNew) {
             
@@ -1039,6 +1063,17 @@ function entityResource($q, $http, umbRequestHelper) {
                        "Search",
                        [{ query: query }, {type: type}])),
                'Failed to retreive entity data for query ' + query);
+        },
+        
+        searchAll: function (query) {
+
+            return umbRequestHelper.resourcePromise(
+               $http.get(
+                   umbRequestHelper.getApiUrl(
+                       "entityApiBaseUrl",
+                       "SearchAll",
+                       [{ query: query }])),
+               'Failed to retreive entity data for query ' + query);
         }
             
     };
@@ -1058,8 +1093,8 @@ function legacyResource($q, $http, umbRequestHelper) {
         /** Loads in the data to display the section list */
         deleteItem: function (args) {
             
-            if (!args.nodeId || !args.nodeType) {
-                throw "The args parameter is not formatted correct, it requires properties: nodeId, nodeType";
+            if (!args.nodeId || !args.nodeType || !args.alias) {
+                throw "The args parameter is not formatted correct, it requires properties: nodeId, nodeType, alias";
             } 
 
             return umbRequestHelper.resourcePromise(
@@ -1067,7 +1102,7 @@ function legacyResource($q, $http, umbRequestHelper) {
                     umbRequestHelper.getApiUrl(
                         "legacyApiBaseUrl",
                         "DeleteLegacyItem",
-                        [{ nodeId: args.nodeId }, { nodeType: args.nodeType }])),
+                        [{ nodeId: args.nodeId }, { nodeType: args.nodeType }, { alias: args.alias }])),
                 'Failed to delete item ' + args.nodeId);
 
         }
@@ -1317,8 +1352,53 @@ function mediaResource($q, $http, umbDataFormatter, umbRequestHelper) {
                         parentId: args.parentId,
                         idSortOrder: args.sortedIds
                     }),
-                'Failed to sort content');
+                'Failed to sort media');
         },
+
+        /**
+         * @ngdoc method
+         * @name umbraco.resources.mediaResource#move
+         * @methodOf umbraco.resources.mediaResource
+         *
+         * @description
+         * Moves a node underneath a new parentId
+         *
+         * ##usage
+         * <pre>
+         * mediaResource.move({ parentId: 1244, id: 123 })
+         *    .then(function() {
+         *        alert("node was moved");
+         *    }, function(err){
+         *      alert("node didnt move:" + err.data.Message); 
+         *    });
+         * </pre> 
+         * @param {Object} args arguments object
+         * @param {Int} args.idd the ID of the node to move
+         * @param {Int} args.parentId the ID of the parent node to move to
+         * @returns {Promise} resourcePromise object.
+         *
+         */
+        move: function (args) {
+            if (!args) {
+                throw "args cannot be null";
+            }
+            if (!args.parentId) {
+                throw "args.parentId cannot be null";
+            }
+            if (!args.id) {
+                throw "args.id cannot be null";
+            }
+
+            return umbRequestHelper.resourcePromise(
+                $http.post(umbRequestHelper.getApiUrl("mediaApiBaseUrl", "PostMove"),
+                    {
+                        parentId: args.parentId,
+                        id: args.id
+                    }),
+                'Failed to move media');
+        },
+
+
         /**
          * @ngdoc method
          * @name umbraco.resources.mediaResource#getById
@@ -1749,26 +1829,6 @@ function memberTypeResource($q, $http, umbRequestHelper) {
 angular.module('umbraco.resources').factory('memberTypeResource', memberTypeResource);
 /**
     * @ngdoc service
-    * @name umbraco.resources.publishedContentResource
-    * @description service to retrieve published content from the umbraco cache
-    * 
-    *
-    **/
-function publishedContentResource($q, $http, umbRequestHelper) {
-
-    //TODO: Why do we have this ? If we want a URL why isn't it just on the content controller ?
-
-    //the factory object returned
-    return {
-        
-        
-    };
-}
-
-angular.module('umbraco.resources').factory('publishedContentResource', publishedContentResource);
-
-/**
-    * @ngdoc service
     * @name umbraco.resources.sectionResource
     * @description Loads in data for section
     **/
@@ -1835,6 +1895,27 @@ function stylesheetResource($q, $http, umbRequestHelper) {
                        "stylesheetApiBaseUrl",
                        "GetAll")),
                'Failed to retreive stylesheets ');
+        },
+
+        getRules: function (id) {            
+            return umbRequestHelper.resourcePromise(
+               $http.get(
+                   umbRequestHelper.getApiUrl(
+                       "stylesheetApiBaseUrl",
+                       "GetRules",
+                       [{ id: id }]
+                       )),
+               'Failed to retreive stylesheets ');
+        },
+
+        getRulesByName: function (name) {            
+            return umbRequestHelper.resourcePromise(
+               $http.get(
+                   umbRequestHelper.getApiUrl(
+                       "stylesheetApiBaseUrl",
+                       "GetRulesByName",
+                       [{ name: name }])),
+               'Failed to retreive stylesheets ');
         }
     };
 }
@@ -1884,7 +1965,10 @@ function treeResource($q, $http, umbRequestHelper) {
 
             if(!options.tree){
                 options.tree = "";
-            }                
+            }
+            if (!options.isDialog) {
+                options.isDialog = false;
+            }
 
             return umbRequestHelper.resourcePromise(
                 $http.get(
@@ -1893,7 +1977,8 @@ function treeResource($q, $http, umbRequestHelper) {
                         "GetApplicationTrees",
                             [
                                 {application: options.section}, 
-                                {tree: options.tree} 
+                                { tree: options.tree },
+                                { isDialog: options.isDialog }
                             ])),
                 'Failed to retreive data for application tree ' + options.section);
         },
@@ -1992,28 +2077,36 @@ function userResource($q, $http, umbRequestHelper) {
          *
          * @description
          * Changes the current users password
-         *
-         * ##usage
-         * <pre>
-         * contentResource.getAll()
-         *    .then(function(userArray) {
-         *        var myUsers = userArray; 
-         *        alert('they are here!');
-         *    });
-         * </pre> 
          * 
          * @returns {Promise} resourcePromise object containing the user array.
          *
          */
-        changePassword: function (oldPassword, newPassword) {
+        changePassword: function (changePasswordArgs) {
             return umbRequestHelper.resourcePromise(
                $http.post(
                    umbRequestHelper.getApiUrl(
                        "userApiBaseUrl",
                        "PostChangePassword"),
-                       { oldPassword: oldPassword, newPassword: newPassword }),
+                       changePasswordArgs),
                'Failed to change password');
-        }
+        },
+        
+        /**
+         * @ngdoc method
+         * @name umbraco.resources.userResource#getMembershipProviderConfig
+         * @methodOf umbraco.resources.userResource
+         *
+         * @description
+         * Gets the configuration of the user membership provider which is used to configure the change password form         
+         */
+        getMembershipProviderConfig: function () {
+            return umbRequestHelper.resourcePromise(
+               $http.get(
+                   umbRequestHelper.getApiUrl(
+                       "userApiBaseUrl",
+                       "GetMembershipProviderConfig")),
+               'Failed to retreive membership provider config');
+        },
     };
 }
 

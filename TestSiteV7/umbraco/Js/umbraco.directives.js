@@ -1,4 +1,4 @@
-/*! umbraco - v0.0.1-TechnicalPReview - 2013-10-11
+/*! umbraco - v0.0.1-TechnicalPReview - 2013-10-30
  * https://github.com/umbraco/umbraco-cms/tree/7.0.0
  * Copyright (c) 2013 Umbraco HQ;
  * Licensed MIT
@@ -6,7 +6,7 @@
 
 (function() { 
 
-angular.module("umbraco.directives", ["umbraco.directives.editors", "umbraco.directives.html", "umbraco.directives.validation"]);
+angular.module("umbraco.directives", ["umbraco.directives.editors", "umbraco.directives.html", "umbraco.directives.validation", "ui.sortable"]);
 angular.module("umbraco.directives.editors", []);
 angular.module("umbraco.directives.html", []);
 angular.module("umbraco.directives.validation", []);
@@ -117,7 +117,7 @@ angular.module('umbraco.directives.editors').directive('ace', function(assetsSer
 * Used by editors that require naming an entity. Shows a textbox/headline with a required validator within it's own form.
 **/
 angular.module("umbraco.directives")
-	.directive('umbContentName', function ($timeout) {
+	.directive('umbContentName', function ($timeout, localizationService) {
 	    return {
 	        require: "ngModel",
 			restrict: 'E',
@@ -129,7 +129,13 @@ angular.module("umbraco.directives")
 			},
 			link: function(scope, element, attrs, ngModel) {
 
-			    var inputElement = element.find("input");
+				var inputElement = element.find("input");
+				if(scope.placeholder && scope.placeholder[0] === "@"){
+					localizationService.localize(scope.placeholder.substring(1))
+						.then(function(value){
+							scope.placeholder = value;	
+						});
+				}
 
 				ngModel.$render = function(){
 					$timeout(function(){
@@ -147,12 +153,11 @@ angular.module("umbraco.directives")
 				};
 
 				scope.exitEdit = function(){
-					scope.editMode = false;
 
-                    //SD: I've removed this since I don't agree with it - but please enable if that's what you want.
-					//if (!scope.model) {
-					//    scope.model = "Empty...";
-					//}
+					if(scope.model && scope.model !== ""){
+						scope.editMode = false;	
+					}
+					                    
 				};
 			}
 	    };
@@ -329,6 +334,66 @@ angular.module("umbraco.directives")
 
 /**
 * @ngdoc directive
+* @name umbraco.directives.directive:fixNumber
+* @restrict A
+* @description Used in conjunction with type='number' input fields to ensure that the bound value is converted to a number when using ng-model
+*  because normally it thinks it's a string and also validation doesn't work correctly due to an angular bug.
+**/
+function fixNumber() {
+    return {
+        restrict: "A",
+        require: "ngModel",
+        link: function (scope, element, attr, ngModel) {
+
+            //This fixes the issue of when your model contains a number as a string (i.e. "1" instead of 1)
+            // which will not actually work on initial load and the browser will say you have an invalid number 
+            // entered. So if it parses to a number, we call setViewValue which sets the bound model value
+            // to the real number. It should in theory update the view but it doesn't so we need to manually set
+            // the element's value. I'm sure there's a bug logged for this somewhere for angular too.
+
+            var modelVal = scope.$eval(attr.ngModel);
+            if (modelVal) {
+                var asNum = parseFloat(modelVal, 10);
+                if (!isNaN(asNum)) {                    
+                    ngModel.$setViewValue(asNum);
+                    element.val(asNum);
+                }
+                else {                    
+                    ngModel.$setViewValue(null);
+                    element.val("");
+                }
+            }
+            
+            ngModel.$formatters.push(function (value) {
+                if (angular.isString(value)) {
+                    return parseFloat(value);
+                }
+                return value;
+            });
+            
+            //This fixes this angular issue: 
+            //https://github.com/angular/angular.js/issues/2144
+            // which doesn't actually validate the number input properly since the model only changes when a real number is entered
+            // but the input box still allows non-numbers to be entered which do not validate (only via html5)
+            
+            if (typeof element.prop('validity') === 'undefined') {
+                return;
+            }
+
+            element.bind('input', function (e) {
+                var validity = element.prop('validity');
+                scope.$apply(function () {
+                    ngModel.$setValidity('number', !validity.badInput);
+                });
+            });
+
+        }
+    };
+}
+angular.module('umbraco.directives').directive("fixNumber", fixNumber);
+
+/**
+* @ngdoc directive
 * @name umbraco.directives.directive:hexBgColor
 * @restrict A
 * @description Used to set a hex background color on an element, this will detect valid hex and when it is valid it will set the color, otherwise
@@ -370,8 +435,10 @@ angular.module('umbraco.directives').directive("hexBgColor", hexBgColor);
 **/
 angular.module("umbraco.directives")
   .directive('hotkey', function ($window, keyboardService, $log) {
+
       return function (scope, el, attrs) {
           var keyCombo = attrs["hotkey"];
+
           keyboardService.bind(keyCombo, function() {
               var element = $(el);
               if(element.is("a,button,input[type='button'],input[type='submit']")){
@@ -397,14 +464,25 @@ angular.module("umbraco.directives.html")
                 hideLabel: "@",
                 alias: "@"
             },
+            require: '?^form',
             transclude: true,
             restrict: 'E',
             replace: true,        
             templateUrl: 'views/directives/html/umb-control-group.html',
-            link: function (scope, element, attr){
-                if(scope.label && scope.label[0] === "@"){
-                        scope.labelstring = localizationService.localize(scope.label.substring(1));
-                }else{
+            link: function (scope, element, attr, formCtrl) {
+
+                scope.formValid = function() {
+                    if (formCtrl) {
+                        return formCtrl.$valid;
+                    }
+                    //there is no form.
+                    return true;
+                };
+
+                if (scope.label && scope.label[0] === "@") {
+                    scope.labelstring = localizationService.localize(scope.label.substring(1));
+                }
+                else {
                     scope.labelstring = scope.label;
                 }
             }
@@ -634,8 +712,9 @@ angular.module("umbraco.directives")
         replace: true,
         link: function (scope, element, attrs) {
             var key = scope.key;
-            var value = localizationService.localize(key);
-            element.html(value);
+            localizationService.localize(key).then(function(value){
+                element.html(value);
+            });
         }
     };
 })
@@ -645,26 +724,18 @@ angular.module("umbraco.directives")
         link: function (scope, element, attrs) {
             var keys = attrs.localize.split(',');
 
-            for (var i = keys.length - 1; i >= 0; i--) {
-                var attr = element.attr(keys[i]);
-
+            angular.forEach(keys, function(value, key){
+                var attr = element.attr(value);
                 if(attr){
-                    var localizer = attr.split(':');
-                    var tokens;
-                    var key = localizer[0];
-
-                    if(localizer.length > 0){
-                        tokens = localizer[1].split(',');
-                        for (var x = 0; x < tokens.length; x++) {
-                            tokens[x] = scope.$eval(tokens[x]);
-                        } 
-                    }
-
-                    if(key[0] === '@'){
-                        element.attr(keys[i], localizationService.localize(key.substring(1), tokens));    
+                    if(attr[0] === '@'){
+                        var t = localizationService.tokenize(attr.substring(1), scope);
+                        localizationService.localize(t.key, t.tokens).then(function(val){
+                                element.attr(value, val);
+                        });
                     }
                 }
-            }
+            });
+
         }
     };
 });
@@ -673,17 +744,30 @@ angular.module("umbraco.directives")
 * @name umbraco.directives.directive:preventDefault
 **/
 angular.module("umbraco.directives")
-	.directive('preventDefault', function () {
-		return function (scope, element, attrs) {
-		    $(element).click(function (event) {
-				if(event.metaKey || event.ctrlKey){
-					return;
-				}else{
-					event.preventDefault();
-				}		
-			});
-		};
-	});
+    .directive('preventDefault', function() {
+        return function(scope, element, attrs) {
+
+            var enabled = true;
+            //check if there's a value for the attribute, if there is and it's false then we conditionally don't 
+            //prevent default.
+            if (attrs.preventDefault) {
+                attrs.$observe("preventDefault", function (newVal) {
+                    enabled = (newVal === "false" || newVal === 0 || newVal === false) ? false : true;
+                });
+            }
+
+            $(element).click(function (event) {
+                if (event.metaKey || event.ctrlKey) {
+                    return;
+                }
+                else {
+                    if (enabled === true) {
+                        event.preventDefault();
+                    }
+                }
+            });
+        };
+    });
 /**
  * @ngdoc directive
  * @name umbraco.directives.directive:resizeToContent
@@ -881,25 +965,31 @@ angular.module("umbraco.directives")
                     //we'll try to get the jsAction from the injector
                     var menuAction = action.metaData["jsAction"].split('.');
                     if (menuAction.length !== 2) {
-                        throw "The jsAction assigned to a menu action must have two parts delimited by a '.' ";
-                    }
 
-                    var service = $injector.get(menuAction[0]);
-                    if (!service) {
-                        throw "The angular service " + menuAction[0] + " could not be found";
-                    }
+                        //if it is not two parts long then this most likely means that it's a legacy action                         
+                        var js = action.metaData["jsAction"].replace("javascript:", "");
+                        //there's not really a different way to acheive this except for eval 
+                        eval(js);
 
-                    var method = service[menuAction[1]];
-                    
-                    if (!method) {
-                        throw "The method " + menuAction[1] + " on the angular service " + menuAction[0] + " could not be found";
                     }
+                    else {
+                        var service = $injector.get(menuAction[0]);
+                        if (!service) {
+                            throw "The angular service " + menuAction[0] + " could not be found";
+                        }
 
-                    method.apply(this, [{
-                        treeNode: currentNode,
-                        action: action,
-                        section: currentSection
-                    }]);
+                        var method = service[menuAction[1]];
+
+                        if (!method) {
+                            throw "The method " + menuAction[1] + " on the angular service " + menuAction[0] + " could not be found";
+                        }
+
+                        method.apply(this, [{
+                            treeNode: currentNode,
+                            action: action,
+                            section: currentSection
+                        }]);
+                    }
                 }
                 else {
                     //by default we launch the dialog
@@ -1128,6 +1218,8 @@ function sectionsDirective($timeout, $window, navigationService, treeService, se
 			scope.maxSections = 7;
 			scope.overflowingSections = 0;
             scope.sections = [];
+            scope.nav = navigationService;
+
 
 			function loadSections(){
 				sectionResource.getSections()
@@ -1171,13 +1263,13 @@ function sectionsDirective($timeout, $window, navigationService, treeService, se
 				navigationService.showHelpDialog();
 			};
 
-			scope.sectionClick = function(section){
+			scope.sectionClick = function (section) {
+			    navigationService.hideSearch();
 				navigationService.showTree(section.alias);
 			};
 
 			scope.sectionDblClick = function(section){
-				treeService.clearCache(section.alias);
-				navigationService.changeSection(section.alias);
+				navigationService.reloadSection(section.alias);
 			};
 
 			scope.trayClick = function(){
@@ -1267,11 +1359,10 @@ angular.module("umbraco.directives")
       scope: {
         section: '@',
         treealias: '@',
-        path: '@',
-        activetree: '@',
         showoptions: '@',
         showheader: '@',
         cachekey: '@',
+        isdialog: '@',
         eventhandler: '='
       },
 
@@ -1279,25 +1370,25 @@ angular.module("umbraco.directives")
          //config
          var hideheader = (attrs.showheader === 'false') ? true : false;
          var hideoptions = (attrs.showoptions === 'false') ? "hide-options" : "";
-        
+         
          var template = '<ul class="umb-tree ' + hideoptions + '">' + 
          '<li class="root">';
 
          if(!hideheader){ 
            template +='<div>' + 
-           '<h5><a href="#/{{section}}" ng-click="select(this, tree.root, $event)"  class="root-link">{{tree.name}}</a></h5>' +
+           '<h5><a href="#/{{section}}" ng-click="select(this, tree.root, $event)" on-right-click="altSelect(this, tree.root, $event)"  class="root-link">{{tree.name}}</a></h5>' +
                '<a href class="umb-options" ng-hide="tree.root.isContainer || !tree.root.menuUrl" ng-click="options(this, tree.root, $event)" ng-swipe-right="options(this, tree.root, $event)"><i></i><i></i><i></i></a>' +
            '</div>';
          }
          template += '<ul>' +
-                  '<umb-tree-item ng-repeat="child in tree.root.children" eventhandler="eventhandler" path="{{path}}" activetree="{{activetree}}" node="child" tree="child" section="{{section}}" ng-animate="animation()"></umb-tree-item>' +
+                  '<umb-tree-item ng-repeat="child in tree.root.children" eventhandler="eventhandler" path="{{path}}" activetree="{{activetree}}" node="child" current-node="currentNode" tree="child" section="{{section}}" ng-animate="animation()"></umb-tree-item>' +
                   '</ul>' +
                 '</li>' +
                '</ul>';
 
         element.replaceWith(template);
 
-        return function (scope, element, attrs, controller) {
+        return function (scope, elem, attr, controller) {
 
             //flag to track the last loaded section when the tree 'un-loads'. We use this to determine if we should
             // re-load the tree again. For example, if we hover over 'content' the content tree is shown. Then we hover
@@ -1306,6 +1397,9 @@ angular.module("umbraco.directives")
             // reload it. This saves a lot on processing if someone is navigating in and out of the same section many times
             // since it saves on data retreival and DOM processing.
             var lastSection = "";
+            
+            //keeps track of the currently active tree being called by editors syncing
+            var activeTree;
 
             //flag to enable/disable delete animations
             var enableDeleteAnimations = false;
@@ -1317,17 +1411,51 @@ angular.module("umbraco.directives")
               }
             }
 
+            function setupExternalEvents() {
+              if (scope.eventhandler) {
+                
+                scope.eventhandler.clearCache = function(section){
+                  treeService.clearCache(section);
+                };
+
+                scope.eventhandler.load = function(section){
+                  scope.section = section;
+                  loadTree();
+                };
+
+                scope.eventhandler.syncPath = function(path, forceReload){
+                  if(!angular.isArray(path)){
+                    path = path.split(',');
+                  }
+                  //reset current node selection
+                  scope.currentNode = undefined;
+
+                  //filter the path for root node ids
+                  path = _.filter(path, function(item){ return (item !== "init" && item !== "-1"); });
+                   
+                  //if we have a active tree, we sync based on that.
+                  var root = activeTree ? activeTree : scope.tree.root;
+
+                   //tell the tree to sync the children below the root
+                   syncTree(root, path, forceReload);
+                };
+                
+                scope.eventhandler.setActiveTreeType = function(treeAlias){
+                    activeTree = _.find(scope.tree.root.children, function(node){ return node.metaData.treeAlias === treeAlias; });
+                };
+              }
+            }
+
             /** Method to load in the tree data */
             function loadTree() {                
                 if (!scope.loading && scope.section) {
-
                     scope.loading = true;
 
                     //anytime we want to load the tree we need to disable the delete animations
                     enableDeleteAnimations = false;
 
                     //use $q.when because a promise OR raw data might be returned.
-                    $q.when(treeService.getTree({ section: scope.section, tree: scope.treealias, cachekey: scope.cachekey }))
+                    $q.when(treeService.getTree({ section: scope.section, tree: scope.treealias, cachekey: scope.cachekey, isDialog: scope.isdialog ? scope.isdialog : false }))
                         .then(function (data) {
                             //set the data once we have it
                             scope.tree = data;
@@ -1347,6 +1475,31 @@ angular.module("umbraco.directives")
                 }
             }
 
+            function syncTree(node, array, forceReload) {
+              if(!node || !array || array.length === 0){
+                return;
+              }
+
+              scope.loadChildren(node, forceReload)
+                .then(function(children){
+                    var next = _.where(children, {id: array[0]});
+                    if(next && next.length > 0){
+                      
+                      if(array.length > 0){
+                        array.splice(0,1);
+                      }else{
+
+                      }
+                      
+                      if(array.length === 0){
+                          scope.currentNode = next[0];
+                      }
+
+                      syncTree(next[0], array, forceReload);
+                    }
+                });
+            }
+
             /** method to set the current animation for the node. 
              *  This changes dynamically based on if we are changing sections or just loading normal tree data. 
              *  When changing sections we don't want all of the tree-ndoes to do their 'leave' animations.
@@ -1360,6 +1513,35 @@ angular.module("umbraco.directives")
                 }
             };
 
+            /* helper to force reloading children of a tree node */
+            scope.loadChildren = function(node, forceReload){           
+                var deferred = $q.defer();
+
+                //emit treeNodeExpanding event, if a callback object is set on the tree
+                emitEvent("treeNodeExpanding", {tree: scope.tree, node: node });
+                
+                if (node.hasChildren && (forceReload || !node.children || (angular.isArray(node.children) && node.children.length === 0))) {
+                    //get the children from the tree service
+                    treeService.loadNodeChildren({ node: node, section: scope.section })
+                        .then(function(data) {
+                            //emit expanded event
+                            emitEvent("treeNodeExpanded", { tree: scope.tree, node: node, children: data });
+                            enableDeleteAnimations = true;
+
+                            deferred.resolve(data);
+                        });
+                }
+                else {
+                    emitEvent("treeNodeExpanded", {tree: scope.tree, node: node, children: node.children });
+                    node.expanded = true;
+                    enableDeleteAnimations = true;
+
+                    deferred.resolve(node.children);
+                }
+
+                return deferred.promise;
+            };
+
             /**
               Method called when the options button next to the root node is called.
               The tree doesnt know about this, so it raises an event to tell the parent controller
@@ -1368,7 +1550,7 @@ angular.module("umbraco.directives")
             scope.options = function (e, n, ev) {
                 emitEvent("treeOptionsClick", { element: e, node: n, event: ev });
             };
-            
+              
             /**
               Method called when an item is clicked in the tree, this passes the 
               DOM element, the tree node object and the original click
@@ -1379,10 +1561,13 @@ angular.module("umbraco.directives")
                 emitEvent("treeNodeSelect", { element: e, node: n, event: ev });
             };
             
-
+            scope.altSelect = function(e,n,ev){
+                emitEvent("treeNodeAltSelect", { element: e, tree: scope.tree, node: n, event: ev });
+            };
+            
             //watch for section changes
             scope.$watch("section", function (newVal, oldVal) {
-              
+                  
                   if(!scope.tree){
                     loadTree();  
                   }
@@ -1396,28 +1581,10 @@ angular.module("umbraco.directives")
                       loadTree();
                       
                       //store the new section to be loaded as the last section
+                      //clear any active trees to reset lookups
                       lastSection = newVal;
-                  }
-              
-            });
-
-            //watch for path changes
-            scope.$watch("path", function (newVal, oldVal) {
-
-              //resetting the path destroys the tree
-              if(newVal && newVal !== oldVal){
-                  scope.tree = null;
-              }
-
-            });
-
-            //watch for active tree changes
-            scope.$watch("activetree", function (newVal, oldVal) {
-
-              if (newVal && newVal !== oldVal) {
-                  scope.tree = null;
-                  //only reload the tree data and Dom if the newval is different from the old one
-              }
+                      activeTree = undefined;
+                  } 
             });
 
             //When the user logs in
@@ -1426,15 +1593,11 @@ angular.module("umbraco.directives")
                 if (data.lastUserId !== data.user.id) {
                     treeService.clearCache();
                     scope.tree = null;
+
+                    setupExternalEvents();
                     loadTree();
                 }
             });
-            
-            //When a section is double clicked
-            scope.$on("tree.clearCache", function (evt, data) {
-                treeService.clearCache(data.tree);
-                scope.tree = null;
-            });  
             
          };
        }
@@ -1469,17 +1632,16 @@ angular.module("umbraco.directives")
       section: '@',
       cachekey: '@',
       eventhandler: '=',
-      path: '@',
+      currentNode:'=',
       node:'=',
-      activetree:'@',
       tree:'='
     },
 
-    template: '<li ng-swipe-right="options(this, node, $event)"><div ng-style="setTreePadding(node)" class="{{node.stateCssClass}}" ng-class="{\'loading\': node.loading}">' +
+    template: '<li ng-class="{\'current\': (node == currentNode)}"><div ng-style="setTreePadding(node)" class="{{node.stateCssClass}}" ng-class="{\'loading\': node.loading}" ng-swipe-right="options(this, node, $event)" >' +
         '<ins ng-hide="node.hasChildren" style="background:none;width:18px;"></ins>' +        
-        '<ins ng-show="node.hasChildren" ng-class="{\'icon-navigation-right\': !node.expanded, \'icon-navigation-down\': node.expanded}" ng-click="load(this, node)"></ins>' +
+        '<ins ng-show="node.hasChildren" ng-class="{\'icon-navigation-right\': !node.expanded, \'icon-navigation-down\': node.expanded}" ng-click="load(node)"></ins>' +
         '<i title="#{{node.routePath}}" class="{{node.cssClass}}" style="{{node.style}}"></i>' +
-        '<a href ng-click="select(this, node, $event)" >{{node.name}}</a>' +
+        '<a href ng-click="select(this, node, $event)" on-right-click="altSelect(this, node, $event)" >{{node.name}}</a>' +
         '<a href class="umb-options" ng-hide="!node.menuUrl" ng-click="options(this, node, $event)"><i></i><i></i><i></i></a>' +
         '<div ng-show="node.loading" class="l"><div></div></div>' +
         '</div>' +
@@ -1517,6 +1679,16 @@ angular.module("umbraco.directives")
             emitEvent("treeNodeSelect", { element: e, tree: scope.tree, node: n, event: ev });
         };
 
+        /**
+          Method called when an item is right-clicked in the tree, this passes the 
+          DOM element, the tree node object and the original click
+          and emits it as a treeNodeSelect element if there is a callback object
+          defined on the tree
+        */
+        scope.altSelect = function(e,n,ev){
+            emitEvent("treeNodeAltSelect", { element: e, tree: scope.tree, node: n, event: ev });
+        };
+
         /** method to set the current animation for the node. 
         *  This changes dynamically based on if we are changing sections or just loading normal tree data. 
         *  When changing sections we don't want all of the tree-ndoes to do their 'leave' animations.
@@ -1535,33 +1707,33 @@ angular.module("umbraco.directives")
           takes the arrow DOM element and node data as parameters
           emits treeNodeCollapsing event if already expanded and treeNodeExpanding if collapsed
         */
-        scope.load = function(arrow, node) {
+        scope.load = function(node) {
             if (node.expanded) {
                 enableDeleteAnimations = false;
-                emitEvent("treeNodeCollapsing", { element: arrow, tree: scope.tree, node: node });
+                emitEvent("treeNodeCollapsing", {tree: scope.tree, node: node });
                 node.expanded = false;
             }
             else {
-                scope.loadChildren(arrow, node, false);
+                scope.loadChildren(node, false);
             }
         };
 
         /* helper to force reloading children of a tree node */
-        scope.loadChildren = function(arrow, node, forceReload){
+        scope.loadChildren = function(node, forceReload){
             //emit treeNodeExpanding event, if a callback object is set on the tree
-            emitEvent("treeNodeExpanding", { element: arrow, tree: scope.tree, node: node });
+            emitEvent("treeNodeExpanding", { tree: scope.tree, node: node });
             
             if (node.hasChildren && (forceReload || !node.children || (angular.isArray(node.children) && node.children.length === 0))) {
                 //get the children from the tree service
                 treeService.loadNodeChildren({ node: node, section: scope.section })
                     .then(function(data) {
                         //emit expanded event
-                        emitEvent("treeNodeExpanded", { element: arrow, tree: scope.tree, node: node, children: data });
+                        emitEvent("treeNodeExpanded", {tree: scope.tree, node: node, children: data });
                         enableDeleteAnimations = true;
                     });
             }
             else {
-                emitEvent("treeNodeExpanded", { element: arrow, tree: scope.tree, node: node, children: node.children });
+                emitEvent("treeNodeExpanded", { tree: scope.tree, node: node, children: node.children });
                 node.expanded = true;
                 enableDeleteAnimations = true;
             }
@@ -1591,7 +1763,7 @@ angular.module("umbraco.directives")
         scope.expandActivePath(scope.node, scope.activetree, scope.path);
         scope.node.stateCssClass = scope.node.cssClasses.join(" ");
 
-        var template = '<ul ng-class="{collapsed: !node.expanded}"><umb-tree-item  ng-repeat="child in node.children" eventhandler="eventhandler" activetree="{{activetree}}" path="{{path}}" tree="tree" node="child" section="{{section}}" ng-animate="animation()"></umb-tree-item></ul>';
+        var template = '<ul ng-class="{collapsed: !node.expanded}"><umb-tree-item  ng-repeat="child in node.children" eventhandler="eventhandler" activetree="{{activetree}}"  tree="tree" current-node="currentNode" node="child" section="{{section}}" ng-animate="animation()"></umb-tree-item></ul>';
         var newElement = angular.element(template);
         $compile(newElement)(scope);
         element.append(newElement);
@@ -1612,7 +1784,7 @@ angular.module('umbraco.directives')
     };
 })
 
-.directive('onKeyDown', function ($key) {
+.directive('onKeydown', function () {
     return {
         link: function (scope, elm, attrs) {
             $key('keydown', scope, elm, attrs);
@@ -1633,6 +1805,19 @@ angular.module('umbraco.directives')
         elm.bind("focus", function () {
             scope.$apply(attrs.onFocus);
         });
+    };
+})
+
+.directive('onRightClick',function(){
+    document.oncontextmenu = function (e) {
+       if(e.target.hasAttribute('on-right-click')) {
+           return false;
+       }
+    };  
+    return function(scope,el,attrs){
+        el.bind('contextmenu',function(e){
+            scope.$apply(attrs.onRightClick);
+        }) ;
     };
 });
 /**
@@ -1971,15 +2156,18 @@ function valPropertyMsg(serverValidationManager) {
                 // based on other errors. We'll also check if there's no other validation errors apart from valPropertyMsg, if valPropertyMsg
                 // is the only one, then we'll clear.
 
+                if (!newValue) {
+                    return;
+                }
+
                 var errCount = 0;
                 for (var e in formCtrl.$error) {
-                    if (e) {
+                    if (angular.isArray(formCtrl.$error[e])) {
                         errCount++;
                     }
                 }
 
-                if ((errCount === 1 && formCtrl.$error.valPropertyMsg !== undefined) ||
-                    (formCtrl.$invalid && formCtrl.$error.valServer !== undefined)) {
+                if ((errCount === 1 && angular.isArray(formCtrl.$error.valPropertyMsg)) || (formCtrl.$invalid && angular.isArray(formCtrl.$error.valServer))) {
                     scope.errorMsg = "";
                     formCtrl.$setValidity('valPropertyMsg', true);
                 }
@@ -2117,6 +2305,7 @@ function valServer(serverValidationManager) {
             // resubmitted. So once a field is changed that has a server error assigned to it
             // we need to re-validate it for the server side validator so the user can resubmit
             // the form. Of course normal client-side validators will continue to execute.
+            //TODO: Should we be using $render here instead?
             ctrl.$viewChangeListeners.push(function () {
                 if (ctrl.$invalid) {
                     ctrl.$setValidity('valServer', true);

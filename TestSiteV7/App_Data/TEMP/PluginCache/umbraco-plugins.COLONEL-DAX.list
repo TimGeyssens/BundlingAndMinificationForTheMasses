@@ -1,6 +1,7 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <plugins>
   <baseType type="umbraco.interfaces.IApplicationStartupHandler" resolutionType="FindAllTypes">
+    <add type="Optimus.Umbraco.StartUpHandlers, Optimus, Version=1.1.0.0, Culture=neutral, PublicKeyToken=null" />
     <add type="Umbraco.Web.CacheHelperExtensions+CacheHelperApplicationEventListener, umbraco, Version=1.0.5032.23343, Culture=neutral, PublicKeyToken=null" />
     <add type="Umbraco.Web.Cache.CacheRefresherEventHandler, umbraco, Version=1.0.5032.23343, Culture=neutral, PublicKeyToken=null" />
     <add type="Umbraco.Web.Models.Mapping.LogModelMapper, umbraco, Version=1.0.5032.23343, Culture=neutral, PublicKeyToken=null" />
@@ -29,7 +30,6 @@
     <add type="umbraco.editorControls.PickerRelations.PickerRelationsEventHandler, umbraco.editorControls, Version=1.0.5032.23345, Culture=neutral, PublicKeyToken=null" />
     <add type="umbraco.BusinessLogic.ApplicationRegistrar, businesslogic, Version=1.0.5032.23340, Culture=neutral, PublicKeyToken=null" />
     <add type="umbraco.BusinessLogic.ApplicationTreeRegistrar, businesslogic, Version=1.0.5032.23340, Culture=neutral, PublicKeyToken=null" />
-    <add type="Optimus.Umbraco.StartUpHandlers, Optimus, Version=1.1.0.0, Culture=neutral, PublicKeyToken=null" />
   </baseType>
   <baseType type="Umbraco.Core.PropertyEditors.IPropertyEditorValueConverter" resolutionType="FindAllTypes" />
   <baseType type="Umbraco.Core.PropertyEditors.IPropertyValueConverter" resolutionType="FindAllTypes">
@@ -117,6 +117,9 @@
     <add type="Umbraco.Web.Trees.ContentTreeController, umbraco, Version=1.0.5032.23343, Culture=neutral, PublicKeyToken=null" />
   </baseType>
   <baseType type="umbraco.interfaces.ITree" resolutionType="FindTypesWithAttribute">
+    <add type="Optimus.Umbraco.Trees.BundlingAndMinificationTree, Optimus, Version=1.1.0.0, Culture=neutral, PublicKeyToken=null" />
+    <add type="Optimus.Trees.Scripts.DynamicScriptTree, Optimus.Trees.Scripts, Version=1.1.0.0, Culture=neutral, PublicKeyToken=null" />
+    <add type="Optimus.Trees.Stylesheets.DynamicCSSTree, Optimus.Trees.Stylesheets, Version=1.1.0.0, Culture=neutral, PublicKeyToken=null" />
     <add type="umbraco.loadPackager, umbraco, Version=1.0.5032.23343, Culture=neutral, PublicKeyToken=null" />
     <add type="umbraco.loadRelationTypes, umbraco, Version=1.0.5032.23343, Culture=neutral, PublicKeyToken=null" />
     <add type="umbraco.loadDictionary, umbraco, Version=1.0.5032.23343, Culture=neutral, PublicKeyToken=null" />
@@ -136,9 +139,6 @@
     <add type="umbraco.loadXslt, umbraco, Version=1.0.5032.23343, Culture=neutral, PublicKeyToken=null" />
     <add type="umbraco.cms.presentation.Trees.UserPermissions, umbraco, Version=1.0.5032.23343, Culture=neutral, PublicKeyToken=null" />
     <add type="umbraco.cms.presentation.Trees.UserTypes, umbraco, Version=1.0.5032.23343, Culture=neutral, PublicKeyToken=null" />
-    <add type="Optimus.Umbraco.Trees.BundlingAndMinificationTree, Optimus, Version=1.1.0.0, Culture=neutral, PublicKeyToken=null" />
-    <add type="Optimus.Trees.Scripts.DynamicScriptTree, Optimus.Trees.Scripts, Version=1.1.0.0, Culture=neutral, PublicKeyToken=null" />
-    <add type="Optimus.Trees.Stylesheets.DynamicCSSTree, Optimus.Trees.Stylesheets, Version=1.1.0.0, Culture=neutral, PublicKeyToken=null" />
   </baseType>
   <baseType type="umbraco.interfaces.IApplication" resolutionType="FindTypesWithAttribute">
     <add type="umbraco.businesslogic.ContentApplicationDefinition, businesslogic, Version=1.0.5032.23340, Culture=neutral, PublicKeyToken=null" />
@@ -150,6 +150,9 @@
     <add type="umbraco.businesslogic.TranslationApplicationDefinition, businesslogic, Version=1.0.5032.23340, Culture=neutral, PublicKeyToken=null" />
   </baseType>
   <baseType type="umbraco.interfaces.ITree" resolutionType="FindAllTypes">
+    <add type="Optimus.Umbraco.Trees.BundlingAndMinificationTree, Optimus, Version=1.1.0.0, Culture=neutral, PublicKeyToken=null" />
+    <add type="Optimus.Trees.Scripts.DynamicScriptTree, Optimus.Trees.Scripts, Version=1.1.0.0, Culture=neutral, PublicKeyToken=null" />
+    <add type="Optimus.Trees.Stylesheets.DynamicCSSTree, Optimus.Trees.Stylesheets, Version=1.1.0.0, Culture=neutral, PublicKeyToken=null" />
     <add type="umbraco.loadPackager, umbraco, Version=1.0.5032.23343, Culture=neutral, PublicKeyToken=null" />
     <add type="Umbraco.Web.Trees.PartialViewsTree, umbraco, Version=1.0.5032.23343, Culture=neutral, PublicKeyToken=null" />
     <add type="Umbraco.Web.Trees.PartialViewMacrosTree, umbraco, Version=1.0.5032.23343, Culture=neutral, PublicKeyToken=null" />
@@ -186,9 +189,6 @@
     <add type="umbraco.cms.presentation.Trees.UserTypes, umbraco, Version=1.0.5032.23343, Culture=neutral, PublicKeyToken=null" />
     <add type="umbraco.editorControls.MultiNodeTreePicker.FilteredContentTree, umbraco.editorControls, Version=1.0.5032.23345, Culture=neutral, PublicKeyToken=null" />
     <add type="umbraco.editorControls.MultiNodeTreePicker.FilteredMediaTree, umbraco.editorControls, Version=1.0.5032.23345, Culture=neutral, PublicKeyToken=null" />
-    <add type="Optimus.Umbraco.Trees.BundlingAndMinificationTree, Optimus, Version=1.1.0.0, Culture=neutral, PublicKeyToken=null" />
-    <add type="Optimus.Trees.Scripts.DynamicScriptTree, Optimus.Trees.Scripts, Version=1.1.0.0, Culture=neutral, PublicKeyToken=null" />
-    <add type="Optimus.Trees.Stylesheets.DynamicCSSTree, Optimus.Trees.Stylesheets, Version=1.1.0.0, Culture=neutral, PublicKeyToken=null" />
   </baseType>
   <baseType type="umbraco.interfaces.IAction" resolutionType="FindAllTypes">
     <add type="umbraco.cms.presentation.developer.RelationTypes.TreeMenu.ActionDeleteRelationType, umbraco, Version=1.0.5032.23343, Culture=neutral, PublicKeyToken=null" />
