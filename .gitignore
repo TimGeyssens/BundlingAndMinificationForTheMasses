@@ -106,4 +106,18 @@ TestSite/App_Data/umbraco.licensing.log.txt
 TestSite/aspnet_client/
 TestSite/App_Data/*.udt
 
+TestSiteV7/App_Data/umbraco.config
+TestSiteV7/App_Data/preview/*.config
+TestSiteV7/App_Data/TEMP/ClientDependency/
+TestSiteV7/App_Data/ClientDependency/
+TestSiteV7/App_Data/TEMP/ExamineIndexes/
+TestSiteV7/App_Data/TEMP/PluginCache/*
+TestSiteV7/App_Data/Logs/*
+TestSiteV7/App_Data/TEMP/Razor/
+TestSiteV7/App_Data/courier/revisions/
+TestSiteV7/App_Data/courier/cache/*
+TestSiteV7/App_Data/umbraco.licensing.log.txt
+TestSiteV7/aspnet_client/
+TestSiteV7/App_Data/*.udt
+
 */_systemUmbracoIndexDontDelete/*
