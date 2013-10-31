@@ -1,4 +1,6 @@
-﻿using Optimus.Translation;
+﻿using Optimus.Helpers;
+using Optimus.Interfaces;
+using Optimus.Translation;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -49,8 +51,9 @@ namespace Optimus.Umbraco
 
         private Control GetPanel1Control(umbracoPage up)
         {
-            ContentPlaceHolder cph = (ContentPlaceHolder)up.FindControl("body");
-            return cph.FindControl("Panel1");
+            var cph = (ContentPlaceHolder)up.FindControl("body");
+
+            return CompatibilityHelper.IsVersion7OrNewer ? cph.FindControl("body_Panel1_container") : cph.FindControl("Panel1");
         }
 
         void umbracoPage_Load(object sender, EventArgs e)
@@ -68,17 +71,29 @@ namespace Optimus.Umbraco
 
                 if (c2 != null)
                 {
-                    UmbracoPanel panel = (UmbracoPanel)c2;
+                    if (!CompatibilityHelper.IsVersion7OrNewer) // U6
+                    {
+                        UmbracoPanel panel = (UmbracoPanel) c2;
 
-                    //Insert splitter in menu to make menu nicer on the eye
-                    panel.Menu.InsertSplitter();
+                        //Insert splitter in menu to make menu nicer on the eye
+                        panel.Menu.InsertSplitter();
 
-                    //Add new image button 
-                    ImageButton bundleBtn = panel.Menu.NewImageButton();
-                    bundleBtn.ToolTip = "Create script/style bundle";
-                    bundleBtn.ImageUrl = webforms ? "../../App_Plugins/Optimus/Icons/bundle_menu_icon.png" : "../../../App_Plugins/Optimus/Icons/bundle_menu_icon.png";
-                    bundleBtn.OnClientClick = webforms ?
-                                                 @"var selection = UmbEditor.IsSimpleEditor? jQuery('#body_editorSource').getSelection().text : UmbEditor._editor.getSelection();                                                UmbClientMgr.openModalWindow('/App_Plugins/Optimus/Dialog?webforms=true&snippet='+selection, 'Create Bundle', true, 550, 350);                                                return false;"                                                :                                                 @"var selection = UmbEditor.IsSimpleEditor? jQuery('#body_editorSource').getSelection().text : UmbEditor._editor.getSelection();                                                UmbClientMgr.openModalWindow('/App_Plugins/Optimus/Dialog?snippet='+selection, 'Create Bundle', true, 550, 350);                                                return false;";
+                        //Add new image button 
+                        ImageButton bundleBtn = panel.Menu.NewImageButton();
+                        bundleBtn.ToolTip = "Create script/style bundle";
+                        bundleBtn.ImageUrl = webforms
+                            ? "../../App_Plugins/Optimus/Icons/bundle_menu_icon.png"
+                            : "../../../App_Plugins/Optimus/Icons/bundle_menu_icon.png";
+                        bundleBtn.OnClientClick = webforms
+                            ? @"var selection = UmbEditor.IsSimpleEditor? jQuery('#body_editorSource').getSelection().text : UmbEditor._editor.getSelection();                                                UmbClientMgr.openModalWindow('/App_Plugins/Optimus/Dialog?webforms=true&snippet='+selection, 'Create Bundle', true, 550, 350);                                                return false;"
+                            : @"var selection = UmbEditor.IsSimpleEditor? jQuery('#body_editorSource').getSelection().text : UmbEditor._editor.getSelection();                                                UmbClientMgr.openModalWindow('/App_Plugins/Optimus/Dialog?snippet='+selection, 'Create Bundle', true, 550, 350);                                                return false;";
+                    }
+                    else
+                    {
+                        var prov = (IAddMenuButton)Activator.CreateInstance(Type.GetType("Optimus.V7.AddV7MenuButton, Optimus.V7"));
+                        prov.Add(c2);
+                    }
+
                 }
             }
         }
