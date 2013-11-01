@@ -1,4 +1,5 @@
-﻿@model Optimus.Models.BundleViewModel
+﻿@using Optimus.Helpers
+@model Optimus.Models.BundleViewModel
 @{
     string bundleType = "script";
     string bundleFunction = "Scripts";
@@ -13,127 +14,225 @@
 
 }
 <html>
-<head>
-    <link href="~/umbraco_client/propertypane/style.css?cdv=2" type="text/css" rel="stylesheet"/>
-    <link href="~/umbraco_client/ui/default.css?cdv=2" type="text/css" rel="stylesheet"/>
-    <link href="Content/jqueryFileTree.css" rel="stylesheet">
+    <head>
+         @if(!CompatibilityHelper.IsVersion7OrNewer)
+        {
+        <link href="~/umbraco_client/propertypane/style.css?cdv=2" type="text/css" rel="stylesheet"/>
+        <link href="~/umbraco_client/ui/default.css?cdv=2" type="text/css" rel="stylesheet"/>
+        <link href="Content/jqueryFileTree.css" rel="stylesheet">
 
-    <script src="~/umbraco_client/Application/NamespaceManager.js?cdv=2" type="text/javascript"></script>
-    <script src="~/umbraco_client/ui/jquery.js?cdv=2" type="text/javascript"></script>
-    <script src="~/umbraco_client/Application/jQuery/jquery.cookie.js?cdv=2" type="text/javascript"></script>
-    <script src="~/umbraco_client/ui/jqueryui.js?cdv=2" type="text/javascript"></script>
-    <script src="~/umbraco_client/ui/base2.js?cdv=2" type="text/javascript"></script>
-    <script src="~/umbraco_client/Application/UmbracoUtils.js?cdv=2" type="text/javascript"></script>
-    <script src="~/umbraco_client/Application/UmbracoApplicationActions.js?cdv=2" type="text/javascript"></script>
+        <script src="~/umbraco_client/Application/NamespaceManager.js?cdv=2" type="text/javascript"></script>
+        <script src="~/umbraco_client/ui/jquery.js?cdv=2" type="text/javascript"></script>
+        <script src="~/umbraco_client/Application/jQuery/jquery.cookie.js?cdv=2" type="text/javascript"></script>
+        <script src="~/umbraco_client/ui/jqueryui.js?cdv=2" type="text/javascript"></script>
+        <script src="~/umbraco_client/ui/base2.js?cdv=2" type="text/javascript"></script>
+        <script src="~/umbraco_client/Application/UmbracoUtils.js?cdv=2" type="text/javascript"></script>
+        <script src="~/umbraco_client/Application/UmbracoApplicationActions.js?cdv=2" type="text/javascript"></script>
 
-    <script src="~/umbraco_client/Application/UmbracoClientManager.js?cdv=2" type="text/javascript"></script>
+        <script src="~/umbraco_client/Application/UmbracoClientManager.js?cdv=2" type="text/javascript"></script>
 
-    <script src="~/umbraco_client/ui/default.js?cdv=2" type="text/javascript"></script>
-    <script src="~/umbraco_client/modal/modal.js?cdv=2" type="text/javascript"></script>
-    <script src="~/umbraco_client/Application/jQuery/jquery.hotkeys.js?cdv=2" type="text/javascript"></script>
-
-    <script>
-
-        var data = [];
-
-        function FillData() {
-
-            data.VirtualPath = $('#VirtualPath').val();
-            data.Files = [];
-            $('#selected_files .file').each(function () {
-                data.Files.push($(this).attr('rel'));
-            });
+        <script src="~/umbraco_client/ui/default.js?cdv=2" type="text/javascript"></script>
+        <script src="~/umbraco_client/modal/modal.js?cdv=2" type="text/javascript"></script>
+        <script src="~/umbraco_client/Application/jQuery/jquery.hotkeys.js?cdv=2" type="text/javascript"></script>
         }
+        else
+         {
+ 
 
-        $(document).ready(function () {
+             <link href="~/umbraco/assets/css/umbraco.css?cdv=2" type="text/css" rel="stylesheet">
+             <script src="~/umbraco_client/Application/NamespaceManager.js?cdv=2" type="text/javascript"></script>
+             <script src="~/umbraco_client/ui/jquery.js?cdv=2" type="text/javascript"></script>
+             <script src="~/umbraco_client/ui/base2.js?cdv=2" type="text/javascript"></script>
+             <script src="~/umbraco_client/Application/UmbracoClientManager.js?cdv=2" type="text/javascript"></script>
+             <script src="~/umbraco_client/UI/knockout.js?cdv=2" type="text/javascript"></script>
+             <script src="~/umbraco_client/UI/knockout.mapping.js?cdv=2" type="text/javascript"></script>
+             <script src="~/umbraco_client/ui/default.js?cdv=2" type="text/javascript"></script>
+             <script src="~/umbraco/js/umbracoCheckKeys.js?cdv=2" type="text/javascript"></script>
+             <script src="~/umbraco_client/Dialogs/UmbracoField.js?cdv=2" type="text/javascript"></script>
 
-            //Save
-            $('#save').click(function (event) {
-                FillData();
+   
+         }
+        <script>
 
-                var model = {
-                    VirtualPath: $('#VirtualPath').val(),
-                    Files: data.Files
-                };
+            var data = [];
 
-                $.ajax({
-                    type: "POST",
-                    url: 'api/PostBundleUpdate?bundleType=@bundleType',
-                    dataType: 'json',
-                    contenttype: 'application/json; charset=utf-8',
-                    data: model,
-                    success: function () {
-                        //Saved file
-                        console.log("Saved");
+            function FillData() {
 
-                        UmbClientMgr.contentFrame().focus();
-                        @if(Request["webforms"] != null)
-                        {
-                            <text>
+                data.VirtualPath = $('#VirtualPath').val();
+                data.Files = [];
+                $('#selected_files .file').each(function () {
+                    data.Files.push($(this).attr('rel'));
+                });
+            }
+
+            $(document).ready(function () {
+
+                //Save
+                $('#save').click(function (event) {
+                    FillData();
+
+                    var model = {
+                        VirtualPath: $('#VirtualPath').val(),
+                        Files: data.Files
+                    };
+
+                    $.ajax({
+                        type: "POST",
+                        url: 'api/PostBundleUpdate?bundleType=@bundleType',
+                        dataType: 'json',
+                        contenttype: 'application/json; charset=utf-8',
+                        data: model,
+                        success: function () {
+                            //Saved file
+                            console.log("Saved");
+
+                            UmbClientMgr.contentFrame().focus();
+                            @if (Request["webforms"] != null)
+                            {
+                                <text>
                                 UmbClientMgr.contentFrame().UmbEditor.Insert('<%: @{@bundleFunction}.Render("' + $('#VirtualPath').val() + '") %>', '');
                             </text>
-                        }
-                        else
-                        {
-                            <text>
+                            }
+                            else
+                            {
+                                <text>
                                 UmbClientMgr.contentFrame().UmbEditor.Insert('@@@{@bundleFunction}.Render("' + $('#VirtualPath').val() + '")', '');
                             </text>
-                        }
-                        UmbClientMgr.closeModalWindow();
-                    }
-                });
-                event.preventDefault();
-            });
-
-        });
-    </script>
-</head>
-<body class="umbracoDialog">
-
-    @if (Model.Files.Any())
-    {
-    <div class="propertypane" style=''>
-        <div>
-
-            <div class="propertyItem">
-                <div class="propertyItemheader">Virtual path:</div>
-                <div class="propertyItemContent">
-                    @Html.EditorFor(m => m.VirtualPath)
-                </div>
-            </div>
-
-            <div class="propertyItem">
-                <div class="propertyItemheader">Files in bundle:</div>
-                <div class="propertyItemContent">
-                    @if (Model.Files.Any())
-                    {
-                        <ul id="selected_files" class="jqueryFileTree">
-                            @foreach (var file in Model.Files)
-                            {
-                                var ext = Path.GetExtension(file);
-                                ext = ext.Substring(1, ext.Length - 1);
-            
-                                <li class="file ext_@ext" rel="@file">@file <span class="delete"></span></li>
                             }
-                        </ul>
-                    }
+                            UmbClientMgr.closeModalWindow();
+                        }
+                    });
+                    event.preventDefault();
+                });
+
+            });
+        </script>
+    </head>
+<body class="umbracoDialog">
+    
+    @if (CompatibilityHelper.IsVersion7OrNewer)
+    {
+        
+        <div class="umb-panel umb-modal">
+            <div class="umb-panel-body no-header with-footer">
+               
+
+                <div class="umb-pane " style="">
+                    <h5 class="umb-pane-title">Create bundle</h5>
+                    
+
+
+        @if (Model.Files.Any())
+        {
+            <div class="control-group umb-control-group" style="">
+
+                <div class="umb-el-wrap ">
+                    <label class="control-label" for="VirtualPath">Virtual path:</label>
+                    <div class="controls controls-row">
+
+                              
+                        @Html.EditorFor(m => m.VirtualPath)
+                    </div>
+                </div>
+                <div class="umb-el-wrap ">
+                    <label class="control-label" for="VirtualPath">Files in bundle:</label>
+                    <div class="controls controls-row">
+
+                        @if (Model.Files.Any())
+                        {
+                            <ul id="selected_files" class="jqueryFileTree">
+                                @foreach (var file in Model.Files)
+                                {
+                                    var ext = Path.GetExtension(file);
+                                    ext = ext.Substring(1, ext.Length - 1);
+
+                                    <li class="file ext_@ext" rel="@file">@file <span class="delete"></span></li>
+                                }
+                            </ul>
+                        }
+                    </div>
+                </div>
+
+                        
+            </div>
+            
+            <div class="umb-panel-footer">
+                <div class="btn-toolbar umb-btn-toolbar">
+                    <a id="cancelButton" href="#" class="btn btn-link" onclick="UmbClientMgr.closeModalWindow();">Cancel</a>
+                    <input id="save" type="button" name="gem" class="btn btn-primary" value="Save">
                 </div>
             </div>
-            <div class="propertyPaneFooter">-</div>
-        </div>
-    </div>
+        }
+        else
+        {
+            <p>Please select at least 1 script or stylesheet on your template before creating a bundle. </p>
+            <div class="umb-panel-footer">
+                <div class="btn-toolbar umb-btn-toolbar">
+                   
+                    <input onclick="UmbClientMgr.closeModalWindow();" id="submitButton" type="button" name="gem" class="btn btn-primary" value="Ok">
+                </div>
+            </div>
+        }               
 
-    <p>
-        <input type="submit" value="ok" id="save">
-        <em>or </em>
-        <a onclick="UmbClientMgr.closeModalWindow();" href="#">Cancel</a>
-    </p>
+
+               
+
+            </div>
+
+            
+
+            </div>      
+            </div>  
+
     }
     else
     {
-        <p>Please select at least 1 script or stylesheet on your template before creating a bundle. <br />
-            <a onclick="UmbClientMgr.closeModalWindow();" href="#">Ok</a>
-        </p>
+
+        if (Model.Files.Any())
+        {
+            <div class="propertypane" style=''>
+                <div>
+
+                    <div class="propertyItem">
+                        <div class="propertyItemheader">Virtual path:</div>
+                        <div class="propertyItemContent">
+                            @Html.EditorFor(m => m.VirtualPath)
+                        </div>
+                    </div>
+
+                    <div class="propertyItem">
+                        <div class="propertyItemheader">Files in bundle:</div>
+                        <div class="propertyItemContent">
+                            @if (Model.Files.Any())
+                            {
+                                <ul id="selected_files" class="jqueryFileTree">
+                                    @foreach (var file in Model.Files)
+                                    {
+                                        var ext = Path.GetExtension(file);
+                                        ext = ext.Substring(1, ext.Length - 1);
+
+                                        <li class="file ext_@ext" rel="@file">@file <span class="delete"></span></li>
+                                    }
+                                </ul>
+                            }
+                        </div>
+                    </div>
+                    <div class="propertyPaneFooter">-</div>
+                </div>
+            </div>
+
+            <p>
+                <input type="submit" value="ok" id="save">
+                <em>or </em>
+                <a onclick=" UmbClientMgr.closeModalWindow(); " href="#">Cancel</a>
+            </p>
+        }
+        else
+        {
+            <p>Please select at least 1 script or stylesheet on your template before creating a bundle. <br />
+                <a onclick=" UmbClientMgr.closeModalWindow(); " href="#">Ok</a>
+            </p>
+        }
     }
 </body>
 </html>
