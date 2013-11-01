@@ -1,4 +1,5 @@
-﻿using Optimus.Interfaces;
+﻿using Optimus.Helpers;
+using Optimus.Interfaces;
 using ClientDependency.Core;
 using ClientDependency.Core.Controls;
 using System;
@@ -29,16 +30,30 @@ namespace Optimus.Umbraco.Pages
                 return;
             }
 
-            var imageButton = UmbracoPanel.Menu.NewImageButton();
-            imageButton.AlternateText = "Save File";
-            imageButton.ImageUrl = GlobalSettings.Path + "/images/editor/save.gif";
-            imageButton.Click += MenuSaveClick;
+            if (!CompatibilityHelper.IsVersion7OrNewer)
+            {
+                var imageButton = UmbracoPanel.Menu.NewImageButton();
+                imageButton.AlternateText = "Save File";
+                imageButton.ImageUrl = GlobalSettings.Path + "/images/editor/save.gif";
+                imageButton.Click += MenuSaveClick;
+            }
+            else
+            {
+                Button b = new Button();
+                b.CssClass = "btn btn-primary";
 
+                b.Text = "Save";
+                b.ToolTip = "Save File";
+                UmbracoPanel.Menu.Controls[0].Controls.Add(b);
+                b.Click += b_Click;
+            }
             var file = Request.QueryString["file"];
             var path = Request.QueryString["path"] + file;
 
             EditorSource.EditorMimeType = transCore.GetTranslatorMimeType(path);
         }
+
+       
 
         protected void Page_Load(object sender, EventArgs e)
         {
@@ -146,8 +161,17 @@ namespace Optimus.Umbraco.Pages
 
 
         }
-
+        
+        void b_Click(object sender, EventArgs e)
+        {
+            Save();
+        }
         private void MenuSaveClick(object sender, ImageClickEventArgs e)
+        {
+            Save();
+        }
+
+        private void Save()
         {
             if (SaveConfigFile(TxtName.Text, EditorSource.Text))
             {
@@ -161,7 +185,7 @@ namespace Optimus.Umbraco.Pages
                     //Figure how to write or inject some JS to highlight the line with the error...
                     //highlightLine(ErrorLineNumber);
 
-                    var jsString = 
+                    var jsString =
                         "console.log('Highlight Line Function(): " + ErrorLineNumber + "');" +
                         "highlightLine(" + ErrorLineNumber + ");";
 
