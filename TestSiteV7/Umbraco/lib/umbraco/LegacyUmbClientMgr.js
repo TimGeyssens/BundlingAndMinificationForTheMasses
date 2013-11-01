@@ -4,20 +4,24 @@
 //TEST to mock iframe, this intercepts calls directly
 //to the old iframe, and funnels requests to angular directly
 //var right = {document: {location: {}}};
-/*Object.defineProperty(right.document.location, "href", {
-    get: function() {
-        return this._href ? this._href : "";
-    },
-    set: function(value) {
-        this._href = value;
-        UmbClientMgr.contentFrame(value);
-    },
-});*/
+/**/
 
 Umbraco.Sys.registerNamespace("Umbraco.Application");
 
 (function($) {
     Umbraco.Application.ClientManager = function() {
+
+        //to support those trying to call right.document.etc
+        var fakeFrame  = {};
+        Object.defineProperty(fakeFrame, "href", {
+            get: function() {
+                return this._href ? this._href : "";
+            },
+            set: function(value) {
+                this._href = value;
+                UmbClientMgr.contentFrame(value);
+            },
+        });
 
         /**
          * @ngdoc function
@@ -77,30 +81,63 @@ Umbraco.Sys.registerNamespace("Umbraco.Application");
                 return top;
             },
             mainTree: function() {
-              
-                throw "Not implemented!";
+                var injector = getRootInjector();
+                var navService = injector.get("navigationService");
 
-                //if (this._mainTree == null) {
-                //    if (this.mainWindow().jQuery == null
-                //        || this.mainWindow().jQuery(".umbTree").length == 0
-                //        || this.mainWindow().jQuery(".umbTree").UmbracoTreeAPI() == null) {
-                //        //creates a false tree with all the public tree params set to a false method.
-                //        var tmpTree = {};
-                //        var treeProps = ["init", "setRecycleBinNodeId", "clearTreeCache", "toggleEditMode", "refreshTree", "rebuildTree", "saveTreeState", "syncTree", "childNodeCreated", "moveNode", "copyNode", "findNode", "selectNode", "reloadActionNode", "getActionNode", "setActiveTreeType", "getNodeDef"];
-                //        for (var p in treeProps) {
-                //            tmpTree[treeProps[p]] = function() { return false; };
-                //        }
-                //        this._mainTree = tmpTree;
-                //    }
-                //    else {
-                //        this._mainTree = this.mainWindow().jQuery(".umbTree").UmbracoTreeAPI();
-                //    }
-                //}
-                //return this._mainTree;
+                //mimic the API of the legacy tree
+                var tree = {
+                    setActiveTreeType : function(treeType){
+                         navService.setActiveTreeType(treeType);
+                    },
+                    syncTree : function(path,forceReload){
+                        navService.syncPath(path, forceReload);
+                    },
+                    getActionNode: function () {
+                        //need to replicate the legacy tree node
+                        var legacyNode = {
+                            nodeId: navService.ui.currentNode.id,
+                            nodeName: navService.ui.currentNode.name,
+                            nodeType: navService.ui.currentNode.nodeType,
+                            treeType: navService.ui.currentNode.nodeType,
+                            sourceUrl: navService.ui.currentNode.childNodesUrl,
+                            updateDefinition: function() {
+                                throw "'updateDefinition' method is not supported in Umbraco 7, consider upgrading to the new v7 APIs";
+                            }
+                        };
+                        //defined getters that will throw a not implemented/supported exception
+                        Object.defineProperty(legacyNode, "menu", {
+                            get: function () {
+                                throw "'menu' property is not supported in Umbraco 7, consider upgrading to the new v7 APIs";
+                            }
+                        });
+                        Object.defineProperty(legacyNode, "jsNode", {
+                            get: function () {
+                                throw "'jsNode' property is not supported in Umbraco 7, consider upgrading to the new v7 APIs";
+                            }
+                        });
+                        Object.defineProperty(legacyNode, "jsTree", {
+                            get: function () {
+                                throw "'jsTree' property is not supported in Umbraco 7, consider upgrading to the new v7 APIs";
+                            }
+                        });
+
+                        return legacyNode;
+                    }
+                };
+
+                return tree;
             },
             appActions: function() {
-               
-                throw "Not implemented!";
+                var injector = getRootInjector();
+                var navService = injector.get("navigationService");
+
+                var _actions = {};
+                _actions.openDashboard = function(section){
+                    navService.changeSection(section);
+                };
+
+                return _actions;
+                //throw "Not implemented!";
 
                 ////if the main window has no actions, we'll create some
                 //if (this._appActions == null) {
@@ -173,32 +210,76 @@ Umbraco.Sys.registerNamespace("Umbraco.Application");
                 navService.loadLegacyIFrame(strLocation);
 
             },
+            
+            getFakeFrame : function() {
+                return fakeFrame;
+            },
+
+            /** This is used to launch an angular based modal window instead of the legacy window */
+            openAngularModalWindow: function (options) {
+
+                //get our angular navigation service
+                var injector = getRootInjector();
+                var dialogService = injector.get("dialogService");
+
+                var dialog = dialogService.open(options);
+
+                ////add the callback to the jquery data for the modal so we can call it on close to support the legacy way dialogs worked.
+                //dialog.element.data("modalCb", onCloseCallback);
+               
+                //this._modal.push(dialog);
+                //return dialog;
+            },
+
             openModalWindow: function(url, name, showHeader, width, height, top, leftOffset, closeTriggers, onCloseCallback) {
                 //need to create the modal on the top window if the top window has a client manager, if not, create it on the current window                
                 
                 //get our angular navigation service
                 var injector = getRootInjector();
-                var dialogService = injector.get("dialogService");
+                var navService = injector.get("navigationService");
+                var dialogService = injector.get("dialogService"); 
 
                 var self = this;
 
-                var dialog = dialogService.open({
-                    template: url,
-                    width: width,
-                    height: height,
-                    iframe: true,
-                    show: true
-                });
+                //based on what state the nav ui is in, depends on how we are going to launch a model / dialog. A modal
+                // will show up on the right hand side and a dialog will show up as if it is in the menu.
+                // with the legacy API we cannot know what is expected so we can only check if the menu is active, if it is
+                // we'll launch a dialog, otherwise a modal.
+                var dialog;
+                if (navService.ui.currentMode === "menu") {
+                    dialog = navService.showDialog({
+                        //create a 'fake' action to passin with the specified actionUrl since it needs to load into an iframe
+                        action: {
+                            name: name,
+                            metaData: {
+                                actionUrl: url
+                            }
+                        },
+                        node: {}
+                    });
+                }
+                else {
+                    dialog = dialogService.open({
+                        template: url,
+                        width: width,
+                        height: height,
+                        iframe: true,
+                        show: true
+                    });
+                }
+                
 
                 //add the callback to the jquery data for the modal so we can call it on close to support the legacy way dialogs worked.
                 dialog.element.data("modalCb", onCloseCallback);
                 //add the close triggers
-                for (var i = 0; i < closeTriggers.length; i++) {
-                    var e = dialog.find(closeTriggers[i]);
-                    if (e.length > 0) {
-                        e.click(function() {
-                            self.closeModalWindow();
-                        });
+                if (angular.isArray(closeTriggers)) {
+                    for (var i = 0; i < closeTriggers.length; i++) {
+                        var e = dialog.find(closeTriggers[i]);
+                        if (e.length > 0) {
+                            e.click(function () {
+                                self.closeModalWindow();
+                            });
+                        }
                     }
                 }
 
@@ -226,10 +307,12 @@ Umbraco.Sys.registerNamespace("Umbraco.Application");
                     }
 
                     //just call the native dialog close() method to remove the dialog
-                    lastModal.scope.close();
+                    lastModal.close();
                 }
                 else {
-                    dialogService.closeAll(rVal);
+                    //instead of calling just the dialog service we funnel it through the global 
+                    //event emitter
+                    getRootScope().$emit("closeDialogs", event);
                 }                
             },
             _debug: function(strMsg) {

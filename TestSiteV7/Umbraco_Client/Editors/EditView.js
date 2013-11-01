@@ -40,7 +40,8 @@
                 self.changeMasterPageFile();
             });
             //bind to the save event
-            this._opts.saveButton.click(function() {
+            this._opts.saveButton.click(function (event) {
+                event.preventDefault();
                 self.doSubmit();
             });
         },
@@ -53,13 +54,19 @@
         
         openMacroModal: function (alias) {
             /// <summary>callback used to display the modal dialog to insert a macro with parameters</summary>
-            var t = "";
-            if (alias != null && alias != "") {
-                t = "&alias=" + alias;
-            }
-            UmbClientMgr.openModalWindow(
-                this._opts.modalUrl + '?renderingEngine=Mvc&objectId=' + this._opts.codeEditorElementId + t,
-                'Insert Macro', true, 470, 530, 0, 0, '', '');
+            
+            var self = this;
+
+            UmbClientMgr.openAngularModalWindow({
+                template: "views/common/dialogs/insertmacro.html",
+                dialogData: {
+                    renderingEngine: "Mvc",
+                    selectedAlias: alias
+                },
+                callback: function (data) {
+                    UmbEditor.Insert(data.syntax, '', self._opts.codeEditorElementId);
+                }
+            });
         },
 
         doSubmit: function () {

@@ -1,4 +1,4 @@
-/*! umbraco - v0.0.1-TechnicalPReview - 2013-09-17
+/*! umbraco - v0.0.1-TechnicalPReview - 2013-11-01
  * https://github.com/umbraco/umbraco-cms/tree/7.0.0
  * Copyright (c) 2013 Umbraco HQ;
  * Licensed MIT
@@ -60,7 +60,8 @@ angular.module('umbraco.mocks').
                     icon: "icon-umb-content",
                     owner: { name: "Administrator", id: 0 },
                     updater: { name: "Per Ploug Krogslund", id: 1 },
-
+                    path: "-1,1234,2455",
+                    allowedActions: ["U", "H", "A"],
                     tabs: [
                     {
                         label: "Child documents",
@@ -635,21 +636,46 @@ angular.module('umbraco.mocks').
 
       return {
           register: function () {
+
               $httpBackend
-                  .whenGET(mocksUtils.urlRegex('/umbraco/UmbracoApi/Entity/GetEntitiesByIds'))
+                  .whenGET(mocksUtils.urlRegex('/umbraco/UmbracoApi/Entity/GetByIds'))
                   .respond(returnEntitybyIds);
 
               $httpBackend
-                  .whenGET(mocksUtils.urlRegex('/umbraco/UmbracoApi/Entity/GetEntityById?'))
-                  .respond(returnEntitybyId);
-
-              $httpBackend
-                  .whenGET(mocksUtils.urlRegex('/umbraco/UmbracoApi/Entity/GetDocumentsByIds'))
-                  .respond(returnEntitybyIds);
-
-              $httpBackend
-                  .whenGET(mocksUtils.urlRegex('/umbraco/UmbracoApi/Entity/GetDocumentById?'))
+                  .whenGET(mocksUtils.urlRegex('/umbraco/UmbracoApi/Entity/GetById?'))
                   .respond(returnEntitybyId);   
+          }
+      };
+  }]);
+angular.module('umbraco.mocks').
+  factory('macroMocks', ['$httpBackend', 'mocksUtils', function ($httpBackend, mocksUtils) {
+      'use strict';
+      
+      function returnParameters(status, data, headers) {
+
+          if (!mocksUtils.checkAuth()) {
+              return [401, null, null];
+          }
+
+          var nodes = [{
+              alias: "parameter1",
+              name: "Parameter 1"              
+          }, {
+              alias: "parameter2",
+              name: "Parameter 2"
+          }];
+          
+          return [200, nodes, null];
+      }
+
+
+      return {
+          register: function () {
+
+              $httpBackend
+                  .whenGET(mocksUtils.urlRegex('/umbraco/UmbracoApi/Macro/GetMacroParameters'))
+                  .respond(returnParameters);
+
           }
       };
   }]);
@@ -781,6 +807,8 @@ function sectionMocks($httpBackend, mocksUtils) {
             { name: "Media", cssclass: "icon-umb-media", alias: "media" },
             { name: "Settings", cssclass: "icon-umb-settings", alias: "settings" },
             { name: "Developer", cssclass: "icon-umb-developer", alias: "developer" },
+            { name: "Users", cssclass: "icon-umb-users", alias: "users" },
+            { name: "Developer", cssclass: "icon-umb-developer", alias: "developer" },
             { name: "Users", cssclass: "icon-umb-users", alias: "users" }
         ];
         
@@ -831,7 +859,12 @@ angular.module('umbraco.mocks').
                 { seperator: true, name: "Empty Recycle Bin", cssclass: "trash", alias: "emptyrecyclebin", metaData: {} }
           ];
 
-          return [200, menu, null];
+          var result = {
+              menuItems: menu,
+              defaultAlias: "create"
+          };
+
+          return [200, result, null];
       }
 
       function returnChildren(status, data, headers) {
@@ -854,10 +887,10 @@ angular.module('umbraco.mocks').
           }
 
           var children = [
-              { name: "child-of-" + section, childNodesUrl: url, id: level + "" + 1234, icon: "icon-document", children: [], expanded: false, hasChildren: true, level: level, defaultAction: action, menuUrl: menuUrl },
-              { name: "random-name-" + section, childNodesUrl: url, id: level + "" + 1235, icon: "icon-document", children: [], expanded: false, hasChildren: true, level: level, defaultAction: action, menuUrl: menuUrl },
-              { name: "random-name-" + section, childNodesUrl: url, id: level + "" + 1236, icon: "icon-document", children: [], expanded: false, hasChildren: true, level: level, defaultAction: action, menuUrl: menuUrl },
-              { name: "random-name-" + section, childNodesUrl: url, id: level + "" + 1237, icon: "icon-document", routePath: "common/legacy/1237?p=" + encodeURI("developer/contentType.aspx?idequal1234"), children: [], expanded: false, hasChildren: true, level: level, defaultAction: action, menuUrl: menuUrl }
+              { name: "child-of-" + section, childNodesUrl: url, id: level + "" + 1234, icon: "icon-document", children: [], expanded: false, hasChildren: true, level: level, menuUrl: menuUrl },
+              { name: "random-name-" + section, childNodesUrl: url, id: level + "" + 1235, icon: "icon-document", children: [], expanded: false, hasChildren: true, level: level, menuUrl: menuUrl },
+              { name: "random-name-" + section, childNodesUrl: url, id: level + "" + 1236, icon: "icon-document", children: [], expanded: false, hasChildren: true, level: level, menuUrl: menuUrl },
+              { name: "random-name-" + section, childNodesUrl: url, id: level + "" + 1237, icon: "icon-document", routePath: "common/legacy/1237?p=" + encodeURI("developer/contentType.aspx?idequal1234"), children: [], expanded: false, hasChildren: true, level: level, menuUrl: menuUrl }
           ];
 
           return [200, children, null];
@@ -869,10 +902,10 @@ angular.module('umbraco.mocks').
           }
           
           var children = [
-              { name: "Textstring", childNodesUrl: null, id: 10, icon: "icon-document", children: [], expanded: false, hasChildren: false, level: 1, defaultAction: null, menuUrl: null },
-              { name: "Multiple textstring", childNodesUrl: null, id: 11, icon: "icon-document", children: [], expanded: false, hasChildren: false, level: 1, defaultAction: null, menuUrl: null },
-              { name: "Yes/No", childNodesUrl: null, id: 12, icon: "icon-document", children: [], expanded: false, hasChildren: false, level: 1, defaultAction: null, menuUrl: null },
-              { name: "Rich Text Editor", childNodesUrl: null, id: 13, icon: "icon-document", children: [], expanded: false, hasChildren: false, level: 1, defaultAction: null, menuUrl: null }
+              { name: "Textstring", childNodesUrl: null, id: 10, icon: "icon-document", children: [], expanded: false, hasChildren: false, level: 1,  menuUrl: null },
+              { name: "Multiple textstring", childNodesUrl: null, id: 11, icon: "icon-document", children: [], expanded: false, hasChildren: false, level: 1,  menuUrl: null },
+              { name: "Yes/No", childNodesUrl: null, id: 12, icon: "icon-document", children: [], expanded: false, hasChildren: false, level: 1,  menuUrl: null },
+              { name: "Rich Text Editor", childNodesUrl: null, id: 13, icon: "icon-document", children: [], expanded: false, hasChildren: false, level: 1,  menuUrl: null }
           ];
           
           return [200, children, null];
@@ -912,10 +945,10 @@ angular.module('umbraco.mocks').
                       name: "content",
                       id: -1,
                       children: [
-                          { name: "My website", id: 1234, childNodesUrl: url, icon: "icon-home", children: [], expanded: false, hasChildren: true, level: 1, defaultAction: "create", menuUrl: menuUrl },
-                          { name: "Components", id: 1235, childNodesUrl: url, icon: "icon-document", children: [], expanded: false, hasChildren: true, level: 1, defaultAction: "create", menuUrl: menuUrl },
-                          { name: "Archieve", id: 1236, childNodesUrl: url, icon: "icon-document", children: [], expanded: false, hasChildren: true, level: 1, defaultAction: "create", menuUrl: menuUrl },
-                          { name: "Recycle Bin", id: -20, childNodesUrl: url, icon: "icon-trash", routePath: section + "/recyclebin", children: [], expanded: false, hasChildren: true, level: 1, defaultAction: "create", menuUrl: menuUrl }
+                          { name: "My website", id: 1234, childNodesUrl: url, icon: "icon-home", children: [], expanded: false, hasChildren: true, level: 1, menuUrl: menuUrl },
+                          { name: "Components", id: 1235, childNodesUrl: url, icon: "icon-document", children: [], expanded: false, hasChildren: true, level: 1, menuUrl: menuUrl },
+                          { name: "Archieve", id: 1236, childNodesUrl: url, icon: "icon-document", children: [], expanded: false, hasChildren: true, level: 1, menuUrl: menuUrl },
+                          { name: "Recycle Bin", id: -20, childNodesUrl: url, icon: "icon-trash", routePath: section + "/recyclebin", children: [], expanded: false, hasChildren: true, level: 1, menuUrl: menuUrl }
                       ],
                       expanded: true,
                       hasChildren: true,
@@ -930,10 +963,10 @@ angular.module('umbraco.mocks').
                       name: "media",
                       id: -1,
                       children: [
-                          { name: "random-name-" + section, childNodesUrl: url, id: 1234, icon: "icon-home", defaultAction: "create", children: [], expanded: false, hasChildren: true, level: 1, menuUrl: menuUrl },
-                          { name: "random-name-" + section, childNodesUrl: url, id: 1235, icon: "icon-folder-close", defaultAction: "create", children: [], expanded: false, hasChildren: true, level: 1, menuUrl: menuUrl },
-                          { name: "random-name-" + section, childNodesUrl: url, id: 1236, icon: "icon-folder-close", defaultAction: "create", children: [], expanded: false, hasChildren: true, level: 1, menuUrl: menuUrl },
-                          { name: "random-name-" + section, childNodesUrl: url, id: 1237, icon: "icon-folder-close", defaultAction: "create", children: [], expanded: false, hasChildren: true, level: 1, menuUrl: menuUrl }
+                          { name: "random-name-" + section, childNodesUrl: url, id: 1234, icon: "icon-home", children: [], expanded: false, hasChildren: true, level: 1, menuUrl: menuUrl },
+                          { name: "random-name-" + section, childNodesUrl: url, id: 1235, icon: "icon-folder-close", children: [], expanded: false, hasChildren: true, level: 1, menuUrl: menuUrl },
+                          { name: "random-name-" + section, childNodesUrl: url, id: 1236, icon: "icon-folder-close", children: [], expanded: false, hasChildren: true, level: 1, menuUrl: menuUrl },
+                          { name: "random-name-" + section, childNodesUrl: url, id: 1237, icon: "icon-folder-close", children: [], expanded: false, hasChildren: true, level: 1, menuUrl: menuUrl }
                       ],
                       expanded: true,
                       hasChildren: true,
@@ -989,10 +1022,10 @@ angular.module('umbraco.mocks').
                       name: "randomTree",
                       id: -1,
                       children: [
-                          { name: "random-name-" + section, childNodesUrl: url, id: 1234, icon: "icon-home", defaultAction: "create", children: [], expanded: false, hasChildren: true, level: 1, menuUrl: menuUrl },
-                          { name: "random-name-" + section, childNodesUrl: url, id: 1235, icon: "icon-folder-close", defaultAction: "create", children: [], expanded: false, hasChildren: true, level: 1, menuUrl: menuUrl },
-                          { name: "random-name-" + section, childNodesUrl: url, id: 1236, icon: "icon-folder-close", defaultAction: "create", children: [], expanded: false, hasChildren: true, level: 1, menuUrl: menuUrl },
-                          { name: "random-name-" + section, childNodesUrl: url, id: 1237, icon: "icon-folder-close", defaultAction: "create", children: [], expanded: false, hasChildren: true, level: 1, menuUrl: menuUrl }
+                          { name: "random-name-" + section, childNodesUrl: url, id: 1234, icon: "icon-home", children: [], expanded: false, hasChildren: true, level: 1, menuUrl: menuUrl },
+                          { name: "random-name-" + section, childNodesUrl: url, id: 1235, icon: "icon-folder-close", children: [], expanded: false, hasChildren: true, level: 1, menuUrl: menuUrl },
+                          { name: "random-name-" + section, childNodesUrl: url, id: 1236, icon: "icon-folder-close", children: [], expanded: false, hasChildren: true, level: 1, menuUrl: menuUrl },
+                          { name: "random-name-" + section, childNodesUrl: url, id: 1237, icon: "icon-folder-close", children: [], expanded: false, hasChildren: true, level: 1, menuUrl: menuUrl }
                       ],
                       expanded: true,
                       hasChildren: true,

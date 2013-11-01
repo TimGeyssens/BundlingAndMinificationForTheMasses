@@ -67,7 +67,12 @@
   <area alias="auditTrails">
     <key alias="atViewingFor">Viewing for</key>
   </area>
+
+  
   <area alias="buttons">
+    <key alias="select">Select</key>
+    <key alias="somethingElse">Do something else</key>
+    
     <key alias="bold">Bold</key>
     <key alias="deindent">Cancel Paragraph Indent</key>
     <key alias="formFieldInsert">Insert form field</key>
@@ -121,7 +126,10 @@
     <key alias="alternativeUrls">Alternative Links</key>
     <key alias="clickToEdit">Click to edit this item</key>
     <key alias="createBy">Created by</key>
+    <key alias="createByDesc" version="7.0">Original autho</key>
+    <key alias="updatedBy" version="7.0">Updated by</key>
     <key alias="createDate">Created</key>
+    <key alias="createDateDesc" version="7.0">Date/time this document was created</key>
     <key alias="documentType">Document Type</key>
     <key alias="editing">Editing</key>
     <key alias="expireDate">Remove at</key>
@@ -149,15 +157,22 @@
     <key alias="type">Type</key>
     <key alias="unPublish">Unpublish</key>
     <key alias="updateDate">Last edited</key>
+    <key alias="updateDateDesc" version="7.0">Date/time this document was created</key>
     <key alias="uploadClear">Remove file</key>
     <key alias="urls">Link to document</key>
     <key alias="memberof">Member of group(s)</key>
     <key alias="notmemberof">Not a member of group(s)</key>
+
+    <key alias="childItems" version="7.0">Child items</key>
   </area>
   <area alias="create">
     <key alias="chooseNode">Where do you want to create the new %0%</key>
-    <key alias="createUnder">Create at</key>
+    <key alias="createUnder">Create a page under</key>
     <key alias="updateData">Choose a type and a title</key>
+
+    <key alias="noDocumentTypes" version="7.0"><![CDATA[There are no allowed document types available. You must enable these in the settings section under <strong>"document types"</strong>.]]></key>
+
+    <key alias="noMediaTypes" version="7.0"><![CDATA[There are no allowed media types available. You must enable these in the settings section under <strong>"media types"</strong>.]]></key>
   </area>
   <area alias="dashboard">
     <key alias="browser">Browse your website</key>
@@ -222,6 +237,15 @@
    ]]></key>
     <key alias="displayName">Culture Name</key>
   </area>
+  <area alias="placeholders">
+    <key alias="username">Enter your username</key>
+    <key alias="password">Enter your password</key>
+
+    <key alias="name">Enter a name...</key>
+    <key alias="search">Type to search...</key>
+    <key alias="filter">Type to filter...</key>
+  </area>
+
   <area alias="editcontenttype">
     <key alias="allowedchildnodetypes">Allowed child nodetypes</key>
     <key alias="create">Create</key>
@@ -230,6 +254,7 @@
     <key alias="newtab">New tab</key>
     <key alias="tab">Tab</key>
     <key alias="thumbnail">Thumbnail</key>
+    <key alias="iscontainercontenttype">Use as container content type</key>
   </area>
   <area alias="editdatatype">
     <key alias="addPrevalue">Add prevalue</key>
@@ -272,7 +297,7 @@
     <key alias="stylesNoStylesOnPage">No active styles available</key>
     <key alias="tableColMergeLeft">Please place cursor at the left of the two cells you wish to merge</key>
     <key alias="tableSplitNotSplittable">You cannot split a cell that hasn't been merged.</key>
-    <key alias="xsltErrorHeader">Error in xslt source</key>
+    <key alias="xsltErrorHeader">Error in XSLT source</key>
     <key alias="xsltErrorText">The XSLT has not been saved, because it contained error(s)</key>
   </area>
   <area alias="general">
@@ -346,6 +371,7 @@
     <key alias="remaining">Remaining</key>
     <key alias="rename">Rename</key>
     <key alias="renew">Renew</key>
+    <key alias="required" version="7.0">Required</key>
     <key alias="retry">Retry</key>
     <key alias="rights">Permissions</key>
     <key alias="search">Search</key>
@@ -369,6 +395,8 @@
     <key alias="width">Width</key>
     <key alias="yes">Yes</key>
     <key alias="folder">Folder</key>
+
+    <key alias="searchResults">Search results</key>
   </area>
   <area alias="graphicheadline">
     <key alias="backgroundcolor">Background color</key>
@@ -508,8 +536,17 @@ To manage your website, simply open the umbraco back office and start adding con
     <key alias="renewSession">Renew now to save your work</key>
   </area>
   <area alias="login">
+    <key alias="greeting1">Happy super sunday</key>
+    <key alias="greeting2">Happy manic monday </key>
+    <key alias="greeting3">Happy tremendous tuesday</key>
+    <key alias="greeting4">Happy wonderfull wednesday</key>
+    <key alias="greeting5">Happy thunder thursday</key>
+    <key alias="greeting6">Happy friendly friday</key>
+    <key alias="greeting7">Happy shiny saturday</key>
+    <key alias="instruction">log in below:</key>
+
     <key alias="bottomText"><![CDATA[<p style="text-align:right;">&copy; 2001 - %0% <br /><a href="http://umbraco.org" style="text-decoration: none" target="_blank">umbraco.org</a></p> ]]></key>
-    <key alias="topText">Welcome to umbraco, type your username and password in the boxes below:</key>
+   
   </area>
   <area alias="main">
     <key alias="dashboard">Dashboard</key>
@@ -693,6 +730,8 @@ To manage your website, simply open the umbraco back office and start adding con
     <key alias="translation">Translation</key>
     <key alias="users">Users</key>
     <key alias="contour" version="4.0">Umbraco Contour</key>
+
+    <key alias="help" version="7.0">Help</key>
   </area>
   <area alias="settings">
     <key alias="defaulttemplate">Default template</key>
@@ -760,11 +799,11 @@ To manage your website, simply open the umbraco back office and start adding con
     <key alias="templateErrorText">Please make sure that you do not have 2 templates with the same alias</key>
     <key alias="templateSavedHeader">Template saved</key>
     <key alias="templateSavedText">Template saved without any errors!</key>
-    <key alias="xsltErrorHeader">Xslt not saved</key>
-    <key alias="xsltErrorText">Xslt contained an error</key>
-    <key alias="xsltPermissionErrorText">Xslt could not be saved, check file permissions</key>
-    <key alias="xsltSavedHeader">Xslt saved</key>
-    <key alias="xsltSavedText">No errors in xslt</key>
+    <key alias="xsltErrorHeader">XSLT not saved</key>
+    <key alias="xsltErrorText">XSLT contained an error</key>
+    <key alias="xsltPermissionErrorText">XSLT could not be saved, check file permissions</key>
+    <key alias="xsltSavedHeader">XSLT saved</key>
+    <key alias="xsltSavedText">No errors in XSLT</key>
     <key alias="contentUnpublished">Content unpublished</key>
     <key alias="partialViewSavedHeader">Partial view saved</key>
     <key alias="partialViewSavedText">Partial view saved without any errors!</key>
@@ -794,6 +833,7 @@ To manage your website, simply open the umbraco back office and start adding con
     <key alias="alternativeField">Alternative field</key>
     <key alias="alternativeText">Alternative Text</key>
     <key alias="casing">Casing</key>
+    <key alias="encoding">Encoding</key>
     <key alias="chooseField">Choose field</key>
     <key alias="convertLineBreaks">Convert Linebreaks</key>
     <key alias="convertLineBreaksHelp">Replaces linebreaks with html-tag &amp;lt;br&amp;gt;</key>
@@ -841,7 +881,7 @@ To manage your website, simply open the umbraco back office and start adding con
       Go to http://%3%/translation/details.aspx?id=%4% to edit.
 
       Or log into umbraco to get an overview of your translation tasks
-      http://%3%/umbraco.aspx
+      http://%3%
 
       Have a nice day!
 
@@ -911,7 +951,6 @@ To manage your website, simply open the umbraco back office and start adding con
     <key alias="confirmNewPassword">Confirm new password</key>
     <key alias="changePasswordDescription">You can change your password for accessing the Umbraco Back Office by filling out the form below and click the 'Change Password' button</key>
     <key alias="contentChannel">Content Channel</key>
-    <key alias="defaultToLiveEditing">Redirect to canvas on login</key>
     <key alias="descriptionField">Description field</key>
     <key alias="disabled">Disable User</key>
     <key alias="documentType">Document Type</key>
@@ -923,6 +962,7 @@ To manage your website, simply open the umbraco back office and start adding con
     <key alias="modules">Sections</key>
     <key alias="noConsole">Disable Umbraco Access</key>
     <key alias="password">Password</key>
+    <key alias="resetPassword">Reset password</key>
     <key alias="passwordChanged">Your password has been changed!</key>
     <key alias="passwordConfirm">Please confirm the new password</key>
     <key alias="passwordEnterNew">Enter your new password</key>
@@ -941,5 +981,9 @@ To manage your website, simply open the umbraco back office and start adding con
     <key alias="usertype">User type</key>
     <key alias="userTypes">User types</key>
     <key alias="writer">Writer</key>
+
+    <key alias="yourProfile" version="7.0">Your profile</key>
+    <key alias="yourHistory" version="7.0">Your recent history</key>
+    <key alias="sessionExpires" version="7.0">Session expires in</key>
   </area>
 </language>

@@ -15,16 +15,17 @@
     <umb:JsInclude ID="JsInclude" runat="server" FilePath="splitbutton/jquery.splitbutton.js" PathNameAlias="UmbracoClient" />
     <umb:JsInclude ID="JsInclude1" runat="server" FilePath="Editors/EditTemplate.js" PathNameAlias="UmbracoClient" />
     <script type="text/javascript">
-        //this needs to be a global object for the doSubmit() to work
-        var editor;
-
+        
         jQuery(document).ready(function() {
             //create the editor
-            editor = new Umbraco.Editors.EditTemplate({
+            var editor = new Umbraco.Editors.EditTemplate({
+                templateAliasClientId: '<%= AliasTxt.ClientID %>',
+                templateNameClientId: '<%= NameTxt.ClientID %>',
+                saveButton: $("#<%= ((Control)SaveButton).ClientID %>"),
                 restServiceLocation: "<%= Url.GetSaveFileServicePath() %>",                    
                 umbracoPath: '<%= IOHelper.ResolveUrl(SystemDirectories.Umbraco) %>',
                 editorClientId: '<%= editorSource.ClientID %>',
-                useMasterPages: <%=UmbracoConfiguration.Current.UmbracoSettings.Templates.UseAspNetMasterPages.ToString().ToLower()%>,
+                useMasterPages: <%=UmbracoConfig.For.UmbracoSettings().Templates.UseAspNetMasterPages.ToString().ToLower()%>,
                 templateId: <%= Request.QueryString["templateID"] %>,
                 masterTemplateId: jQuery('#<%= MasterTemplate.ClientID %>').val(),
                 masterPageDropDown: $("#<%= MasterTemplate.ClientID %>"),
@@ -39,12 +40,7 @@
 
             editor.init();
         });
-
-        function doSubmit() {
-            //this is called when the save button is clicked or invoked            
-            editor.save(jQuery('#<%= NameTxt.ClientID %>').val(), jQuery('#<%= AliasTxt.ClientID %>').val(), UmbEditor.GetCode());
-        }
-
+        
         //TODO: the below should be refactored into being part of the EditTemplate.js class but have left it here for now since i don't have time.
 
         function umbracoTemplateInsertMasterPageContentContainer() {
@@ -63,10 +59,10 @@
 
             var templateCode = UmbEditor.GetCode();
             var selectedTemplate = templateDropDown.options[templateDropDown.selectedIndex].id;
-            var masterTemplate = "<%= umbraco.IO.SystemDirectories.Masterpages%>/" + selectedTemplate + ".master";
+            var masterTemplate = "<%= Umbraco.Core.IO.SystemDirectories.Masterpages%>/" + selectedTemplate + ".master";
 
             if (selectedTemplate == "")
-                masterTemplate = "<%= umbraco.IO.SystemDirectories.Umbraco%>/masterpages/default.master";
+                masterTemplate = "<%= Umbraco.Core.IO.SystemDirectories.Umbraco%>/masterpages/default.master";
 
             var regex = /MasterPageFile=[~a-z0-9/._"-]+/im;
 

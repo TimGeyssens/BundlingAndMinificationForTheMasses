@@ -1,8 +1,9 @@
 <form novalidate name="contentForm" 
       ng-controller="Umbraco.Editors.DataType.EditController" 
       ng-show="loaded" 
-      ng-submit="save()">
-    <umb-panel val-show-validation>
+      ng-submit="save()"
+      val-form-manager>
+    <umb-panel>
 
         <umb-header>
 
@@ -18,7 +19,7 @@
                     
                     <div class="btn-group">
                         
-                        <button type="submit" class="btn btn-success">Save</button>
+                        <button type="submit" data-hotkey="ctrl+s" class="btn btn-success">Save</button>
 
                     </div>
                 </div>

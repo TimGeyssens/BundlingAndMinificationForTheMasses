@@ -3,6 +3,8 @@
 <%@ Register TagPrefix="cc1" Namespace="umbraco.uicontrols" Assembly="controls" %>
 <%@ Register TagPrefix="cc2" Namespace="umbraco.uicontrols" Assembly="controls" %>
 
+
+
 <cc1:TabView ID="TabView1" Height="392px" Width="552px" runat="server"></cc1:TabView>
 
 <asp:Panel ID="pnlGeneral" runat="server"></asp:Panel>
@@ -15,7 +17,7 @@
   
   <cc2:Pane ID="Pane2" runat="server">
     <cc2:PropertyPanel runat="server" id="pp_newTab" Text="New tab">
-      <asp:TextBox ID="txtNewTab" runat="server"/> &nbsp; <asp:Button ID="btnNewTab" runat="server" Text="New tab" OnClick="btnNewTab_Click"/>
+      <asp:TextBox ID="txtNewTab" runat="server"/> &nbsp; <asp:Button ID="btnNewTab" CssClass="btn" runat="server" Text="New tab" OnClick="btnNewTab_Click"/>
     </cc2:PropertyPanel>
   </cc2:Pane>
     
@@ -25,8 +27,9 @@
       HeaderStyle-Font-Bold="True" AutoGenerateColumns="False" CssClass="tabs-table">
       <Columns>
         <asp:BoundColumn DataField="id" Visible="False"></asp:BoundColumn>
-        <asp:TemplateColumn HeaderText="Name (drag to re-order)">
+        <asp:TemplateColumn HeaderText="Name">
           <ItemTemplate>
+            <i class="icon-navigation handle"></i>
             <asp:TextBox ID="txtTab" runat="server" Value='<%#DataBinder.Eval(Container.DataItem,"name")%>'></asp:TextBox>
             <asp:TextBox ID="txtSortOrder" runat="server" CssClass="sort-order" Value='<%#DataBinder.Eval(Container.DataItem,"order") %>'></asp:TextBox>
           </ItemTemplate>
@@ -56,8 +59,8 @@
   <cc2:Pane runat="server">  
     <cc2:PropertyPanel ID="pp_icon" runat="server" Text="Icon">
         <div class="umbIconDropdownList">
-          <a href="#">Choose...</a>
-          <asp:TextBox ID="tb_icon" runat="server" />        
+          <a href="#" class="icon-picker"> <i class="<asp:Literal runat="server" ID="lt_icon" />"></i> Choose...</a>
+          <asp:HiddenField ID="tb_icon" runat="server" />
         </div>
     </cc2:PropertyPanel>
     <cc2:PropertyPanel ID="pp_description" runat="server" Text="Description">
@@ -71,7 +74,11 @@
     <cc2:Pane ID="Pane6" runat="server">
         <cc2:PropertyPanel ID="pp_Root" runat="server" Text="Allow at root <br/><small>Only Content Types with this checked can be created at the root level of Content and Media trees</small>">
             <asp:CheckBox runat="server" ID="allowAtRoot" Text="Yes" /><br />            
-        </cc2:PropertyPanel>     
+        </cc2:PropertyPanel>
+        
+        <cc2:PropertyPanel ID="pp_isContainer" runat="server" Text="Container<br/><small>A container type doesn't display children in the tree, but as a grid instead</small>">
+            <asp:CheckBox runat="server" ID="cb_isContainer" Text="Yes" /><br />            
+        </cc2:PropertyPanel>   
     </cc2:Pane>
   <cc2:Pane ID="Pane5" runat="server">
  
@@ -101,7 +108,24 @@
         <asp:Literal runat="server" ID="checkTxtAliasJs" />
     });
 
+
     jQuery(document).ready(function () {
+
+        checkAlias('.prop-alias');
+   
+        duplicatePropertyNameAsSafeAlias('ul.addNewProperty .prop-name', 'ul.addNewProperty .prop-alias');
+   
+        jQuery(".icon-picker").click(function(){
+            var that = this;
+            UmbClientMgr.openAngularModalWindow({
+                template: 'views/common/dialogs/iconpicker.html', 
+                callback: function(data){
+                    jQuery(that).next().val(data);
+                    jQuery(that).find("i").attr("class", data);
+                }}); 
+            
+            return false;
+        });
 
         // Make each tr of the tabs table sortable (prevent dragging of header row, and set up a callback for when row dragged)
         jQuery("table.tabs-table tbody").sortable({

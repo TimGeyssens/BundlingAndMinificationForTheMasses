@@ -2,6 +2,7 @@
 @using Umbraco.Core
 @using ClientDependency.Core
 @using ClientDependency.Core.Mvc
+@using umbraco
 @inherits System.Web.Mvc.WebViewPage
 @{
     Layout = null;
@@ -14,6 +15,7 @@
     <base href="@GlobalSettings.Path.EnsureEndsWith('/')" />
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="apple-mobile-web-app-capable" content="yes">
 
     <title>Umbraco</title>
     <link rel="stylesheet" href="assets/css/umbraco.css" />
@@ -21,7 +23,7 @@
 
 </head>
 <body ng-class="{touch:touchDevice}" ng-controller="Umbraco.MainController" id="umbracoMainPageBody">
-    <div ng-cloak id="mainwrapper" class="clearfix" ng-click="closeDialogs($event)">
+    <div ng-hide="!authenticated" ng-cloak id="mainwrapper"  id="mainwrapper" class="clearfix" ng-click="closeDialogs($event)">
 
         <umb-navigation></umb-navigation>
 

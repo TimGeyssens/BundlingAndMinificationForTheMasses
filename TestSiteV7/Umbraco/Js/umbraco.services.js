@@ -1,4 +1,4 @@
-/*! umbraco - v0.0.1-TechnicalPReview - 2013-09-17
+/*! umbraco - v0.0.1-TechnicalPReview - 2013-11-01
  * https://github.com/umbraco/umbraco-cms/tree/7.0.0
  * Copyright (c) 2013 Umbraco HQ;
  * Licensed MIT
@@ -339,9 +339,9 @@ angular.module('umbraco.services')
 /**
 * @ngdoc service
 * @name umbraco.services.contentEditingHelper
-* @description A helper service for content controllers when editing/creating/saving content.
+* @description A helper service for content/media/member controllers when editing/creating/saving content.
 **/
-function contentEditingHelper($location, $routeParams, notificationsService, serverValidationManager, dialogService) {
+function contentEditingHelper($location, $routeParams, notificationsService, serverValidationManager, dialogService, formHelper) {
 
     return {
 
@@ -383,79 +383,53 @@ function contentEditingHelper($location, $routeParams, notificationsService, ser
             var allOrigProps = this.getAllProps(origContent);
             var allNewProps = this.getAllProps(newContent);
 
-            function getNewProp(alias) {
-                if (alias.startsWith("_umb_")) {
-                    return null;
-                }
+            function getNewProp(alias) {                
                 return _.find(allNewProps, function (item) {
                     return item.alias === alias;
                 });
             }
 
+            //a method to ignore built-in prop changes
+            var shouldIgnore = function(propName) {
+                return _.some(["tabs", "notifications", "ModelState", "tabs", "properties"], function(i) {
+                    return i === propName;
+                });
+            };
+            //check for changed built-in properties of the content
+            for (var o in origContent) {
+                
+                //ignore the ones listed in the array
+                if (shouldIgnore(o)) {
+                    continue;
+                }
+                
+                if (!_.isEqual(origContent[o], newContent[o])) {
+                    origContent[o] = newContent[o];
+                }
+            }
+
+            //check for changed properties of the content
             for (var p in allOrigProps) {
                 var newProp = getNewProp(allOrigProps[p].alias);
                 if (newProp && !_.isEqual(allOrigProps[p].value, newProp.value)) {
+
                     //they have changed so set the origContent prop to the new one
+                    var origVal = allOrigProps[p].value;
                     allOrigProps[p].value = newProp.value;
+                    
+                    //instead of having a property editor $watch their expression to check if it has 
+                    // been updated, instead we'll check for the existence of a special method on their model
+                    // and just call it.
+                    if (angular.isFunction(allOrigProps[p].onValueChanged)) {
+                        //send the newVal + oldVal
+                        allOrigProps[p].onValueChanged(allOrigProps[p].value, origVal);
+                    }
+
                     changed.push(allOrigProps[p]);
                 }
             }
 
             return changed;
-        },
-
-        /**
-         * @ngdoc method
-         * @name umbraco.services.contentEditingHelper#handleValidationErrors
-         * @methodOf umbraco.services.contentEditingHelper
-         * @function
-         *
-         * @description
-         * A function to handle the validation (modelState) errors collection which will happen on a 400 error indicating validation errors
-         *  It's worth noting that when a 400 occurs, the data is still saved just never published, though this depends on if the entity is a new
-         *  entity and whether or not the data fulfils the absolute basic requirements like having a mandatory Name.
-         */
-        handleValidationErrors: function (allProps, modelState) {
-            
-            //find the content property for the current error, for use in the loop below
-            function findContentProp(props, propAlias) {
-                return _.find(props, function (item) {
-                    return (item.alias === propAlias);
-                });
-            }
-
-            for (var e in modelState) {
-                //the alias in model state can be in dot notation which indicates
-                // * the first part is the content property alias
-                // * the second part is the field to which the valiation msg is associated with
-                //There will always be at least 2 parts since all model errors for properties are prefixed with "Properties"
-                var parts = e.split(".");
-                if (parts.length > 1) {
-                    var propertyAlias = parts[1];
-
-                    //find the content property for the current error
-                    var contentProperty = findContentProp(allProps, propertyAlias);
-
-                    if (contentProperty) {
-                        //if it contains 2 '.' then we will wire it up to a property's field
-                        if (parts.length > 2) {
-                            //add an error with a reference to the field for which the validation belongs too
-                            serverValidationManager.addPropertyError(contentProperty.alias, parts[2], modelState[e][0]);
-                        }
-                        else {
-                            //add a generic error for the property, no reference to a specific field
-                            serverValidationManager.addPropertyError(contentProperty.alias, "", modelState[e][0]);
-                        }
-                    }
-                }
-                else {
-                    //the parts are only 1, this means its not a property but a native content property
-                    serverValidationManager.addFieldError(parts[0], modelState[e][0]);
-                }
-
-                //add to notifications
-                notificationsService.error("Validation", modelState[e][0]);
-            }
         },
 
         /**
@@ -475,7 +449,10 @@ function contentEditingHelper($location, $routeParams, notificationsService, ser
             if (!args.allNewProps && !angular.isArray(args.allNewProps)) {
                 throw "args.allNewProps must be a valid array";
             }
-            
+            if (args.redirectOnFailure === undefined || args.redirectOnFailure === null) {
+                throw "args.redirectOnFailure must be set to true or false";
+            }
+
             //When the status is a 400 status with a custom header: X-Status-Reason: Validation failed, we have validation errors.
             //Otherwise the error is probably due to invalid data (i.e. someone mucking around with the ids or something).
             //Or, some strange server error
@@ -483,7 +460,8 @@ function contentEditingHelper($location, $routeParams, notificationsService, ser
                 //now we need to look through all the validation errors
                 if (args.err.data && (args.err.data.ModelState)) {
                     
-                    this.handleValidationErrors(args.allNewProps, args.err.data.ModelState);
+                    //wire up the server validation errs
+                    formHelper.handleServerValidation(args.err.data.ModelState);
 
                     if (!args.redirectOnFailure || !this.redirectToCreatedContent(args.err.data.id, args.err.data.ModelState)) {
                         //we are not redirecting because this is not new content, it is existing content. In this case
@@ -527,22 +505,11 @@ function contentEditingHelper($location, $routeParams, notificationsService, ser
             if (!args) {
                 throw "args cannot be null";
             }
-            if (!args.scope) {
-                throw "args.scope cannot be null";
-            }
-            if (!args.scope.content) {
-                throw "args.scope.content cannot be null";
-            }
             if (!args.newContent) {
                 throw "args.newContent cannot be null";
             }
 
-            for (var i = 0; i < args.newContent.notifications.length; i++) {
-                notificationsService.showNotification(args.newContent.notifications[i]);
-            }
-
-            args.scope.$broadcast("saved", { scope: args.scope });
-            if (!this.redirectToCreatedContent(args.newContent.id)) {
+            if (!this.redirectToCreatedContent(args.redirectId ? args.redirectId : args.newContent.id)) {
                 
                 //we are not redirecting because this is not new content, it is existing content. In this case
                 // we need to detect what properties have changed and re-bind them with the server data.
@@ -628,9 +595,7 @@ angular.module('umbraco.services')
        function removeAllDialogs(args) {
            for (var i = 0; i < dialogs.length; i++) {
                var dialog = dialogs[i];
-               dialog.scope.close(args);
-
-               //removeDialog(dialog, args);
+               dialog.close(args);
                dialogs.splice(i, 1);
            }
        }
@@ -649,24 +614,27 @@ angular.module('umbraco.services')
               template: "views/common/notfound.html",
               callback: undefined,
               closeCallback: undefined,
-              element: undefined
+              element: undefined,
+              //this allows us to pass in data to the dialog if required which can be used to configure the dialog
+              //and re-use it for different purposes. It will set on to the $scope.dialogData if it is defined.
+              dialogData: undefined
            };
            
            var dialog = angular.extend(defaults, options);
            var scope = options.scope || $rootScope.$new();
-           delete dialog.scope;
-
-           //Modal dom obj and unique id
-           dialog.element = $('<div ng-swipe-left="hide()" ng-swipe-right="hide()"  data-backdrop="false"></div>');
-           var id = dialog.template.replace('.html', '').replace('.aspx', '').replace(/[\/|\.|:\&\?\=]/g, "-") + '-' + scope.$id;
            
-          if(options.inline){
-              dialog.animation = "";
-              dialog.modalClass = "";
-          }else{
-                dialog.element.addClass("modal");
-                dialog.element.addClass("hide");
-          }
+           //Modal dom obj and unique id
+           dialog.element = $('<div ng-swipe-right="hide()"  data-backdrop="false"></div>');
+           var id = dialog.template.replace('.html', '').replace('.aspx', '').replace(/[\/|\.|:\&\?\=]/g, "-") + '-' + scope.$id;
+
+           if (options.inline) {
+               dialog.animation = "";
+           }
+           else {
+               dialog.element.addClass("modal");
+               dialog.element.addClass("hide");
+           }
+
            //set the id and add classes
            dialog.element
                .attr('id', id)
@@ -680,18 +648,7 @@ angular.module('umbraco.services')
            }, 500);
            
 
-           //basic events for submitting and closing
-           scope.submit = function(data) {
-               if (dialog.callback) {
-                   dialog.callback(data);
-               }
-
-               dialog.element.modal('hide');
-               dialog.element.remove();
-               $("#" + dialog.element.attr("id")).remove();
-           };
-
-           scope.close = function(data) {
+           dialog.close = function(data) {
               if (dialog.closeCallback) {
                    dialog.closeCallback(data);
               }
@@ -705,7 +662,7 @@ angular.module('umbraco.services')
 
            //if iframe is enabled, inject that instead of a template
            if (dialog.iframe) {
-               var html = $("<iframe auto-scale='0' src='" + dialog.template + "' style='width: 100%; height: 100%;'></iframe>");
+               var html = $("<iframe auto-scale='0' src='" + dialog.template + "' style='border: none; width: 100%; height: 100%;'></iframe>");
                dialog.element.html(html);
   
                //append to body or whatever element is passed in as options.containerElement
@@ -723,8 +680,6 @@ angular.module('umbraco.services')
                    dialog.element.modal('show');
                }
 
-               //store the callback in the modal jquery data
-               //dialog.element.data("modalCb", dialog.callback);
                dialog.scope = scope;
                return dialog;
            }
@@ -743,10 +698,7 @@ angular.module('umbraco.services')
 
                      //append to body or other container element  
                      dialog.container.append(dialog.element);
-
-                     //store the callback in the modal jquery data
-                     dialog.element.data("modalCb", dialog.callback);
-
+                     
                      // Compile modal content
                      $timeout(function() {
                          $compile(dialog.element)(scope);
@@ -755,7 +707,7 @@ angular.module('umbraco.services')
                      scope.dialogOptions = dialog;
                      
                      //Scope to handle data from the modal form
-                     scope.dialogData = {};
+                     scope.dialogData = dialog.dialogData ? dialog.dialogData : {};
                      scope.dialogData.selection = [];
 
                      // Provide scope display functions
@@ -769,6 +721,21 @@ angular.module('umbraco.services')
 
                          dialog.element.remove();
                          $("#" + dialog.element.attr("id")).remove();
+                     };
+
+                     //basic events for submitting and closing
+                     scope.submit = function(data) {
+                         if (dialog.callback) {
+                             dialog.callback(data);
+                         }
+
+                         dialog.element.modal('hide');
+                         dialog.element.remove();
+                         $("#" + dialog.element.attr("id")).remove();
+                     };
+
+                     scope.close = function(data) {
+                        dialog.close(data);
                      };
 
                      scope.show = function() {
@@ -853,11 +820,9 @@ angular.module('umbraco.services')
             * @param {Object} args if specified this object will be sent to any callbacks registered on the dialogs.
             */
            close: function (dialog, args) {
-              if(dialog && dialog.scope){
-                  dialog.scope.close();
-              }
-              
-               //removeDialog(dialog, args);
+              if(dialog){
+                  dialog.close(args);
+              }              
            },
            
            /**
@@ -913,6 +878,24 @@ angular.module('umbraco.services')
 
            /**
             * @ngdoc method
+            * @name umbraco.services.dialogService#linkPicker
+            * @methodOf umbraco.services.dialogService
+            *
+            * @description
+            * Opens a link picker tree in a modal, the callback returns a single link
+            * @param {Object} options content picker dialog options object
+            * @param {$scope} options.scope dialog scope
+            * @param {Function} options.callback callback function
+            * @returns {Object} modal object
+            */
+           linkPicker: function (options) {
+               options.template = 'views/common/dialogs/linkPicker.html';
+               options.show = true;
+              return openDialog(options);
+           },
+
+           /**
+            * @ngdoc method
             * @name umbraco.services.dialogService#macroPicker
             * @methodOf umbraco.services.dialogService
             *
@@ -924,9 +907,48 @@ angular.module('umbraco.services')
             * @returns {Object} modal object
             */
            macroPicker: function (options) {
-                options.template = 'views/common/dialogs/macroPicker.html';
+                options.template = 'views/common/dialogs/insertmacro.html';
                 options.show = true;
+                options.modalClass = "span7 umb-modal";
                 return openDialog(options);
+           },
+
+           /**
+            * @ngdoc method
+            * @name umbraco.services.dialogService#memberPicker
+            * @methodOf umbraco.services.dialogService
+            *
+            * @description
+            * Opens a member picker in a modal, the callback returns a object representing the selected member
+            * @param {Object} options member picker dialog options object
+            * @param {$scope} options.scope dialog scope
+            * @param {$scope} options.multiPicker should the tree pick one or multiple members before returning
+            * @param {Function} options.callback callback function
+            * @returns {Object} modal object
+            */
+           memberPicker: function (options) {
+               options.template = 'views/common/dialogs/memberPicker.html';
+               options.show = true;
+              return openDialog(options);
+           },
+           
+           /**
+            * @ngdoc method
+            * @name umbraco.services.dialogService#memberGroupPicker
+            * @methodOf umbraco.services.dialogService
+            *
+            * @description
+            * Opens a member group picker in a modal, the callback returns a object representing the selected member
+            * @param {Object} options member group picker dialog options object
+            * @param {$scope} options.scope dialog scope
+            * @param {$scope} options.multiPicker should the tree pick one or multiple members before returning
+            * @param {Function} options.callback callback function
+            * @returns {Object} modal object
+            */
+           memberGroupPicker: function (options) {
+               options.template = 'views/common/dialogs/memberGroupPicker.html';
+               options.show = true;
+               return openDialog(options);
            },
 
            /**
@@ -957,6 +979,7 @@ angular.module('umbraco.services')
             * @param {Object} options iconpicker dialog options object
             * @param {$scope} options.scope dialog scope
             * @param {$scope} options.section tree section to display
+            * @param {$scope} options.treeAlias specific tree to display
             * @param {$scope} options.multiPicker should the tree pick one or multiple items before returning
             * @param {Function} options.callback callback function
             * @returns {Object} modal object
@@ -1022,18 +1045,6 @@ angular.module('umbraco.services')
            }
        };
    });
-angular.module('umbraco.services')
-.service('editorContextService', function () {
-        var context;
-        return {
-            getContext:function () {
-                return context;
-            },
-            setContext:function (value) {
-                context = value;
-            }
-        };
-    });
 /* pubsub - based on https://github.com/phiggins42/bloody-jquery-plugins/blob/master/pubsub.js*/
 function eventsService($q) {
 	var cache = {};
@@ -1090,10 +1101,18 @@ angular.module('umbraco.services').factory('eventsService', eventsService);
  * @description
  * Used by editors to manage any files that require uploading with the posted data, normally called by property editors
  * that need to attach files.
+ * When a route changes successfully, we ensure that the collection is cleared.
  */
-function fileManager() {
+function fileManager($rootScope) {
 
     var fileCollection = [];
+
+    //Whenever a route changes - clear the curent file collection, the file collection is only relavent
+    // when working in an editor and submitting data to the server.
+    //This ensures that memory remains clear of any files and that the editors don't have to manually clear the files.
+    $rootScope.$on('$routeChangeSuccess', function (event, current, previous) {
+        fileCollection = [];
+    });
 
     return {
         /**
@@ -1146,6 +1165,271 @@ function fileManager() {
 }
 
 angular.module('umbraco.services').factory('fileManager', fileManager);
+/**
+ * @ngdoc service
+ * @name umbraco.services.formHelper
+ * @function
+ *
+ * @description
+ * A utility class used to streamline how forms are developed, to ensure that validation is check and displayed consistently and to ensure that the correct events
+ * fire when they need to.
+ */
+function formHelper(angularHelper, serverValidationManager, $timeout, notificationsService, dialogService) {
+    return {
+
+        /**
+         * @ngdoc function
+         * @name umbraco.services.formHelper#submitForm
+         * @methodOf umbraco.services.formHelper
+         * @function
+         *
+         * @description
+         * Called by controllers when submitting a form - this ensures that all client validation is checked, 
+         * server validation is cleared, that the correct events execute and status messages are displayed.
+         * This returns true if the form is valid, otherwise false if form submission cannot continue.
+         * 
+         * @param {object} args An object containing arguments for form submission
+         */
+        submitForm: function (args) {
+
+            var currentForm;
+
+            if (!args) {
+                throw "args cannot be null";
+            }
+            if (!args.scope) {
+                throw "args.scope cannot be null";
+            }
+            if (!args.formCtrl) {
+                //try to get the closest form controller
+                currentForm = angularHelper.getRequiredCurrentForm(args.scope);
+            }
+            else {
+                currentForm = args.formCtrl;
+            }
+            //if no statusPropertyName is set we'll default to formStatus.
+            if (!args.statusPropertyName) {
+                args.statusPropertyName = "formStatus";
+            }
+            //if no statusTimeout is set, we'll  default to 2500 ms
+            if (!args.statusTimeout) {
+                args.statusTimeout = 2500;
+            }
+            
+            //the first thing any form must do is broadcast the formSubmitting event
+            args.scope.$broadcast("formSubmitting", { scope: args.scope });
+
+            //then check if the form is valid
+            if (!args.skipValidation) {                
+                if (currentForm.$invalid) {
+                    return false;
+                }
+            }
+
+            //reset the server validations
+            serverValidationManager.reset();
+            
+            //check if a form status should be set on the scope
+            if (args.statusMessage) {
+                args.scope[args.statusPropertyName] = args.statusMessage;
+
+                //clear the message after the timeout
+                $timeout(function () {
+                    args.scope[args.statusPropertyName] = undefined;
+                }, args.statusTimeout);
+            }
+
+            return true;
+        },
+        
+        /**
+         * @ngdoc function
+         * @name umbraco.services.formHelper#submitForm
+         * @methodOf umbraco.services.formHelper
+         * @function
+         *
+         * @description
+         * Called by controllers when a form has been successfully submitted. the correct events execute 
+         * and that the notifications are displayed if there are any.
+         * 
+         * @param {object} args An object containing arguments for form submission
+         */
+        resetForm: function (args) {
+            if (!args) {
+                throw "args cannot be null";
+            }
+            if (!args.scope) {
+                throw "args.scope cannot be null";
+            }
+            
+            //if no statusPropertyName is set we'll default to formStatus.
+            if (!args.statusPropertyName) {
+                args.statusPropertyName = "formStatus";
+            }
+            //clear the status
+            args.scope[args.statusPropertyName] = null;
+
+            if (angular.isArray(args.notifications)) {
+                for (var i = 0; i < args.notifications.length; i++) {
+                    notificationsService.showNotification(args.notifications[i]);
+                }
+            }
+
+            args.scope.$broadcast("formSubmitted", { scope: args.scope });
+        },
+        
+        /**
+         * @ngdoc function
+         * @name umbraco.services.formHelper#handleError
+         * @methodOf umbraco.services.formHelper
+         * @function
+         *
+         * @description
+         * Needs to be called when a form submission fails, this will wire up all server validation errors in ModelState and
+         * add the correct messages to the notifications. If a server error has occurred this will show a ysod.
+         * 
+         * @param {object} err The error object returned from the http promise
+         */
+        handleError: function (err) {            
+            //When the status is a 400 status with a custom header: X-Status-Reason: Validation failed, we have validation errors.
+            //Otherwise the error is probably due to invalid data (i.e. someone mucking around with the ids or something).
+            //Or, some strange server error
+            if (err.status === 400) {
+                //now we need to look through all the validation errors
+                if (err.data && (err.data.ModelState)) {
+
+                    //wire up the server validation errs
+                    this.handleServerValidation(err.data.ModelState);
+
+                    //execute all server validation events and subscribers
+                    serverValidationManager.executeAndClearAllSubscriptions();                    
+                }
+                else {
+                    dialogService.ysodDialog(err);
+                }
+            }
+            else {
+                dialogService.ysodDialog(err);
+            }
+        },
+
+        /**
+         * @ngdoc function
+         * @name umbraco.services.formHelper#handleServerValidation
+         * @methodOf umbraco.services.formHelper
+         * @function
+         *
+         * @description
+         * This wires up all of the server validation model state so that valServer and valServerField directives work
+         * 
+         * @param {object} err The error object returned from the http promise
+         */
+        handleServerValidation: function(modelState) {
+            for (var e in modelState) {
+
+                //the alias in model state can be in dot notation which indicates
+                // * the first part is the content property alias
+                // * the second part is the field to which the valiation msg is associated with
+                //There will always be at least 2 parts for properties since all model errors for properties are prefixed with "Properties"
+                //If it is not prefixed with "Properties" that means the error is for a field of the object directly.
+
+                var parts = e.split(".");
+                if (parts.length > 1) {
+                    var propertyAlias = parts[1];
+
+                    //if it contains 2 '.' then we will wire it up to a property's field
+                    if (parts.length > 2) {
+                        //add an error with a reference to the field for which the validation belongs too
+                        serverValidationManager.addPropertyError(propertyAlias, parts[2], modelState[e][0]);
+                    }
+                    else {
+                        //add a generic error for the property, no reference to a specific field
+                        serverValidationManager.addPropertyError(propertyAlias, "", modelState[e][0]);
+                    }
+
+                }
+                else {
+                    //the parts are only 1, this means its not a property but a native content property
+                    serverValidationManager.addFieldError(parts[0], modelState[e][0]);
+                }
+
+                //add to notifications
+                notificationsService.error("Validation", modelState[e][0]);
+            }
+        }
+    };
+}
+angular.module('umbraco.services').factory('formHelper', formHelper);
+angular.module('umbraco.services')
+	.factory('helpService', function ($http, $q){
+		var helpTopics = {};
+
+		var defaultUrl = "http://our.umbraco.org/rss/help";
+		var tvUrl = "http://umbraco.tv/feeds/help";
+
+		function getCachedHelp(url){
+			if(helpTopics[url]){
+				return helpTopics[cacheKey];
+			}else{
+				return null;
+			}
+		}
+
+		function setCachedHelp(url, data){
+			helpTopics[url] = data;
+		}
+
+		function fetchUrl(url){
+			var deferred = $q.defer();
+			var found = getCachedHelp(url);
+
+			if(found){
+				deferred.resolve(found);
+			}else{
+
+				var proxyUrl = "dashboard/feedproxy.aspx?url=" + url; 
+				$http.get(proxyUrl).then(function(data){
+					var feed = $(data.data);
+					var topics = [];
+
+					$('item', feed).each(function (i, item) {
+						var topic = {};
+						topic.thumbnail = $(item).find('thumbnail').attr('url');
+						topic.title = $("title", item).text();
+						topic.link = $("guid", item).text();
+						topic.description = $("description", item).text();
+						topics.push(topic);
+					});
+
+					setCachedHelp(topics);
+					deferred.resolve(topics);
+				});
+			}
+
+			return deferred.promise;
+		}
+
+
+
+		var service = {
+			findHelp: function (args) {
+				var url = service.getUrl(defaultUrl, args);
+				return fetchUrl(url);
+			},
+
+			findVideos: function (args) {
+				var url = service.getUrl(tvUrl, args);
+				return fetchUrl(url);
+			},
+
+			getUrl: function(url, args){
+				return url + "?" + $.param(args);
+			}
+		};
+
+		return service;
+
+	});
 /**
  * @ngdoc service
  * @name umbraco.services.historyService
@@ -1274,11 +1558,20 @@ angular.module('umbraco.services')
 		'keyCode':          false
 	};
 	
+	var isMac = navigator.platform.toUpperCase().indexOf('MAC')>=0;
+
 	// Store all keyboard combination shortcuts
 	keyboardManagerService.keyboardEvent = {};
 
+
 	// Add a new keyboard combination shortcut
 	keyboardManagerService.bind = function (label, callback, opt) {
+
+		//replace ctrl key with meta key
+		if(isMac){
+		  label = label.replace("ctrl","meta");
+		}
+
 		var fct, elt, code, k;
 		// Initialize opt object
 		opt   = angular.extend({}, defaultOpt, opt);
@@ -1522,6 +1815,265 @@ angular.module('umbraco.services')
 
 	return keyboardManagerService;
 }]);
+angular.module('umbraco.services')
+.factory('localizationService', function ($http, $q, $rootScope, $window, $filter, userService) {
+        var service = {
+            // array to hold the localized resource string entries
+            dictionary:[],
+            // location of the resource file
+            url: "js/language.aspx",
+            // flag to indicate if the service hs loaded the resource file
+            resourceFileLoaded:false,
+
+            // success handler for all server communication
+            successCallback:function (data) {
+                // store the returned array in the dictionary
+                service.dictionary = data;
+                // set the flag that the resource are loaded
+                service.resourceFileLoaded = true;
+                // broadcast that the file has been loaded
+                $rootScope.$broadcast('localizeResourcesUpdates');
+            },
+
+            // allows setting of language on the fly
+            setLanguage: function(value) {
+                service.initLocalizedResources();
+            },
+
+            // allows setting of resource url on the fly
+            setUrl: function(value) {
+                service.url = value;
+                service.initLocalizedResources();
+            },
+
+            // loads the language resource file from the server
+            initLocalizedResources:function () {
+                var deferred = $q.defer();
+                // build the url to retrieve the localized resource file
+                $http({ method:"GET", url:service.url, cache:false })
+                    .then(function(response){
+                        service.resourceFileLoaded = true;
+                        service.dictionary = response.data;
+
+                        $rootScope.$broadcast('localizeResourcesUpdates');
+
+                        return deferred.resolve(service.dictionary);
+                    }, function(err){
+                        return deferred.reject("Something broke");
+                    });
+                return deferred.promise;
+            },
+
+            //helper to tokenize and compile a localization string
+            tokenize: function(value,scope) {
+                    if(value){
+                        var localizer = value.split(':');
+                        var retval = {tokens: undefined, key: localizer[0].substring(0)};
+                        if(localizer.length > 1){
+                            retval.tokens = localizer[1].split(',');
+                            for (var x = 0; x < retval.tokens.length; x++) {
+                                retval.tokens[x] = scope.$eval(retval.tokens[x]);
+                            }
+                        }
+
+                        return retval;
+                    }
+            },
+
+            // checks the dictionary for a localized resource string
+            localize: function(value,tokens) {
+                var deferred = $q.defer();
+
+                if(service.resourceFileLoaded){
+                    var val = service._lookup(value,tokens);
+                    deferred.resolve(val);
+                }else{
+                    service.initLocalizedResources().then(function(dic){
+                           var val = service._lookup(value,tokens);
+                           deferred.resolve(val); 
+                    });
+                }
+
+                return deferred.promise;
+            },
+            _lookup: function(value,tokens){
+
+                //strip the key identifier if its there
+                if(value && value[0] === "@"){
+                    value = value.substring(1);
+                }
+
+                //if no area specified, add general_
+                if(value && value.indexOf("_") < 0){
+                    value = "general_" + value;
+                }
+
+                var entry = service.dictionary[value];
+                if(entry){
+                    if(tokens){
+                        for (var i = 0; i < tokens.length; i++) {
+                            entry = entry.replace("%"+i+"%", tokens[i]);
+                        }    
+                    }
+                    return entry;
+                }
+                return "[" + value + "]";
+            }
+
+
+        };
+
+        // force the load of the resource file
+        service.initLocalizedResources();
+
+        // return the local instance when called
+        return service;
+    });
+/**
+ * @ngdoc service
+ * @name umbraco.services.macroService
+ *
+ *  
+ * @description
+ * A service to return macro information such as generating syntax to insert a macro into an editor
+ */
+function macroService() {
+
+    return {
+        
+        /** parses the special macro syntax like <?UMBRACO_MACRO macroAlias="Map" /> and returns an object with the macro alias and it's parameters */
+        parseMacroSyntax: function (syntax) {
+
+            var expression = /(<\?UMBRACO_MACRO macroAlias=["'](\w+?)["'].+?)(\/>|>.*?<\/\?UMBRACO_MACRO>)/im;
+            var match = expression.exec(syntax);
+            if (!match || match.length < 3) {
+                return null;
+            }
+            var alias = match[2];
+
+            //this will leave us with just the parameters
+            var paramsChunk = match[1].trim().replace(new RegExp("UMBRACO_MACRO macroAlias=[\"']" + alias + "[\"']"), "").trim();
+            
+            var paramExpression = new RegExp("(\\w+?)=['\"](.*?)['\"]", "g");
+            var paramMatch;
+            var returnVal = {
+                macroAlias: alias,
+                marcoParamsDictionary: {}
+            };
+            while (paramMatch = paramExpression.exec(paramsChunk)) {
+                returnVal.marcoParamsDictionary[paramMatch[1]] = paramMatch[2];
+            }
+            return returnVal;
+        },
+
+        /**
+         * @ngdoc function
+         * @name umbraco.services.macroService#generateWebFormsSyntax
+         * @methodOf umbraco.services.macroService
+         * @function    
+         *
+         * @description
+         * generates the syntax for inserting a macro into a rich text editor - this is the very old umbraco style syntax
+         * 
+         * @param {object} args an object containing the macro alias and it's parameter values
+         */
+        generateMacroSyntax: function (args) {
+
+            // <?UMBRACO_MACRO macroAlias="BlogListPosts" />
+
+            var macroString = '<?UMBRACO_MACRO macroAlias=\"' + args.macroAlias + "\" ";
+
+            if (args.marcoParamsDictionary) {
+
+                _.each(args.marcoParamsDictionary, function (val, key) {
+                    var keyVal = key + "=\"" + (val ? val : "") + "\" ";
+                    macroString += keyVal;
+                });
+
+            }
+
+            macroString += "/>";
+
+            return macroString;
+        },
+
+        /**
+         * @ngdoc function
+         * @name umbraco.services.macroService#generateWebFormsSyntax
+         * @methodOf umbraco.services.macroService
+         * @function    
+         *
+         * @description
+         * generates the syntax for inserting a macro into a webforms templates
+         * 
+         * @param {object} args an object containing the macro alias and it's parameter values
+         */
+        generateWebFormsSyntax: function(args) {
+            
+            var macroString = '<umbraco:Macro ';
+
+            if (args.marcoParamsDictionary) {
+                
+                _.each(args.marcoParamsDictionary, function (val, key) {
+                    var keyVal = key + "=\"" + (val ? val : "") + "\" ";
+                    macroString += keyVal;
+                });
+
+            }
+
+            macroString += "Alias=\"" + args.macroAlias + "\" runat=\"server\"></umbraco:Macro>";
+
+            return macroString;
+        },
+        
+        /**
+         * @ngdoc function
+         * @name umbraco.services.macroService#generateMvcSyntax
+         * @methodOf umbraco.services.macroService
+         * @function    
+         *
+         * @description
+         * generates the syntax for inserting a macro into an mvc template
+         * 
+         * @param {object} args an object containing the macro alias and it's parameter values
+         */
+        generateMvcSyntax: function (args) {
+
+            var macroString = "@Umbraco.RenderMacro(\"" + args.macroAlias + "\"";
+
+            var hasParams = false;
+            var paramString;
+            if (args.marcoParamsDictionary) {
+                
+                paramString = ", new {";
+
+                _.each(args.marcoParamsDictionary, function(val, key) {
+
+                    hasParams = true;
+                    
+                    var keyVal = key + "=\"" + (val ? val : "") + "\", ";
+
+                    paramString += keyVal;
+                });
+                
+                //remove the last , 
+                paramString = paramString.trimEnd(", ");
+
+                paramString += "}";
+            }
+            if (hasParams) {
+                macroString += paramString;
+            }
+
+            macroString += ")";
+            return macroString;
+        }
+
+    };
+
+}
+
+angular.module('umbraco.services').factory('macroService', macroService);
 /**
  * @ngdoc service
  * @name umbraco.services.umbracoMenuActions
@@ -1596,57 +2148,112 @@ angular.module('umbraco.services').factory('umbracoMenuActions', umbracoMenuActi
  */
 
 angular.module('umbraco.services')
-.factory('navigationService', function ($rootScope, $routeParams, $log, $location, $q, $timeout, dialogService, treeService, notificationsService) {
+.factory('navigationService', function ($rootScope, $routeParams, $log, $location, $q, $timeout, dialogService, treeService, notificationsService, historyService) {
+    
+    var minScreenSize = 1100;
 
-
-    //TODO: would be nicer to set all of the options here first instead of implicitly below!
-    var ui = {};
+    //Define all sub-properties for the UI object here
+    var ui = {
+        tablet: false,
+        showNavigation: false,
+        showContextMenu: false,
+        showContextMenuDialog: false,
+        stickyNavigation: false,
+        showTray: false,
+        showSearchResults: false,
+        currentSection: undefined,
+        currentPath: undefined,
+        currentTree: undefined,
+        treeEventHandler: undefined,
+        currentNode: undefined,
+        actions: undefined,
+        currentDialog: undefined,
+        dialogTitle: undefined,
+       
+        //a string/name reference for the currently set ui mode
+        currentMode: "default"
+    };
+    
     $rootScope.$on("closeDialogs", function(){});
+
+    function setTreeMode() {
+        ui.tablet = ($(window).width() <= minScreenSize);
+        ui.showNavigation = !ui.tablet;
+    }
 
     function setMode(mode) {
         switch (mode) {
             case 'tree':
+                ui.currentMode = "tree";
                 ui.showNavigation = true;
                 ui.showContextMenu = false;
                 ui.showContextMenuDialog = false;
                 ui.stickyNavigation = false;
-
+                ui.showTray = false;
+                service.hideUserDialog();
+                service.hideHelpDialog();
                 //$("#search-form input").focus();    
                 break;
             case 'menu':
+                ui.currentMode = "menu";
                 ui.showNavigation = true;
                 ui.showContextMenu = true;
                 ui.showContextMenuDialog = false;
                 ui.stickyNavigation = true;
                 break;
             case 'dialog':
+                ui.currentMode = "dialog";
                 ui.stickyNavigation = true;
                 ui.showNavigation = true;
                 ui.showContextMenu = false;
                 ui.showContextMenuDialog = true;
                 break;
             case 'search':
+                ui.currentMode = "search";
                 ui.stickyNavigation = false;
                 ui.showNavigation = true;
                 ui.showContextMenu = false;
                 ui.showSearchResults = true;
                 ui.showContextMenuDialog = false;
+
+                $timeout(function(){
+                    $("#search-field").focus();
+                });
+                
                 break;
             default:
-                ui.showNavigation = false;
+                ui.currentMode = "default";
                 ui.showContextMenu = false;
                 ui.showContextMenuDialog = false;
                 ui.showSearchResults = false;
                 ui.stickyNavigation = false;
+                ui.showTray = false;
+
+                if(ui.tablet){
+                    ui.showNavigation = false;
+                }
+
                 break;
         }
     }
 
     var service = {
         active: false,
-        mode: "default",
         touchDevice: false,
+        userDialog: undefined,
         ui: ui,
+
+        init: function(){
+
+            //TODO: detect tablet mode, subscribe to window resizing
+            //for now we just hardcode it to non-tablet mode
+            setTreeMode();
+            this.ui.currentSection = $routeParams.section;
+
+            $(window).bind("resize", function () {
+                 setTreeMode();
+            });
+        },
 
         /**
          * @ngdoc method
@@ -1658,7 +2265,7 @@ angular.module('umbraco.services')
          * @param {String} source The URL to load into the iframe
          */
         loadLegacyIFrame: function (source) {
-            $location.path("/framed/" + encodeURIComponent(source));
+            $location.path("/" + this.ui.currentSection + "/framed/" + encodeURIComponent(source));
         },
 
         /**
@@ -1672,13 +2279,16 @@ angular.module('umbraco.services')
          * and load the dashboard related to the section
          * @param {string} sectionAlias The alias of the section
          */
-        changeSection: function (sectionAlias) {
-            if (this.ui.stickyNavigation) {
-                setMode("default-opensection");
-                this.ui.currentSection = sectionAlias;
-                this.showTree(sectionAlias);
+        changeSection: function (sectionAlias, force) {
+            setMode("default-opensection");
+            
+            if(force && this.ui.currentSection === sectionAlias){
+                this.ui.currentSection = "";
             }
 
+            this.ui.currentSection = sectionAlias;
+            this.showTree(sectionAlias);
+        
             $location.path(sectionAlias);
         },
 
@@ -1692,13 +2302,133 @@ angular.module('umbraco.services')
          * only changes if the section is different from the current one
 		 * @param {string} sectionAlias The alias of the section the tree should load data from
 		 */
-        showTree: function (sectionAlias) {
+        showTree: function (sectionAlias, treeAlias, path) {
             if (sectionAlias !== this.ui.currentSection) {
                 this.ui.currentSection = sectionAlias;
-                setMode("tree");
+                if(treeAlias){
+                    this.setActiveTreeType(treeAlias);
+                }
+                if(path){
+                    this.syncpath(path, true);
+                }
+            }
+            setMode("tree");
+        },
+
+        showTray: function () {
+            ui.showTray = true;
+        },
+
+        hideTray: function () {
+            ui.showTray = false;
+        },
+
+        //adding this to get clean global access to the main tree directive
+        //there will only ever be one main tree event handler
+        //we need to pass in the current scope for binding these actions
+        setupTreeEvents: function(treeEventHandler, scope){
+            this.ui.treeEventHandler = treeEventHandler;
+
+            //this reacts to the options item in the tree
+            this.ui.treeEventHandler.bind("treeOptionsClick", function (ev, args) {
+                ev.stopPropagation();
+                ev.preventDefault();
+                
+                scope.currentNode = args.node;
+                args.scope = scope;
+
+                if(args.event && args.event.altKey){
+                    args.skipDefault = true;
+                }
+
+                service.showMenu(ev, args);
+            });
+
+            this.ui.treeEventHandler.bind("treeNodeAltSelect", function (ev, args) {
+                ev.stopPropagation();
+                ev.preventDefault();
+                
+                scope.currentNode = args.node;
+                args.scope = scope;
+
+                args.skipDefault = true;
+                service.showMenu(ev, args);
+            });
+
+            //this reacts to tree items themselves being clicked
+            //the tree directive should not contain any handling, simply just bubble events
+            this.ui.treeEventHandler.bind("treeNodeSelect", function (ev, args) {
+                var n = args.node;
+                ev.stopPropagation();
+                ev.preventDefault();
+                
+
+                if (n.metaData && n.metaData["jsClickCallback"] && angular.isString(n.metaData["jsClickCallback"]) && n.metaData["jsClickCallback"] !== "") {
+                    //this is a legacy tree node!                
+                    var jsPrefix = "javascript:";
+                    var js;
+                    if (n.metaData["jsClickCallback"].startsWith(jsPrefix)) {
+                        js = n.metaData["jsClickCallback"].substr(jsPrefix.length);
+                    }
+                    else {
+                        js = n.metaData["jsClickCallback"];
+                    }
+                    try {
+                        var func = eval(js);
+                        //this is normally not necessary since the eval above should execute the method and will return nothing.
+                        if (func != null && (typeof func === "function")) {
+                            func.call();
+                        }
+                    }
+                    catch(ex) {
+                        $log.error("Error evaluating js callback from legacy tree node: " + ex);
+                    }
+                }
+                else if(n.routePath){
+                    //add action to the history service
+                    historyService.add({ name: n.name, link: n.routePath, icon: n.icon });
+                    //not legacy, lets just set the route value and clear the query string if there is one.
+                    $location.path(n.routePath).search("");
+                } else if(args.element.section){
+                    $location.path(args.element.section).search("");
+                }
+
+                service.hideNavigation();
+            });
+        },
+        /**
+         * @ngdoc method
+         * @name umbraco.services.navigationService#syncTree
+         * @methodOf umbraco.services.navigationService
+         *
+         * @description
+         * Syncs the tree with a given section alias and a given path
+         * The path format is: ["itemId","itemId"], and so on
+         * so to sync to a specific document type node do:
+         * <pre>
+         * navigationService.syncPath(["-1","123d"], true);  
+         * </pre>
+         * @param {array} path array of ascendant ids, ex: ["1023","1243"] (loads a specific document type into the settings tree)
+         * @param {bool} forceReload forces a reload of data from the server
+         */
+        syncPath: function (path, forceReload) {
+            if(this.ui.treeEventHandler){
+                this.ui.treeEventHandler.syncPath(path,forceReload);
             }
         },
-        
+
+        reloadSection: function (sectionAlias) {
+            if(this.ui.treeEventHandler){
+                this.ui.treeEventHandler.clearCache({ section: sectionAlias });
+                this.ui.treeEventHandler.load(sectionAlias);
+            }
+        },
+
+        setActiveTreeType: function (treeAlias) {
+            if(this.ui.treeEventHandler){
+                this.ui.treeEventHandler.setActiveTreeType(treeAlias);
+            }
+        },
 
         /**
          * @ngdoc method
@@ -1729,14 +2459,14 @@ angular.module('umbraco.services')
                 return;
             }
 
-
-            service.active = false;
-
-            $timeout(function(){
-                if(!service.active){
-                    service.hideTree();
-                }
-            }, 300);
+            if(!service.touchDevice){
+                service.active = false;
+                $timeout(function(){
+                    if(!service.active){
+                        service.hideTree();
+                    }
+                }, 300);
+            }
         },
 
         /**
@@ -1748,10 +2478,13 @@ angular.module('umbraco.services')
          * Hides the tree by hiding the containing dom element
          */
         hideTree: function () {
-            if (!this.ui.stickyNavigation) {
-                this.ui.currentSection = "";
+
+            if (this.ui.tablet && !this.ui.stickyNavigation) {
+                //reset it to whatever is in the url
+                this.ui.currentSection = $routeParams.section;
                 setMode("default-hidesectiontree");
             }
+
         },
 
         /**
@@ -1770,48 +2503,52 @@ angular.module('umbraco.services')
             var deferred = $q.defer();
             var self = this;
 
-            if (args.event !== undefined && args.node.defaultAction && !args.event.altKey) {
+            treeService.getMenu({ treeNode: args.node })
+                .then(function(data) {
+                    
+                    //check for a default
+                    //NOTE: event will be undefined when a call to hideDialog is made so it won't re-load the default again.
+                    // but perhaps there's a better way to deal with with an additional parameter in the args ? it works though.
+                    if (data.defaultAlias && !args.skipDefault) {
 
-                treeService.getMenuItemByAlias({ treeNode: args.node, menuItemAlias: args.node.defaultAction })
-                    .then(function(result) {
-
-                        if (!result) {
-                            throw "No menu item found with alias " + args.node.defaultAction;
-                        }
-
-                        self.ui.currentNode = args.node;
-                        
-                        //ensure the current dialog is cleared before creating another!
-                        if (self.ui.currentDialog) {
-                            dialogService.close(self.ui.currentDialog);
-                        }
-
-                        var dialog = self.showDialog({
-                            scope: args.scope,
-                            node: args.node,
-                            action: result,
-                            section: self.ui.currentSection
+                        var found = _.find(data.menuItems, function(item) {
+                            return item.alias = data.defaultAlias;
                         });
 
-                        //return the dialog this is opening.
-                        deferred.resolve(dialog);
-                    });
-            }
-            else {
-                setMode("menu");
+                        if (found) {
+                            
+                            self.ui.currentNode = args.node;
+                            //ensure the current dialog is cleared before creating another!
+                            if (self.ui.currentDialog) {
+                                dialogService.close(self.ui.currentDialog);
+                            }
 
-                treeService.getMenu({ treeNode: args.node })
-                    .then(function(data) {
-                        ui.actions = data;
-                    });
+                            var dialog = self.showDialog({
+                                scope: args.scope,
+                                node: args.node,
+                                action: found,
+                                section: self.ui.currentSection
+                            });
 
-                this.ui.currentNode = args.node;
-                this.ui.dialogTitle = args.node.name;
+                            //return the dialog this is opening.
+                            deferred.resolve(dialog);
+                            return;
+                        }
+                    }
 
-                //we're not opening a dialog, return null.
-                deferred.resolve(null);
-            }
+                    //there is no default or we couldn't find one so just continue showing the menu                    
+                    
+                    setMode("menu");
+                    
+                    ui.actions = data.menuItems;
+                    
+                    ui.currentNode = args.node;
+                    ui.dialogTitle = args.node.name;
 
+                    //we're not opening a dialog, return null.
+                    deferred.resolve(null);
+                });
+            
             return deferred.promise;
         },
 
@@ -1841,13 +2578,59 @@ angular.module('umbraco.services')
          * template is located in views/common/dialogs/user.html
          */
         showUserDialog: function () {
-            return dialogService.open(
+            service.userDialog = dialogService.open(
                 {
                     template: "views/common/dialogs/user.html",
                     modalClass: "umb-modal-left",
                     show: true
                 });
+
+            return service.userDialog;
         },
+
+        /**
+         * @ngdoc method
+         * @name umbraco.services.navigationService#showUserDialog
+         * @methodOf umbraco.services.navigationService
+         *
+         * @description
+         * Opens the user dialog, next to the sections navigation
+         * template is located in views/common/dialogs/user.html
+         */
+        showHelpDialog: function () {
+            service.helpDialog = dialogService.open(
+                {
+                    template: "views/common/dialogs/help.html",
+                    modalClass: "umb-modal-left",
+                    show: true
+                });
+
+            return service.helpDialog;
+        },
+
+        /**
+         * @ngdoc method
+         * @name umbraco.services.navigationService#hideUserDialog
+         * @methodOf umbraco.services.navigationService
+         *
+         * @description
+         * Hides the user dialog, next to the sections navigation
+         * template is located in views/common/dialogs/user.html
+         */
+        hideUserDialog: function () {
+            if(service.userDialog){
+                service.userDialog.close();
+                service.userDialog = undefined;
+            } 
+        },
+
+        hideHelpDialog: function () {
+            if(service.helpDialog){
+                service.helpDialog.close();
+                service.helpDialog = undefined;
+            } 
+        },
+
         /**
          * @ngdoc method
          * @name umbraco.services.navigationService#showDialog
@@ -1877,6 +2660,9 @@ angular.module('umbraco.services')
             if (!args.action) {
                 throw "The args parameter must have an 'action' property as the clicked menu action object";
             }
+            if (!args.node) {
+                throw "The args parameter must have a 'node' as the active tree node";
+            }
 
             //ensure the current dialog is cleared before creating another!
             if (this.ui.currentDialog) {
@@ -1901,11 +2687,7 @@ angular.module('umbraco.services')
             var templateUrl;
             var iframe;
 
-            //TODO: fix hardcoded hack for content/media... once these trees are converted over to 
-            // new c# trees we won't need to do this any longer.
-            var isCreateForContent = args.action.alias === "create" && (this.ui.currentSection === "content" || this.ui.currentSection === "media");
-
-            if (args.action.metaData["actionUrl"] && !isCreateForContent) {
+            if (args.action.metaData["actionUrl"]) {
                 templateUrl = args.action.metaData["actionUrl"];
                 iframe = true;
             }
@@ -1914,7 +2696,25 @@ angular.module('umbraco.services')
                 iframe = false;
             }
             else {
-                templateUrl = "views/" + this.ui.currentSection + "/" + args.action.alias + ".html";
+                
+                //by convention we will look into the /views/{treetype}/{action}.html
+                // for example: /views/content/create.html
+
+                //we will also check for a 'packageName' for the current tree, if it exists then the convention will be:
+                // for example: /App_Plugins/{mypackage}/umbraco/{treetype}/create.html
+
+                var treeAlias = treeService.getTreeAlias(args.node);
+                var packageTreeFolder = treeService.getTreePackageFolder(treeAlias);
+
+                if (packageTreeFolder) {
+                    templateUrl = Umbraco.Sys.ServerVariables.umbracoSettings.appPluginsPath + 
+                        "/" + packageTreeFolder +
+                        "/umbraco/" + treeAlias + "/" + args.action.alias + ".html";
+                }
+                else {
+                    templateUrl = "views/" + treeAlias + "/" + args.action.alias + ".html";
+                }
+
                 iframe = false;
             }
 
@@ -1927,15 +2727,17 @@ angular.module('umbraco.services')
                 {
                     container: $("#dialog div.umb-modalcolumn-body"),
                     scope: scope,
+                    currentNode: args.node,
+                    currentAction: args.action,
                     inline: true,
                     show: true,
                     iframe: iframe,
+                    modalClass: "umb-dialog",
                     template: templateUrl
                 });
 
             //save the currently assigned dialog so it can be removed before a new one is created
             this.ui.currentDialog = dialog;
-
             return dialog;
         },
 
@@ -1948,7 +2750,7 @@ angular.module('umbraco.services')
 	     * hides the currently open dialog
 	     */
         hideDialog: function () {
-            this.showMenu(undefined, { node: this.ui.currentNode });
+            this.showMenu(undefined, {skipDefault: true, node: this.ui.currentNode });
         },
         /**
           * @ngdoc method
@@ -1981,9 +2783,8 @@ angular.module('umbraco.services')
           * hides any open navigation panes and resets the tree, actions and the currently selected node
           */
         hideNavigation: function () {
-           this.ui.currentSection = "";
             this.ui.actions = [];
-            this.ui.currentNode = undefined;
+            //this.ui.currentNode = undefined;
             setMode("default");
         }
     };
@@ -2019,43 +2820,60 @@ angular.module('umbraco.services')
 
 	var nArray = [];
 
-	function add(item) {	    
-	    angularHelper.safeApply($rootScope, function () {
-	        
-	        //add a colon after the headline if there is a message as well
-	        if (item.message) {
-	            item.headline += ":";
-	            if(item.message.length > 200) {
-	                item.sticky = true;
-	            }
-	        }
+	var service = {
 
-	        //we need to ID the item, going by index isn't good enough because people can remove at different indexes 
-	        // whenever they want. Plus once we remove one, then the next index will be different. The only way to 
-	        // effectively remove an item is by an Id.
-	        item.id = String.CreateGuid();
-	        
-	        nArray.push(item);
-            
-            if(!item.sticky) {
-                $timeout(function() {
-                    var found = _.find(nArray, function(i) {
-                        return i.id === item.id;
-                    });
+		/**
+		* @ngdoc method
+		* @name umbraco.services.notificationsService#add
+		* @methodOf umbraco.services.notificationsService
+		*
+		* @description
+		* Lower level api for adding notifcations, support more advanced options
+		* @param {Object} item The notification item
+		* @param {String} item.headline Short headline
+		* @param {String} item.message longer text for the notication, trimmed after 200 characters, which can then be exanded
+		* @param {String} item.type Notification type, can be: "success","warning","error" or "info" 
+		* @param {String} item.url url to open when notification is clicked
+		* @param {Boolean} item.sticky if set to true, the notification will not auto-close
+		* @returns {Object} args notification object
+		*/
 
-                    if (found) {
-                        var index = nArray.indexOf(found);
-                        nArray.splice(index, 1);
-                    }
+		add: function(item) {
+			angularHelper.safeApply($rootScope, function () {
 
-                }, 7000);
-            }
+				//add a colon after the headline if there is a message as well
+				if (item.message) {
+					item.headline += ":";
+					if(item.message.length > 200) {
+						item.sticky = true;
+					}
+				}
 
-	        return item;
-	    });
-	}
+				//we need to ID the item, going by index isn't good enough because people can remove at different indexes 
+				// whenever they want. Plus once we remove one, then the next index will be different. The only way to 
+				// effectively remove an item is by an Id.
+				item.id = String.CreateGuid();
 
-	return {
+				nArray.push(item);
+
+				if(!item.sticky) {
+					$timeout(function() {
+						var found = _.find(nArray, function(i) {
+						return i.id === item.id;
+					});
+
+					if (found) {
+						var index = nArray.indexOf(found);
+						nArray.splice(index, 1);
+					}
+
+					}, 7000);
+				}
+
+				return item;
+			});
+
+		},
 
 	    /**
 		 * @ngdoc method
@@ -2116,9 +2934,8 @@ angular.module('umbraco.services')
 		 * @returns {Object} notification object
 		 */
 	    success: function (headline, message) {
-	        return add({ headline: headline, message: message, type: 'success', time: new Date() });
-	        
-		},
+	        return service.add({ headline: headline, message: message, type: 'success', time: new Date() });
+	    },
 		/**
 		 * @ngdoc method
 		 * @name umbraco.services.notificationsService#error
@@ -2133,7 +2950,7 @@ angular.module('umbraco.services')
 		 * @returns {Object} notification object
 		 */
 	    error: function (headline, message) {
-	        return add({ headline: headline, message: message, type: 'error', time: new Date() });
+	        return service.add({ headline: headline, message: message, type: 'error', time: new Date() });
 		},
 
 		/**
@@ -2151,7 +2968,7 @@ angular.module('umbraco.services')
 		 * @returns {Object} notification object
 		 */
 	    warning: function (headline, message) {
-	        return add({ headline: headline, message: message, type: 'warning', time: new Date() });
+	        return service.add({ headline: headline, message: message, type: 'warning', time: new Date() });
 		},
 
 		/**
@@ -2169,7 +2986,7 @@ angular.module('umbraco.services')
 		 * @returns {Object} notification object
 		 */
 	    info: function (headline, message) {
-	        return add({ headline: headline, message: message, type: 'info', time: new Date() });
+	        return service.add({ headline: headline, message: message, type: 'info', time: new Date() });
 		},
 
 		/**
@@ -2226,49 +3043,110 @@ angular.module('umbraco.services')
 			return nArray;
 		}
 	};
+
+	return service;
 });
 angular.module('umbraco.services')
-.factory('searchService', function () {
-	return {
-		search: function(term, section){
-			return [
-			{
-				section: "settings",
-				tree: "documentTypes",
-				matches:[
-				{ name: "News archive", path:"/News Archive", id: 1234, icon: "icon-list-alt", view: section + "/edit/" + 1234, children: [], expanded: false, level: 1 },
-				{ name: "Meta Data", path:"/Seo/Meta Data", id: 1234, icon: "icon-list-alt", view: section + "/edit/" + 1234, children: [], expanded: false, level: 1 },
-				{ name: "Dooo", path:"/Woop/dee/dooo", id: 1234, icon: "icon-list-alt red", view: section + "/edit/" + 1234, children: [], expanded: false, level: 1 }
-				
-				]	
-			},
-			
-			{
-				section: "content",
-				tree: "content",
-				matches:[
-				{ name: "News", path:"/archive/news", id: 1234, icon: "icon-file", view: section + "/edit/" + 1234, children: [], expanded: false, level: 1 },
-				{ name: "Data types", path:"/Something/About/Data-Types", id: 1234, icon: "icon-file", view: section + "/edit/" + 1234, children: [], expanded: false, level: 1 },
-				{ name: "Dooo", path:"/Woop/dee/dooo", id: 1234, icon: "icon-file", view: section + "/edit/" + 1234, children: [], expanded: false, level: 1 }
-				]	
-			},
+.factory('searchService', function ($q, $log, entityResource, contentResource, umbRequestHelper) {
 
-			{
-				section: "developer",
-				tree: "macros",
-				matches:[
-				{ name: "Navigation", path:"/Macros/Navigation.xslt", id: 1234, icon: "icon-cogs", view: section + "/edit/" + 1234, children: [], expanded: false, level: 1 },
-				{ name: "List of stuff", path:"/Macros/Navigation.xslt", id: 1234, icon: "icon-cogs", view: section + "/edit/" + 1234, children: [], expanded: false, level: 1 },
-				{ name: "Something else", path:"/Macros/Navigation.xslt",id: 1234, icon: "icon-cogs", view: section + "/edit/" + 1234, children: [], expanded: false, level: 1 }
-				]	
-			}
-			];
-		},
-		
-		setCurrent: function(sectionAlias){
-			currentSection = sectionAlias;	
-		}
-	};
+    function configureMemberResult(member) {
+        member.menuUrl = umbRequestHelper.getApiUrl("memberTreeBaseUrl", "GetMenu", [{ id: member.id }, { application: 'member' }]);
+        member.editorPath = "member/member/edit/" + (member.key ? member.key : member.id);
+        member.metaData = { treeAlias: "member" };
+        member.subTitle = member.additionalData.Email;
+    }
+    
+    function configureMediaResult(media)
+    {
+        media.menuUrl = umbRequestHelper.getApiUrl("mediaTreeBaseUrl", "GetMenu", [{ id: media.id }, { application: 'media' }]);
+        media.editorPath = "media/media/edit/" + media.id;
+        media.metaData = { treeAlias: "media" };
+    }
+    
+    function configureContentResult(content) {
+        content.menuUrl = umbRequestHelper.getApiUrl("contentTreeBaseUrl", "GetMenu", [{ id: content.id }, { application: 'content' }]);
+        content.editorPath = "content/content/edit/" + content.id;
+        content.metaData = { treeAlias: "content" };
+        content.subTitle = content.additionalData.Url;        
+    }
+
+    return {
+        searchMembers: function(args) {
+
+            if (!args.term) {
+                throw "args.term is required";
+            }
+
+            return entityResource.search(args.term, "Member").then(function (data) {
+                _.each(data, function(item) {
+                    configureMemberResult(item);
+                });         
+                return data;
+            });
+        },
+        searchContent: function(args) {
+
+            if (!args.term) {
+                throw "args.term is required";
+            }
+
+            return entityResource.search(args.term, "Document").then(function (data) {
+                _.each(data, function (item) {
+                    configureContentResult(item);
+                });
+                return data;
+            });
+        },
+        searchMedia: function(args) {
+
+            if (!args.term) {
+                throw "args.term is required";
+            }
+
+            return entityResource.search(args.term, "Media").then(function (data) {
+                _.each(data, function (item) {
+                    configureMediaResult(item);
+                });
+                return data;
+            });
+        },
+        searchAll: function (args) {
+            
+            if (!args.term) {
+                throw "args.term is required";
+            }
+
+            return entityResource.searchAll(args.term).then(function (data) {
+
+                _.each(data, function(resultByType) {
+                    switch(resultByType.type) {
+                        case "Document":
+                            _.each(resultByType.results, function (item) {
+                                configureContentResult(item);
+                            });
+                            break;
+                        case "Media":
+                            _.each(resultByType.results, function (item) {
+                                configureMediaResult(item);
+                            });                            
+                            break;
+                        case "Member":
+                            _.each(resultByType.results, function (item) {
+                                configureMemberResult(item);
+                            });                            
+                            break;
+                    }
+                });
+
+                return data;
+            });
+            
+        },
+
+        setCurrent: function(sectionAlias) {
+            currentSection = sectionAlias;
+        }
+    };
 });
 /**
  * @ngdoc service
@@ -2294,6 +3172,10 @@ function serverValidationManager($timeout) {
     }
 
     function getFieldErrors(self, fieldName) {
+        if (!angular.isString(fieldName)) {
+            throw "fieldName must be a string";
+        }
+
         //find errors for this field name
         return _.filter(self.items, function (item) {
             return (item.propertyAlias === null && item.fieldName === fieldName);
@@ -2301,6 +3183,13 @@ function serverValidationManager($timeout) {
     }
     
     function getPropertyErrors(self, propertyAlias, fieldName) {
+        if (!angular.isString(propertyAlias)) {
+            throw "propertyAlias must be a string";
+        }
+        if (fieldName && !angular.isString(fieldName)) {
+            throw "fieldName must be a string";
+        }
+
         //find all errors for this property
         return _.filter(self.items, function (item) {            
             return (item.propertyAlias === propertyAlias && (item.fieldName === fieldName || (fieldName === undefined || fieldName === "")));
@@ -2316,8 +3205,11 @@ function serverValidationManager($timeout) {
          * @function
          *
          * @description
-         *  This is primarily used for scenarios where the error collection needs to be persisted over a route change. Generally this 
-         *   is when a content item (or any item) is created. The controller should call this method once the data is bound to the scope
+         *  This method needs to be called once all field and property errors are wired up. 
+         * 
+         *  In some scenarios where the error collection needs to be persisted over a route change 
+         *   (i.e. when a content item (or any item) is created and the route redirects to the editor) 
+         *   the controller should call this method once the data is bound to the scope
          *   so that any persisted validation errors are re-bound to their controls. Once they are re-binded this then clears the validation
          *   colleciton so that if another route change occurs, the previously persisted validation errors are not re-bound to the new item.
          */
@@ -2337,7 +3229,7 @@ function serverValidationManager($timeout) {
                     }
                     else {
                         //its a property error
-                        var propErrors = getPropertyErrors(self, { alias: callbacks[cb].propertyAlias }, callbacks[cb].fieldName);
+                        var propErrors = getPropertyErrors(self, callbacks[cb].propertyAlias, callbacks[cb].fieldName);
                         if (propErrors.length > 0) {
                             executeCallback(self, propErrors, callbacks[cb].callback);
                         }
@@ -2639,6 +3531,510 @@ function serverValidationManager($timeout) {
 }
 
 angular.module('umbraco.services').factory('serverValidationManager', serverValidationManager);
+/**
+ * @ngdoc service
+ * @name umbraco.services.tinyMceService
+ *
+ *  
+ * @description
+ * A service containing all logic for all of the Umbraco TinyMCE plugins
+ */
+function tinyMceService(dialogService, $log, imageHelper, $http, $timeout, macroResource, macroService, $routeParams, umbRequestHelper) {
+    return {
+
+        /**
+        * @ngdoc method
+        * @name umbraco.services.tinyMceService#configuration
+        * @methodOf umbraco.services.tinyMceService
+        *
+        * @description
+        * Returns a collection of plugins available to the tinyMCE editor
+        *
+        */
+        configuration: function () {
+               return umbRequestHelper.resourcePromise(
+                  $http.get(
+                      umbRequestHelper.getApiUrl(
+                          "rteApiBaseUrl",
+                          "GetConfiguration")),
+                  'Failed to retreive entity data for id '); 
+        },
+
+        /**
+        * @ngdoc method
+        * @name umbraco.services.tinyMceService#defaultPrevalues
+        * @methodOf umbraco.services.tinyMceService
+        *
+        * @description
+        * Returns a default configration to fallback on in case none is provided
+        *
+        */
+        defaultPrevalues: function () {
+               var cfg = {};
+                       cfg.toolbar = ["code", "bold", "italic", "umbracocss","alignleft", "aligncenter", "alignright", "bullist","numlist", "outdent", "indent", "link", "image", "umbmediapicker", "umbembeddialog", "umbmacro"];
+                       cfg.stylesheets = [];
+                       cfg.dimensions = {height: 400, width: 600};
+                return cfg;
+        },
+
+        /**
+        * @ngdoc method
+        * @name umbraco.services.tinyMceService#createInsertEmbeddedMedia
+        * @methodOf umbraco.services.tinyMceService
+        *
+        * @description
+        * Creates the umbrco insert embedded media tinymce plugin
+        *
+        * @param {Object} editor the TinyMCE editor instance        
+        * @param {Object} $scope the current controller scope
+        */
+        createInsertEmbeddedMedia: function (editor, $scope) {
+            editor.addButton('umbembeddialog', {
+                icon: 'custom icon-tv',
+                tooltip: 'Embed',
+                onclick: function () {
+                    dialogService.embedDialog({
+                        scope: $scope, callback: function (data) {
+                            editor.insertContent(data);
+                        }
+                    });
+                }
+            });
+        },
+
+        /**
+        * @ngdoc method
+        * @name umbraco.services.tinyMceService#createMediaPicker
+        * @methodOf umbraco.services.tinyMceService
+        *
+        * @description
+        * Creates the umbrco insert media tinymce plugin
+        *
+        * @param {Object} editor the TinyMCE editor instance        
+        * @param {Object} $scope the current controller scope
+        */
+        createMediaPicker: function (editor, $scope) {
+            editor.addButton('umbmediapicker', {
+                icon: 'custom icon-picture',
+                tooltip: 'Media Picker',
+                onclick: function () {
+                    dialogService.mediaPicker({
+                        scope: $scope, callback: function (img) {
+
+                            if (img) {
+                                var imagePropVal = imageHelper.getImagePropertyValue({ imageModel: img, scope: $scope });
+                                var data = {
+                                    alt: "Some description",
+                                    src: (imagePropVal) ? imagePropVal : "nothing.jpg",
+                                    id: '__mcenew'
+                                };
+
+
+                                editor.insertContent(editor.dom.createHTML('img', data));
+
+                                $timeout(function () {
+                                    var imgElm = editor.dom.get('__mcenew');
+                                    var size = editor.dom.getSize(imgElm);
+
+                                    var newSize = imageHelper.scaleToMaxSize(500, size.w, size.h);
+                                    var s = "width: " + newSize.width + "px; height:" + newSize.height + "px;";
+                                    editor.dom.setAttrib(imgElm, 'style', s);
+                                    editor.dom.setAttrib(imgElm, 'rel', newSize.width + "," + newSize.height);
+                                    editor.dom.setAttrib(imgElm, 'id', null);
+
+                                }, 500);
+                            }
+                        }
+                    });
+                }
+            });
+        },
+
+        /**
+        * @ngdoc method
+        * @name umbraco.services.tinyMceService#createLinkPicker
+        * @methodOf umbraco.services.tinyMceService
+        *
+        * @description
+        * Creates the umbrco insert link tinymce plugin
+        *
+        * @param {Object} editor the TinyMCE editor instance        
+        * @param {Object} $scope the current controller scope
+        */
+        createLinkPicker: function (editor, $scope) {
+
+            
+            
+            /*
+            editor.addButton('link', {
+                icon: 'custom icon-link',
+                tooltip: 'Link Picker',
+                onclick: function () {
+                    dialogService.linkPicker({
+                        scope: $scope, callback: function (link) {
+                            if (link) {
+                                var data = {
+                                    title: "Some description",
+                                    href: "",
+                                    id: '__mcenew'
+                                };
+
+                                editor.execCommand("mceInsertLink", false, {
+                                                href: "wat",
+                                                title: "muh",
+                                                target: null,
+                                                "class": null
+                                            });
+
+
+                                //editor.insertContent(editor.dom.createHTML('a', data));
+                           }
+                        }
+                    });
+                }
+            });*/
+        },
+
+        /**
+        * @ngdoc method
+        * @name umbraco.services.tinyMceService#createUmbracoMacro
+        * @methodOf umbraco.services.tinyMceService
+        *
+        * @description
+        * Creates the insert umbrco macro tinymce plugin
+        *
+        * @param {Object} editor the TinyMCE editor instance      
+        * @param {Object} $scope the current controller scope
+        */
+        createInsertMacro: function (editor, $scope) {
+            
+            /** Adds custom rules for the macro plugin and custom serialization */
+            editor.on('preInit', function (args) {
+                //this is requires so that we tell the serializer that a 'div' is actually allowed in the root, otherwise the cleanup will strip it out
+                editor.serializer.addRules('div');
+
+                /** This checks if the div is a macro container, if so, checks if its wrapped in a p tag and then unwraps it (removes p tag) */
+                editor.serializer.addNodeFilter('div', function (nodes, name) {
+                    for (var i = 0; i < nodes.length; i++) {
+                        if (nodes[i].attr("class") === "umb-macro-holder" && nodes[i].parent && nodes[i].parent.name.toUpperCase() === "P") {
+                            nodes[i].parent.unwrap();
+                        }
+                    }
+                });
+            
+            });
+
+            /**
+            * Because the macro gets wrapped in a P tag because of the way 'enter' works, this 
+            * method will return the macro element if not wrapped in a p, or the p if the macro
+            * element is the only one inside of it even if we are deep inside an element inside the macro
+            */
+            function getRealMacroElem(element) {
+                var e = $(element).closest(".umb-macro-holder");
+                if (e.length > 0) {
+                    if (e.get(0).parentNode.nodeName === "P") {
+                        //now check if we're the only element                    
+                        if (element.parentNode.childNodes.length === 1) {
+                            return e.get(0).parentNode;
+                        }
+                    }
+                    return e.get(0);
+                }
+                return null;
+            }
+
+            /** loads in the macro content async from the server */
+            function loadMacroContent($macroDiv, macroData) {
+                
+                //if we don't have the macroData, then we'll need to parse it from the macro div
+                if (!macroData) {                    
+                    var contents = $macroDiv.contents();
+                    var comment = _.find(contents, function (item) {
+                        return item.nodeType === 8;
+                    });
+                    if (!comment) {
+                        throw "Cannot parse the current macro, the syntax in the editor is invalid";
+                    }
+                    var syntax = comment.textContent.trim();
+                    var parsed = macroService.parseMacroSyntax(syntax);
+                    macroData = parsed;
+                }
+
+                var $ins = $macroDiv.find("ins");
+
+                //show the throbber
+                $macroDiv.addClass("loading");
+
+                var contentId = $routeParams.id;
+
+                macroResource.getMacroResultAsHtmlForEditor(macroData.macroAlias, contentId, macroData.marcoParamsDictionary)
+                    .then(function (htmlResult) {
+
+                        $macroDiv.removeClass("loading");
+                        htmlResult = htmlResult.trim();
+                        if (htmlResult !== "") {
+                            $ins.html(htmlResult);
+                        }
+                    });
+            }
+            
+            /** Adds the button instance */
+            editor.addButton('umbmacro', {
+                icon: 'custom icon-settings-alt',
+                tooltip: 'Insert macro',
+                onPostRender: function () {
+
+                    var ctrl = this;
+                    var isOnMacroElement = false;
+
+                    /**
+                     if the selection comes from a different element that is not the macro's
+                     we need to check if the selection includes part of the macro, if so we'll force the selection
+                     to clear to the next element since if people can select part of the macro markup they can then modify it.
+                    */
+                    function handleSelectionChange() {
+
+                        if (!editor.selection.isCollapsed()) {
+                            var endSelection = tinymce.activeEditor.selection.getEnd();
+                            var startSelection = tinymce.activeEditor.selection.getStart();
+                            //don't proceed if it's an entire element selected
+                            if (endSelection !== startSelection) { 
+                                
+                                //if the end selection is a macro then move the cursor
+                                //NOTE: we don't have to handle when the selection comes from a previous parent because
+                                // that is automatically taken care of with the normal onNodeChanged logic since the 
+                                // evt.element will be the macro once it becomes part of the selection.
+                                var $testForMacro = $(endSelection).closest(".umb-macro-holder");
+                                if ($testForMacro.length > 0) {
+                                    
+                                    //it came from before so move after, if there is no after then select ourselves
+                                    var next = $testForMacro.next();
+                                    if (next.length > 0) {
+                                        editor.selection.setCursorLocation($testForMacro.next().get(0));
+                                    }
+                                    else {
+                                        selectMacroElement($testForMacro.get(0));
+                                    }
+
+                                }
+                            }
+                        }
+                    }
+
+                    /** helper method to select the macro element */
+                    function selectMacroElement(macroElement) {
+                        // move selection to top element to ensure we can't edit this
+                        editor.selection.select(macroElement);
+
+                        // check if the current selection *is* the element (ie bug)
+                        var currentSelection = editor.selection.getStart();
+                        if (tinymce.isIE) {
+                            if (!editor.dom.hasClass(currentSelection, 'umb-macro-holder')) {
+                                while (!editor.dom.hasClass(currentSelection, 'umb-macro-holder') && currentSelection.parentNode) {
+                                    currentSelection = currentSelection.parentNode;
+                                }
+                                editor.selection.select(currentSelection);
+                            }
+                        }
+                    }
+
+                    /**
+                    * Add a node change handler, test if we're editing a macro and select the whole thing, then set our isOnMacroElement flag.
+                    * If we change the selection inside this method, then we end up in an infinite loop, so we have to remove ourselves
+                    * from the event listener before changing selection, however, it seems that putting a break point in this method
+                    * will always cause an 'infinite' loop as the caret keeps changing.
+                    */
+                    function onNodeChanged(evt) {
+
+                        //set our macro button active when on a node of class umb-macro-holder
+                        var $macroElement = $(evt.element).closest(".umb-macro-holder");
+                        
+                        handleSelectionChange();
+
+                        //set the button active
+                        ctrl.active($macroElement.length !== 0);
+
+                        if ($macroElement.length > 0) {
+                            var macroElement = $macroElement.get(0);
+
+                            //remove the event listener before re-selecting
+                            editor.off('NodeChange', onNodeChanged);
+
+                            selectMacroElement(macroElement);
+
+                            //set the flag
+                            isOnMacroElement = true;
+
+                            //re-add the event listener
+                            editor.on('NodeChange', onNodeChanged);
+                        }
+                        else {
+                            isOnMacroElement = false;
+                        }
+
+                    }
+
+                    /** when the contents load we need to find any macros declared and load in their content */
+                    editor.on("LoadContent", function (o) {
+                        
+                        //get all macro divs and load their content
+                        $(editor.dom.select(".umb-macro-holder.mceNonEditable")).each(function() {
+                            loadMacroContent($(this));
+                        });                        
+
+                    });
+
+                    /** This prevents any other commands from executing when the current element is the macro so the content cannot be edited */
+                    editor.on('BeforeExecCommand', function (o) {                        
+                        if (isOnMacroElement) {
+                            if (o.preventDefault) {
+                                o.preventDefault();
+                            }
+                            if (o.stopImmediatePropagation) {
+                                o.stopImmediatePropagation();
+                            }
+                            return;
+                        }
+                    });
+                    
+                    /** This double checks and ensures you can't paste content into the rendered macro */
+                    editor.on("Paste", function (o) {                        
+                        if (isOnMacroElement) {
+                            if (o.preventDefault) {
+                                o.preventDefault();
+                            }
+                            if (o.stopImmediatePropagation) {
+                                o.stopImmediatePropagation();
+                            }
+                            return;
+                        }
+                    });
+
+                    //set onNodeChanged event listener
+                    editor.on('NodeChange', onNodeChanged);
+
+                    /** 
+                    * Listen for the keydown in the editor, we'll check if we are currently on a macro element, if so
+                    * we'll check if the key down is a supported key which requires an action, otherwise we ignore the request
+                    * so the macro cannot be edited.
+                    */
+                    editor.on('KeyDown', function (e) {
+                        if (isOnMacroElement) {
+                            var macroElement = editor.selection.getNode();
+
+                            //get the 'real' element (either p or the real one)
+                            macroElement = getRealMacroElem(macroElement);
+
+                            //prevent editing
+                            e.preventDefault();
+                            e.stopPropagation();
+
+                            var moveSibling = function (element, isNext) {
+                                var $e = $(element);
+                                var $sibling = isNext ? $e.next() : $e.prev();
+                                if ($sibling.length > 0) {
+                                    editor.selection.select($sibling.get(0));
+                                    editor.selection.collapse(true);
+                                }
+                                else {
+                                    //if we're moving previous and there is no sibling, then lets recurse and just select the next one
+                                    if (!isNext) {
+                                        moveSibling(element, true);
+                                        return;
+                                    }
+
+                                    //if there is no sibling we'll generate a new p at the end and select it
+                                    editor.setContent(editor.getContent() + "<p>&nbsp;</p>");
+                                    editor.selection.select($(editor.dom.getRoot()).children().last().get(0));
+                                    editor.selection.collapse(true);
+
+                                }
+                            };
+
+                            //supported keys to move to the next or prev element (13-enter, 27-esc, 38-up, 40-down, 39-right, 37-left)
+                            //supported keys to remove the macro (8-backspace, 46-delete)
+                            //TODO: Should we make the enter key insert a line break before or leave it as moving to the next element?
+                            if ($.inArray(e.keyCode, [13, 40, 39]) !== -1) {
+                                //move to next element
+                                moveSibling(macroElement, true);
+                            }
+                            else if ($.inArray(e.keyCode, [27, 38, 37]) !== -1) {
+                                //move to prev element
+                                moveSibling(macroElement, false);
+                            }
+                            else if ($.inArray(e.keyCode, [8, 46]) !== -1) {
+                                //delete macro element
+
+                                //move first, then delete
+                                moveSibling(macroElement, false);
+                                editor.dom.remove(macroElement);
+                            }
+                            return ;
+                        }
+                    });
+
+                },
+                
+                /** The insert macro button click event handler */
+                onclick: function () {
+
+                    var dialogData = {
+                        //flag for use in rte so we only show macros flagged for the editor
+                        richTextEditor: true  
+                    };
+
+                    //when we click we could have a macro already selected and in that case we'll want to edit the current parameters
+                    //so we'll need to extract them and submit them to the dialog.
+                    var macroElement = editor.selection.getNode();                    
+                    macroElement = getRealMacroElem(macroElement);
+                    if (macroElement) {
+                        //we have a macro selected so we'll need to parse it's alias and parameters
+                        var contents = $(macroElement).contents();                        
+                        var comment = _.find(contents, function(item) {
+                            return item.nodeType === 8;
+                        });
+                        if (!comment) {
+                            throw "Cannot parse the current macro, the syntax in the editor is invalid";
+                        }
+                        var syntax = comment.textContent.trim();
+                        var parsed = macroService.parseMacroSyntax(syntax);
+                        dialogData = {
+                            macroData: parsed  
+                        };
+                    }
+
+                    dialogService.macroPicker({
+                        scope: $scope,
+                        dialogData : dialogData,
+                        callback: function(data) {
+
+                            //put the macro syntax in comments, we will parse this out on the server side to be used
+                            //for persisting.
+                            var macroSyntaxComment = "<!-- " + data.syntax + " -->";
+                            //create an id class for this element so we can re-select it after inserting
+                            var uniqueId = "umb-macro-" + editor.dom.uniqueId();
+                            var macroDiv = editor.dom.create('div',
+                                {
+                                    'class': 'umb-macro-holder ' + data.macroAlias + ' mceNonEditable ' + uniqueId
+                                },
+                                macroSyntaxComment + '<ins>Macro alias: <strong>' + data.macroAlias + '</strong></ins>');
+
+                            editor.selection.setNode(macroDiv);
+                            
+                            var $macroDiv = $(editor.dom.select("div.umb-macro-holder." + uniqueId));
+
+                            //async load the macro content
+                            loadMacroContent($macroDiv, data);                          
+                        }
+                    });
+
+                }
+            });
+        }
+    };
+}
+
+angular.module('umbraco.services').factory('tinyMceService', tinyMceService);
 
 /**
  * @ngdoc service
@@ -2649,12 +4045,30 @@ angular.module('umbraco.services').factory('serverValidationManager', serverVali
  * The tree service factory, used internally by the umbTree and umbTreeItem directives
  */
 function treeService($q, treeResource, iconHelper, notificationsService, $rootScope) {
-    //implement this in local storage
-    var treeArray = [];
+
+    //TODO: implement this in local storage
+    var treeCache = {};
+    
     var standardCssClass = 'icon umb-tree-icon sprTree';
 
+    function getCacheKey(args) {
+        //if there is no cache key they return null - it won't be cached.
+        if (!args || !args.cacheKey) {
+            return null;
+        }        
+
+        var cacheKey = args.cacheKey;
+        cacheKey += "_" + args.section;
+        return cacheKey;
+    }
+
     return {  
-        
+
+        /** Internal method to return the tree cache */
+        _getTreeCache: function() {
+            return treeCache;
+        },
+
         /** Internal method that ensures there's a routePath, parent and level property on each tree node and adds some icon specific properties so that the nodes display properly */
         _formatNodeDataForUseInUI: function (parentNode, treeNodes, section, level) {
             //if no level is set, then we make it 1   
@@ -2670,8 +4084,6 @@ function treeService($q, treeResource, iconHelper, notificationsService, $rootSc
                     if (treeNodes[i].metaData && treeNodes[i].metaData["treeAlias"]) {
                         //this is a root node
                         treeNodes[i].routePath = section;
-                        //we're going to remove any js callbacks from legacy tree nodes here!
-                        treeNodes[i].metaData["jsClickCallback"] = null;
                     }
                     else {
                         var treeAlias = this.getTreeAlias(treeNodes[i]);
@@ -2701,7 +4113,67 @@ function treeService($q, treeResource, iconHelper, notificationsService, $rootSc
 
         /**
          * @ngdoc method
-         * @name umbraco.services.treeService#getMenuItemByAlias
+         * @name umbraco.services.treeService#getTreePackageFolder
+         * @methodOf umbraco.services.treeService
+         * @function
+         *
+         * @description
+         * Determines if the current tree is a plugin tree and if so returns the package folder it has declared
+         * so we know where to find it's views, otherwise it will just return undefined.
+         * 
+         * @param {String} treeAlias The tree alias to check
+         */
+        getTreePackageFolder: function(treeAlias) {            
+            //we determine this based on the server variables
+            if (Umbraco.Sys.ServerVariables.umbracoPlugins &&
+                Umbraco.Sys.ServerVariables.umbracoPlugins.trees &&
+                angular.isArray(Umbraco.Sys.ServerVariables.umbracoPlugins.trees)) {
+
+                var found = _.find(Umbraco.Sys.ServerVariables.umbracoPlugins.trees, function(item) {
+                    return item.alias === treeAlias;
+                });
+                
+                return found ? found.packageFolder : undefined;
+            }
+            return undefined;
+        },
+
+        /** clears the tree cache - with optional cacheKey and optional section */
+        clearCache: function (args) {
+            //clear all if not specified
+            if (!args) {
+                treeCache = {};
+            }
+            else {
+                //if section and cache key specified just clear that cache
+                if (args.section && args.cacheKey) {
+                    var cacheKey = getCacheKey(args);
+                    if (cacheKey && treeCache && treeCache[cacheKey] != null) {
+                        treeCache = _.omit(treeCache, cacheKey);
+                    }
+                }
+                else if (args.cacheKey) {
+                    //if only the cache key is specified, then clear all cache starting with that key
+                    var allKeys1 = _.keys(treeCache);
+                    var toRemove1 = _.filter(allKeys1, function (k) {
+                        return k.startsWith(args.cacheKey + "_");
+                    });
+                    treeCache = _.omit(treeCache, toRemove1);
+                }
+                else if (args.section) {
+                    //if only the section is specified then clear all cache regardless of cache key by that section
+                    var allKeys2 = _.keys(treeCache);
+                    var toRemove2 = _.filter(allKeys2, function (k) {
+                        return k.endsWith("_" + args.section);
+                    });
+                    treeCache = _.omit(treeCache, toRemove2);
+                }
+            }
+        },
+
+        /**
+         * @ngdoc method
+         * @name umbraco.services.treeService#loadNodeChildren
          * @methodOf umbraco.services.treeService
          * @function
          *
@@ -2737,7 +4209,7 @@ function treeService($q, treeResource, iconHelper, notificationsService, $rootSc
                 }, function(reason) {
 
                     //in case of error, emit event
-                    $rootScope.$broadcast("treeNodeLoadError", { element: arrow, node: node, error: reason });
+                    $rootScope.$broadcast("treeNodeLoadError", {error: reason });
 
                     //stop show the loading indicator  
                     node.loading = false;
@@ -2823,40 +4295,50 @@ function treeService($q, treeResource, iconHelper, notificationsService, $rootSc
             return "";
         },
 
+        /** gets the tree, returns a promise */
         getTree: function (args) {
 
-            if (args === undefined) {
-                args = {};
+            var deferred = $q.defer();
+
+            //set defaults
+            if (!args) {
+                args = { section: 'content', cacheKey: null };
+            }
+            else if (!args.section) {
+                args.section = 'content';
             }
 
-            var section = args.section || 'content';
-            var cacheKey = args.cachekey || '';
-            cacheKey += "_" + section;	
-
+            var cacheKey = getCacheKey(args);
+            
             //return the cache if it exists
-            if (treeArray[cacheKey] !== undefined){
-                return treeArray[cacheKey];
+            if (cacheKey && treeCache[cacheKey] !== undefined) {
+                deferred.resolve(treeCache[cacheKey]);
             }
 
             var self = this;
-
-            return treeResource.loadApplication(args)
+            treeResource.loadApplication(args)
                 .then(function(data) {
                     //this will be called once the tree app data has loaded
                     var result = {
-                        name: section,
-                        alias: section,
+                        name: data.name,
+                        alias: args.section,
                         root: data
                     };
                     //we need to format/modify some of the node data to be used in our app.
-                    self._formatNodeDataForUseInUI(result.root, result.root.children, section);
-                    //cache this result
-                    //TODO: We'll need to un-cache this in many circumstances
-                    treeArray[cacheKey] = result;
-                    //return the data result as promised
-                    //deferred.resolve(treeArray[cacheKey]);
-                    return treeArray[cacheKey];
+                    self._formatNodeDataForUseInUI(result.root, result.root.children, args.section);
+
+                    //cache this result if a cache key is specified - generally a cache key should ONLY
+                    // be specified for application trees, dialog trees should not be cached.
+                    if (cacheKey) {                        
+                        treeCache[cacheKey] = result;
+                        deferred.resolve(treeCache[cacheKey]);
+                    }
+
+                    //return un-cached
+                    deferred.resolve(result);
                 });
+            
+            return deferred.promise;
         },
 
         getMenu: function (args) {
@@ -2878,39 +4360,6 @@ function treeService($q, treeResource, iconHelper, notificationsService, $rootSc
                 });
         },
         
-        /**
-         * @ngdoc method
-         * @name umbraco.services.treeService#getMenuItemByAlias
-         * @methodOf umbraco.services.treeService
-         * @function
-         *
-         * @description
-         * Attempts to return a tree node's menu item based on the alias supplied, otherwise returns null.
-         * @param {object} args An arguments object
-         * @param {object} args.treeNode The tree node to get the menu item for
-         * @param {object} args.menuItemAlias The menu item alias to attempt to find
-         */
-        getMenuItemByAlias: function (args) {
-
-            if (!args) {
-                throw "args cannot be null";
-            }
-            if (!args.treeNode) {
-                throw "args.treeNode cannot be null";                
-            }
-            if (!args.menuItemAlias) {
-                throw "args.menuItemAlias cannot be null";
-            }
-
-            return this.getMenu(args)
-                .then(function (menuItems) {
-                    //try to find the node with the alias
-                    return _.find(menuItems, function(item) {
-                        return item.alias === args.menuItemAlias;
-                    });
-                });
-        },
-        
         /** Gets the children from the server for a given node */
         getChildren: function (args) {
 
@@ -2924,12 +4373,6 @@ function treeService($q, treeResource, iconHelper, notificationsService, $rootSc
             var section = args.section || 'content';
             var treeItem = args.node;
 
-            //hack to have create as default content action
-            var action;
-            if(section === "content"){
-                action = "create";
-            }
-
             var self = this;
 
             return treeResource.loadNodes({ section: section, node: treeItem })
@@ -2939,6 +4382,7 @@ function treeService($q, treeResource, iconHelper, notificationsService, $rootSc
                     return data;
                 });
         }
+        
     };
 }
 
@@ -2964,24 +4408,31 @@ function umbRequestHelper($http, $q, umbDataFormatter, angularHelper, dialogServ
          */
         dictionaryToQueryString: function (queryStrings) {
 
-            if (!angular.isArray(queryStrings)) {
-                throw "The queryString parameter is not an array of key value pairs";
+            
+            if (angular.isArray(queryStrings)) {
+                return _.map(queryStrings, function (item) {
+                    var key = null;
+                    var val = null;
+                    for (var k in item) {
+                        key = k;
+                        val = item[k];
+                        break;
+                    }
+                    if (key === null || val === null) {
+                        throw "The object in the array was not formatted as a key/value pair";
+                    }
+                    return encodeURIComponent(key) + "=" + encodeURIComponent(val);
+                }).join("&");
             }
 
-            return _.map(queryStrings, function (item) {
-                var key = null;
-                var val = null;
-                for (var k in item) {
-                    key = k;
-                    val = item[k];
-                    break;
-                }
-                if (key == null || val == null) {
-                    throw "The object in the array was not formatted as a key/value pair";
-                }
-                return key + "=" + val;
-            }).join("&");
+            /*
+            //if we have a simple object, we can simply map with $.param
+            //but with the current structure we cant since an array is an object and an object is an array
+            if(angular.isObject(queryStrings)){
+                return decodeURIComponent($.param(queryStrings)); 
+            }*/
 
+            throw "The queryString parameter is not an array of key value pairs";
         },
 
         /**
@@ -3096,26 +4547,43 @@ function umbRequestHelper($http, $q, umbDataFormatter, angularHelper, dialogServ
         },
 
         /** Used for saving media/content specifically */
-        postSaveContent: function (restApiUrl, content, action, files) {
+        postSaveContent: function (args) {
+
+            if (!args.restApiUrl) {
+                throw "args.restApiUrl is a required argument";
+            }
+            if (!args.content) {
+                throw "args.content is a required argument";
+            }
+            if (!args.action) {
+                throw "args.action is a required argument";
+            }
+            if (!args.files) {
+                throw "args.files is a required argument";
+            }
+            if (!args.dataFormatter) {
+                throw "args.dataFormatter is a required argument";
+            }
+
 
             var deferred = $q.defer();
 
             //save the active tab id so we can set it when the data is returned.
-            var activeTab = _.find(content.tabs, function (item) {
+            var activeTab = _.find(args.content.tabs, function (item) {
                 return item.active;
             });
-            var activeTabIndex = (activeTab === undefined ? 0 : _.indexOf(content.tabs, activeTab));
+            var activeTabIndex = (activeTab === undefined ? 0 : _.indexOf(args.content.tabs, activeTab));
 
             //save the data
             this.postMultiPartRequest(
-                restApiUrl,
-                { key: "contentItem", value: umbDataFormatter.formatContentPostData(content, action) },
+                args.restApiUrl,
+                { key: "contentItem", value: args.dataFormatter(args.content, args.action) },
                 function (data, formData) {
                     //now add all of the assigned files
-                    for (var f in files) {
+                    for (var f in args.files) {
                         //each item has a property id and the file object, we'll ensure that the id is suffixed to the key
                         // so we know which property it belongs to on the server side
-                        formData.append("file_" + files[f].id, files[f].file);
+                        formData.append("file_" + args.files[f].id, args.files[f].file);
                     }
 
                 },
@@ -3215,10 +4683,14 @@ function umbRequestHelper($http, $q, umbDataFormatter, angularHelper, dialogServ
 }
 angular.module('umbraco.services').factory('umbRequestHelper', umbRequestHelper);
 angular.module('umbraco.services')
-.factory('userService', function ($rootScope, $q, $location, $log, securityRetryQueue, authResource, dialogService) {
+.factory('userService', function ($rootScope, $q, $location, $log, securityRetryQueue, authResource, dialogService, $timeout, angularHelper) {
 
     var currentUser = null;
+    var lastUserId = null;
     var loginDialog = null;
+    //this tracks the last date/time that the user's remainingAuthSeconds was updated from the server
+    // this is used so that we know when to go and get the user's remaining seconds directly.
+    var lastServerTimeoutSet = null;
 
     // Redirect to the given url (defaults to '/')
     function redirect(url) {
@@ -3226,14 +4698,17 @@ angular.module('umbraco.services')
         $location.path(url);
     }
 
-    function openLoginDialog() {
+    function openLoginDialog(isTimedOut) {
         if (!loginDialog) {
             loginDialog = dialogService.open({
                 template: 'views/common/dialogs/login.html',
                 modalClass: "login-overlay",
                 animation: "slide",
                 show: true,
-                callback: onLoginDialogClose
+                callback: onLoginDialogClose,
+                dialogData: {
+                    isTimedOut: isTimedOut
+                }
             });
         }
     }
@@ -3249,31 +4724,123 @@ angular.module('umbraco.services')
         }
     }
 
+    /** 
+    This methods will set the current user when it is resolved and 
+    will then start the counter to count in-memory how many seconds they have 
+    remaining on the auth session
+    */
+    function setCurrentUser(usr) {
+        if (!usr.remainingAuthSeconds) {
+            throw "The user object is invalid, the remainingAuthSeconds is required.";
+        }
+        currentUser = usr;
+        lastServerTimeoutSet = new Date();
+        //start the timer
+        countdownUserTimeout();
+    }
+    
+    /** 
+    Method to count down the current user's timeout seconds, 
+    this will continually count down their current remaining seconds every 2 seconds until
+    there are no more seconds remaining.
+    */
+    function countdownUserTimeout() {
+        $timeout(function() {
+            if (currentUser) {
+                //countdown by 2 seconds since that is how long our timer is for.
+                currentUser.remainingAuthSeconds -= 2;
+
+                //if there are more than 30 remaining seconds, recurse!
+                if (currentUser.remainingAuthSeconds > 30) {
+
+                    //we need to check when the last time the timeout was set from the server, if 
+                    // it has been more than 30 seconds then we'll manually go and retreive it from the 
+                    // server - this helps to keep our local countdown in check with the true timeout.
+                    if (lastServerTimeoutSet != null) {
+                        var now = new Date();
+                        var seconds = (now.getTime() - lastServerTimeoutSet.getTime()) / 1000;
+                        if (seconds > 30) {
+                            //first we'll set the lastServerTimeoutSet to null - this is so we don't get back in to this loop while we 
+                            // wait for a response from the server otherwise we'll be making double/triple/etc... calls while we wait.
+                            lastServerTimeoutSet = null;
+                            //now go get it from the server
+                            authResource.getRemainingTimeoutSeconds().then(function(result) {
+                                setUserTimeoutInternal(result);
+                            });
+                        }
+                    }
+
+                    //recurse the countdown!
+                    countdownUserTimeout();
+                }
+                else {
+
+                    //we are either timed out or very close to timing out so we need to show the login dialog.                    
+                    //NOTE: the safeApply because our timeout is set to not run digests (performance reasons)
+                    angularHelper.safeApply($rootScope, function() {
+                        userAuthExpired();
+                    });
+                    
+                }
+            }
+        }, 2000, //every 2 seconds
+            false); //false = do NOT execute a digest for every iteration
+    }
+    
+    /** Called to update the current user's timeout */
+    function setUserTimeoutInternal(newTimeout) {
+
+
+        var asNumber = parseFloat(newTimeout);
+        if (!isNaN(asNumber) && currentUser && angular.isNumber(asNumber)) {
+            currentUser.remainingAuthSeconds = newTimeout;
+            lastServerTimeoutSet = new Date();
+        }
+    }
+    
+    /** resets all user data, broadcasts the notAuthenticated event and shows the login dialog */
+    function userAuthExpired(isLogout) {
+        //store the last user id and clear the user
+        if (currentUser && currentUser.id !== undefined) {
+            lastUserId = currentUser.id;
+        }
+
+        if(currentUser){
+            currentUser.remainingAuthSeconds = 0;
+        }
+        
+        lastServerTimeoutSet = null;
+        currentUser = null;
+        
+        //broadcast a global event that the user is no longer logged in
+        $rootScope.$broadcast("notAuthenticated");
+
+        openLoginDialog(isLogout === undefined ? true : !isLogout);
+    }
+
     // Register a handler for when an item is added to the retry queue
     securityRetryQueue.onItemAddedCallbacks.push(function (retryItem) {
         if (securityRetryQueue.hasMore()) {
-            openLoginDialog();
+            userAuthExpired();
         }
     });
 
     return {
 
+        /** Internal method to display the login dialog */
+        _showLoginDialog: function () {
+            openLoginDialog();
+        },
+
         /** Returns a promise, sends a request to the server to check if the current cookie is authorized  */
         isAuthenticated: function () {
-            
-            return authResource.isAuthenticated()
-                .then(function(data) {
-
-                    //note, this can return null if they are not authenticated
-                    if (!data) {
-                        throw "Not authenticated";
-                    }
-                    else {
-                        currentUser = data;
-                        currentUser.avatar = 'http://www.gravatar.com/avatar/' + data.emailHash + '?s=40&d=404';
-                        return { user: data, authenticated: true };
-                    }
-                });
+            //if we've got a current user then just return true
+            if (currentUser) {
+                var deferred = $q.defer();
+                deferred.resolve(true);
+                return deferred.promise;
+            }
+            return authResource.isAuthenticated();
         },
 
         /** Returns a promise, sends a request to the server to validate the credentials  */
@@ -3281,24 +4848,63 @@ angular.module('umbraco.services')
 
             return authResource.performLogin(login, password)
                 .then(function (data) {
+
                     //when it's successful, return the user data
-                    currentUser = data;
-                    return { user: data, authenticated: true };
+                    setCurrentUser(data);
+
+                    var result = { user: data, authenticated: true, lastUserId: lastUserId };
+
+                    //broadcast a global event
+                    $rootScope.$broadcast("authenticated", result);
+
+                    return result;
                 });
         },
 
+        /** Logs the user out and redirects to the login page */
         logout: function () {
             return authResource.performLogout()
-                .then(function (data) {                   
-                    currentUser = null;
-                    openLoginDialog();
+                .then(function (data) {
+
+                    userAuthExpired();
+
+                    $location.path("/login").search({check: false});
+
                     return null;
                 });
         },
 
-        /** Returns the current user object, if null then calls to authenticated or authenticate must be called  */
-        getCurrentUser: function () {
-            return currentUser;
+        /** Returns the current user object in a promise  */
+        getCurrentUser: function (args) {
+            var deferred = $q.defer();
+            
+            if (!currentUser) {
+                authResource.getCurrentUser()
+                    .then(function(data) {
+
+                        var result = { user: data, authenticated: true, lastUserId: lastUserId };
+
+                        if (args.broadcastEvent) {
+                            //broadcast a global event, will inform listening controllers to load in the user specific data
+                            $rootScope.$broadcast("authenticated", result);
+                        }
+
+                        setCurrentUser(data);
+                        currentUser.avatar = 'http://www.gravatar.com/avatar/' + data.emailHash + '?s=40&d=404';
+                        deferred.resolve(currentUser);
+                    });
+
+            }
+            else {
+                deferred.resolve(currentUser);
+            }
+            
+            return deferred.promise;
+        },
+        
+        /** Called whenever a server request is made that contains a x-umb-user-seconds response header for which we can update the user's remaining timeout seconds */
+        setUserTimeout: function(newTimeout) {
+            setUserTimeoutInternal(newTimeout);
         }
     };
 
@@ -3327,6 +4933,32 @@ function legacyJsLoader(assetsService, umbRequestHelper) {
 angular.module('umbraco.services').factory('legacyJsLoader', legacyJsLoader);
 
 /**
+ * @ngdoc function
+ * @name umbraco.services.updateChecker
+ * @function
+ *
+ * @description
+ * used to check for updates and display a notifcation
+ */
+function updateChecker($http, umbRequestHelper) {
+    return {
+        
+        /** Called to load in the legacy tree js which is required on startup if a user is logged in or 
+         after login, but cannot be called until they are authenticated which is why it needs to be lazy loaded. */
+        check: function() {
+                
+            return umbRequestHelper.resourcePromise(
+               $http.get(
+                   umbRequestHelper.getApiUrl(
+                       "updateCheckApiBaseUrl",
+                       "GetCheck")),
+               'Failed to retreive update status');
+        }  
+    };
+}
+angular.module('umbraco.services').factory('updateChecker', updateChecker);
+
+/**
 * @ngdoc service
 * @name umbraco.services.umbPropertyEditorHelper
 * @description A helper object used for property editors
@@ -3334,41 +4966,38 @@ angular.module('umbraco.services').factory('legacyJsLoader', legacyJsLoader);
 function umbPropEditorHelper() {
     return {
         /**
-     * @ngdoc function
-     * @name getImagePropertyValue
-     * @methodOf umbraco.services.umbPropertyEditorHelper
-     * @function    
-     *
-     * @description
-     * Returns the correct view path for a property editor, it will detect if it is a full virtual path but if not then default to the internal umbraco one
-     * 
-     * @param {string} input the view path currently stored for the property editor
-     */
-        getViewPath: function (input, isPreValue) {
+         * @ngdoc function
+         * @name getImagePropertyValue
+         * @methodOf umbraco.services.umbPropertyEditorHelper
+         * @function    
+         *
+         * @description
+         * Returns the correct view path for a property editor, it will detect if it is a full virtual path but if not then default to the internal umbraco one
+         * 
+         * @param {string} input the view path currently stored for the property editor
+         */
+        getViewPath: function(input, isPreValue) {
             var path = String(input);
 
             if (path.startsWith('/')) {
 
                 //This is an absolute path, so just leave it
                 return path;
-            }
-            else {
-                
+            } else {
+
                 if (path.indexOf("/") >= 0) {
                     //This is a relative path, so just leave it
                     return path;
-                }
-                else {
+                } else {
                     if (!isPreValue) {
                         //i.e. views/propertyeditors/fileupload/fileupload.html
                         return "views/propertyeditors/" + path + "/" + path + ".html";
-                    }
-                    else {
+                    } else {
                         //i.e. views/prevalueeditors/requiredfield.html
                         return "views/prevalueeditors/" + path + ".html";
                     }
                 }
-                
+
             }
         }
     };
@@ -3402,6 +5031,11 @@ function imageHelper() {
                 var imageProp = _.find(props, function (item) {
                     return item.alias === 'umbracoFile';
                 });
+                
+                if (!imageProp) {
+                    return "";
+                }
+
                 var imageVal;
 
                 //our default images might store one or many images (as csv)
@@ -3465,7 +5099,7 @@ function imageHelper() {
 
         getThumbnailFromPath: function(imagePath) {
             var ext = imagePath.substr(imagePath.lastIndexOf('.'));
-            return imagePath.substr(0, imagePath.lastIndexOf('.')) + "_thumb" + ".jpg";
+            return imagePath.substr(0, imagePath.lastIndexOf('.')) + "_big-thumb" + ".jpg";
         },
         detectIfImageByExtension: function(imagePath) {
             var lowered = imagePath.toLowerCase();
@@ -3505,24 +5139,91 @@ function umbDataFormatter() {
             return saveModel;
         },
 
-        /** formats the display model used to display the content to the model used to save the content */
-        formatContentPostData: function (displayModel, action) {
+        /** formats the display model used to display the member to the model used to save the member */
+        formatMemberPostData: function(displayModel, action) {
+            //this is basically the same as for media but we need to explicitly add the username,email, password to the save model
+
+            var saveModel = this.formatMediaPostData(displayModel, action);
+
+            saveModel.key = displayModel.key;
+            
+            var genericTab = _.find(displayModel.tabs, function (item) {
+                return item.id === 0;
+            });
+
+            //map the member login, email, password and groups
+            var propLogin = _.find(genericTab.properties, function (item) {
+                return item.alias === "_umb_login";
+            });
+            var propEmail = _.find(genericTab.properties, function (item) {
+                return item.alias === "_umb_email";
+            });
+            var propPass = _.find(genericTab.properties, function (item) {
+                return item.alias === "_umb_password";
+            });
+            var propGroups = _.find(genericTab.properties, function (item) {
+                return item.alias === "_umb_membergroup";
+            });
+            saveModel.email = propEmail.value;
+            saveModel.username = propLogin.value;
+            saveModel.password = propPass.value;
+            
+            var selectedGroups = [];
+            for (var n in propGroups.value) {
+                if (propGroups.value[n] === true) {
+                    selectedGroups.push(n);
+                }
+            }
+            saveModel.memberGroups = selectedGroups;
+            
+            //turn the dictionary into an array of pairs
+            var memberProviderPropAliases = _.pairs(displayModel.fieldConfig);
+            _.each(displayModel.tabs, function (tab) {
+                _.each(tab.properties, function (prop) {
+                    var foundAlias = _.find(memberProviderPropAliases, function(item) {
+                        return prop.alias === item[1];
+                    });
+                    if (foundAlias) {
+                        //we know the current property matches an alias, now we need to determine which membership provider property it was for
+                        // by looking at the key
+                        switch (foundAlias[0]) {
+                            case "umbracoLockPropertyTypeAlias":
+                                saveModel.isLockedOut = prop.value.toString() === "1" ? true : false;
+                                break;
+                            case "umbracoApprovePropertyTypeAlias":
+                                saveModel.isApproved = prop.value.toString() === "1" ? true : false;
+                                break;
+                            case "umbracoCommentPropertyTypeAlias":
+                                saveModel.comments = prop.value;
+                                break;
+                        }
+                    }                
+                });
+            });
+
+
+
+            return saveModel;
+        },
+
+        /** formats the display model used to display the media to the model used to save the media */
+        formatMediaPostData: function(displayModel, action) {
             //NOTE: the display model inherits from the save model so we can in theory just post up the display model but 
             // we don't want to post all of the data as it is unecessary.
             var saveModel = {
                 id: displayModel.id,
                 properties: [],
                 name: displayModel.name,
-                contentTypeAlias : displayModel.contentTypeAlias,
+                contentTypeAlias: displayModel.contentTypeAlias,
                 parentId: displayModel.parentId,
                 //set the action on the save model
                 action: action
             };
-            
+
             _.each(displayModel.tabs, function (tab) {
-                
+
                 _.each(tab.properties, function (prop) {
-                    
+
                     //don't include the custom generic tab properties
                     if (!prop.alias.startsWith("_umb_")) {
                         saveModel.properties.push({
@@ -3531,24 +5232,35 @@ function umbDataFormatter() {
                             value: prop.value
                         });
                     }
-                    else {
-                        //here we need to map some of our internal properties to the content save item
-
-                        switch (prop.alias) {
-                            case "_umb_expiredate":
-                                saveModel.expireDate = prop.value;
-                                break;
-                            case "_umb_releasedate":
-                                saveModel.releaseDate = prop.value;
-                                break;
-                            case "_umb_template":
-                                saveModel.templateAlias = prop.value;
-                                break;
-                        }
-                    }
                     
                 });
             });
+
+            return saveModel;
+        },
+
+        /** formats the display model used to display the content to the model used to save the content  */
+        formatContentPostData: function (displayModel, action) {
+
+            //this is basically the same as for media but we need to explicitly add some extra properties
+            var saveModel = this.formatMediaPostData(displayModel, action);
+
+            var genericTab = _.find(displayModel.tabs, function (item) {
+                return item.id === 0;
+            });
+            
+            var propExpireDate = _.find(genericTab.properties, function(item) {
+                return item.alias === "_umb_expiredate";
+            });
+            var propReleaseDate = _.find(genericTab.properties, function (item) {
+                return item.alias === "_umb_releasedate";
+            });
+            var propTemplate = _.find(genericTab.properties, function (item) {
+                return item.alias === "_umb_template";
+            });
+            saveModel.expireDate = propExpireDate.value;
+            saveModel.releaseDate = propReleaseDate.value;
+            saveModel.templateAlias = propTemplate.value;
 
             return saveModel;
         }
@@ -3561,7 +5273,7 @@ angular.module('umbraco.services').factory('umbDataFormatter', umbDataFormatter)
 * @name umbraco.services.iconHelper
 * @description A helper service for dealing with icons, mostly dealing with legacy tree icons
 **/
-function iconHelper() {
+function iconHelper($q) {
 
     var converter = [
         { oldIcon: ".sprNew", newIcon: "add" },
@@ -3632,6 +5344,9 @@ function iconHelper() {
         { oldIcon: ".sprTreeUserType", newIcon: "" },
         */
 
+        { oldIcon: "folder.png", newIcon: "icon-folder" },
+        { oldIcon: "mediaphoto.gif", newIcon: "icon-picture" },
+        { oldIcon: "mediafile.gif", newIcon: "icon-document" },
 
         { oldIcon: ".sprTreeDeveloperCacheItem", newIcon: "icon-box" },
         { oldIcon: ".sprTreeDeveloperCacheTypes", newIcon: "icon-box" },
@@ -3644,6 +5359,8 @@ function iconHelper() {
             {oldImage: "contour.png", newIcon: "icon-umb-contour"}
             ];
 
+    var collectedIcons;
+            
     return {
         
         /** Used by the create dialogs for content/media types to format the data so that the thumbnails are styled properly */
@@ -3669,13 +5386,17 @@ function iconHelper() {
         /** If the icon is file based (i.e. it has a file path) */
         isFileBasedIcon: function (icon) {
             //if it doesn't start with a '.' but contains one then we'll assume it's file based
-            if (!icon.startsWith('.') && icon.indexOf('.') > 1) {
+            if (icon.startsWith('..') || (!icon.startsWith('.') && icon.indexOf('.') > 1)) {
                 return true;
             }
             return false;
         },
         /** If the icon is legacy */
         isLegacyIcon: function (icon) {
+            if(icon.startsWith('..')){
+                return false;
+            }
+
             if (icon.startsWith('.')) {
                 return true;
             }
@@ -3690,27 +5411,42 @@ function iconHelper() {
         },
 
         /** Return a list of icons, optionally filter them */
-        /** It fetches them directly from the active stylesheet in the browser */
+        /** It fetches them directly from the active stylesheets in the browser */
         getIcons: function(filter){
 
-            var classes = document.styleSheets[0].rules || document.styleSheets[0].cssRules;
-            var result = [];
+            var deferred = $q.defer();
+            if(collectedIcons){
+                deferred.resolve(collectedIcons);
+            }
+
+            collectedIcons = [];
             var f = filter || "";
             var c = ".icon-" + f;
+            for (var i = document.styleSheets.length - 1; i >= 0; i--) {
+                var classes = document.styleSheets[i].rules || document.styleSheets[i].cssRules;
+                
+                for(var x=0;x<classes.length;x++) {
+                    var cur = classes[x];
+                    if(cur.selectorText && cur.selectorText.indexOf(c) === 0) {
+                        var s = cur.selectorText.substring(1);
+                        var hasSpace = s.indexOf(" ");
+                        if(hasSpace>0){
+                            s = s.substring(0, hasSpace);
+                        }
+                        var hasPseudo = s.indexOf(":");
+                        if(hasPseudo>0){
+                            s = s.substring(0, hasPseudo);
+                        }
 
-            for(var x=0;x<classes.length;x++) {
-                var cur = classes[x];
-                if(cur.selectorText && cur.selectorText.indexOf(c) === 0 && cur.selectorText.indexOf("before") > 0 && cur.selectorText.indexOf(",") < 0) {
-                    var s = cur.selectorText;
-                    s = cur.selectorText.substring(1, s.indexOf(":"));
-                    
-                    if(result.indexOf(s) < 0){
-                        result.push(s);   
+                        if(collectedIcons.indexOf(s) < 0){
+                            collectedIcons.push(s);
+                        }
                     }
                 }
             }
 
-            return result;
+            deferred.resolve(collectedIcons);
+            return deferred.promise;
         },
 
         /** Converts the icon from legacy to a new one if an old one is detected */

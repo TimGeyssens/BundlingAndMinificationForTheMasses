@@ -1,7 +1,8 @@
-<div ng-controller="Umbraco.Editors.TagsController" class="span8">
-	<div ng-model="model.value" id="{{model.alias}}_tags" class="tag-list">
-
-		<div class="tags">
-		</div>
-	</div>
+<div ng-controller="Umbraco.PropertyEditors.TagsController" class="umb-editor umb-tags">
+		<span ng-repeat="tag in currentTags" ng-click="removeTag(tag)" class="label label-primary tag">{{tag}} <i class="icon icon-delete"></i></span>
+		
+		<input type="text" 
+			ng-keyup="addTag($event)" 
+			placeholder="Type to add tags.." 
+			ng-model="tagToAdd"  />
 </div>

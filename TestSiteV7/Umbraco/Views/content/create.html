@@ -1,6 +1,11 @@
-<div class="umb-dialog umb-pane" ng-controller="Umbraco.Editors.Content.CreateController">
-	<div class="umb-dialog-body" auto-scale="90">
-	<h5>Create a page under {{currentNode.name}}</h5>
+<div class="umb-dialog-body with-footer" ng-controller="Umbraco.Editors.Content.CreateController">
+	
+	<div class="umb-pane">
+	<h5><localize key="create_createUnder">Create a page under</localize> {{currentNode.name}}</h5>
+
+	<p class="abstract" ng-hide="allowedTypes">
+		<localize key="create_noDocumentTypes" />
+	</p>
 
 	<ul class="umb-actions umb-actions-child">
 
@@ -17,7 +22,7 @@
 		        </span>
 		    </a>
 		</li>
-
+<!--
 		<li class="add">
 		    <a href="#settings/documenttype/create/{{currentNode.id}}?doctype={{docType.alias}}&create=true" ng-click="nav.hideNavigation()">
 		        <i class="large icon-add"></i>
@@ -28,12 +33,13 @@
 		            </small>
 		        </span>
 		    </a>
-		</li>	
+		</li>	-->
 	</ul>
-			
-	</div>
+	</div>		
+</div>
 	
-	<div class="btn-toolbar umb-btn-toolbar">
-		<button class="btn" ng-click="nav.hideDialog()">Do something else</button>
-	</div>
+<div class="umb-dialog-footer btn-toolbar umb-btn-toolbar">
+		<button class="btn" ng-click="nav.hideDialog()">
+			<localize key="buttons_somethingElse">Do something else</localize>
+		</button>
 </div>

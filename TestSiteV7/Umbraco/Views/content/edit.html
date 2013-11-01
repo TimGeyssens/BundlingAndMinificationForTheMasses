@@ -1,36 +1,50 @@
-<form novalidate name="contentForm" 
-        ng-controller="Umbraco.Editors.Content.EditController"   
-        ng-show="loaded" 
-        ng-submit="save()">
-    <umb-panel val-show-validation>
-
+<form novalidate name="contentForm"
+    ng-controller="Umbraco.Editors.Content.EditController"
+    ng-show="loaded"
+    ng-submit="save()"
+    val-form-manager>
+    <umb-panel>
         <umb-header tabs="content.tabs">
 
             <div class="span4">
                 <umb-content-name 
-                    placeholder="Enter a name..." 
+                    placeholder="@placeholders_name" 
                     ng-model="content.name"></umb-content-name>
             </div>
 
             <div class="span8">
+                
                 <div class="btn-toolbar pull-right umb-btn-toolbar">
-                    <div class="btn-group">
-                        <a class="btn" ng-click="preview(content)">Preview page</a>
-                        data-hotkey="ctrl+s">Preview page</a>
+                    <div class="btn-group" ng-animate="'fade'" ng-show="formStatus">
+                        <p class="btn btn-link umb-status-label">{{formStatus}}</p>
                     </div>
 
                     <div class="btn-group">
-                        <a class="btn btn-success" href="#" ng-click="saveAndPublish()"
-                        prevent-default data-hotkey="ctrl+p">Publish</a>
-                       
-                        <a class="btn btn-success dropdown-toggle" data-toggle="dropdown">
+                        <a class="btn" ng-click="preview(content)">
+                            <localize key="buttons_showPage">Preview page</localize>
+                        </a>
+                    </div>
+
+                    <div class="btn-group" ng-if="defaultButton">
+                        
+                        <!-- primary button -->
+                        <a class="btn btn-success" href="#" ng-click="performAction(defaultButton)" prevent-default data-hotkey="{{defaultButton.hotKey}}">
+                            <localize key="{{defaultButton.labelKey}}">{{defaultButton.labelKey}}</localize>                            
+                        </a>
+                        
+                        <a class="btn btn-success dropdown-toggle" data-toggle="dropdown" ng-if="subButtons.length > 0">
                             <span class="caret"></span>
                         </a>
+                        
+                        <!-- sub buttons -->
+                        <ul class="dropdown-menu" role="menu" aria-labelledby="dLabel" ng-if="subButtons.length > 0">
+                            <li ng-repeat="btn in subButtons">
+                                <a href="#" ng-click="performAction(btn)" prevent-default data-hotkey="{{btn.hotKey}}">
+                                    <localize key="{{btn.labelKey}}">{{btn.labelKey}}</localize>
+                                </a>
+                            </li>                            
+                        </ul>
 
-                        <ul class="dropdown-menu" role="menu" aria-labelledby="dLabel">
-                            <li><a href="#" ng-click="save()"
-                             prevent-default data-hotkey="ctrl+s">Save draft</a></li>
-                         </ul>
                      </div>
                  </div>
              </div>
@@ -38,7 +52,6 @@
 
         <umb-tab-view>
             <umb-tab id="tab{{tab.id}}" rel="{{tab.id}}" ng-repeat="tab in content.tabs">
-
                 <div class="umb-pane">
                     <umb-property 
                         property="property"
@@ -47,9 +60,7 @@
                         <umb-editor model="property"></umb-editor>
                     </umb-property>
                 </div>
-
             </umb-tab>
         </umb-tab-view>
-
     </umb-panel>
 </form>

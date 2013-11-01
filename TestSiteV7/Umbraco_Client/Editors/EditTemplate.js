@@ -7,11 +7,19 @@
         _opts: null,
 
         _openMacroModal: function(alias) {
-            var t = "";
-            if (alias != null && alias != "") {
-                t = "&alias=" + alias;
-            }
-            UmbClientMgr.openModalWindow(this._opts.umbracoPath + '/dialogs/editMacro.aspx?renderingEngine=Webforms&objectId=' + this._opts.editorClientId + t, 'Insert Macro', true, 470, 530, 0, 0, '', '');
+            
+            var self = this;
+
+            UmbClientMgr.openAngularModalWindow({
+                template: "views/common/dialogs/insertmacro.html",
+                dialogData: {
+                    renderingEngine: "WebForms",
+                    selectedAlias: alias
+                },
+                callback: function(data) {
+                    UmbEditor.Insert(data.syntax, '', self._opts.editorClientId);
+                }
+            });
         },
 
         _insertMacro: function(alias) {
@@ -69,6 +77,12 @@
 
             var self = this;
 
+            //bind to the save event
+            this._opts.saveButton.click(function (event) {
+                event.preventDefault();
+                self.doSubmit();
+            });
+            
             $("#sb").click(function() {
                 self._insertCodeBlock();
             });
@@ -96,6 +110,10 @@
             $(".codeTemplate").click(function() {
                 self._insertCodeBlockFromTemplate($(this).attr("rel"));
             });
+        },
+
+        doSubmit: function() {            
+            this.save(jQuery('#' + this._opts.templateNameClientId).val(), jQuery('#' + this._opts.templateAliasClientId).val(), UmbEditor.GetCode());
         },
 
         save: function(templateName, templateAlias, codeVal) {

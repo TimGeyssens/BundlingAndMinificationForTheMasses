@@ -743,11 +743,11 @@
     <key alias="templateErrorText">Пожалуйста, проверьте, что нет двух шаблонов с одним и тем же алиасом (названием)</key>
     <key alias="templateSavedHeader">Шаблон сохранен</key>
     <key alias="templateSavedText">Шаблон сохранен без ошибок</key>
-    <key alias="xsltErrorHeader">Xslt-документ не сохранен</key>
-    <key alias="xsltErrorText">Xslt-документ содержит одну или несколько ошибок</key>
-    <key alias="xsltPermissionErrorText">Xslt-документ не может быть сохранен, проверьте установки файловых разрешений</key>
-    <key alias="xsltSavedHeader">Xslt-документ сохранен</key>
-    <key alias="xsltSavedText">Ошибок в Xslt-документе нет</key>
+    <key alias="xsltErrorHeader">XSLT-документ не сохранен</key>
+    <key alias="xsltErrorText">XSLT-документ содержит одну или несколько ошибок</key>
+    <key alias="xsltPermissionErrorText">XSLT-документ не может быть сохранен, проверьте установки файловых разрешений</key>
+    <key alias="xsltSavedHeader">XSLT-документ сохранен</key>
+    <key alias="xsltSavedText">Ошибок в XSLT-документе нет</key>
   </area>
   <area alias="stylesheet">
     <key alias="aliasHelp">Используется синтаксис селекторов CSS, например: h1, .redHeader, .blueTex</key>
@@ -819,7 +819,7 @@
 		Перейдите по ссылке http://%3%/translation/details.aspx?id=%4% для редактирования.
 
 		Или авторизуйтесь для общего обзора Ваших заданий по переводу
-		http://%3%/umbraco.aspx.
+		http://%3%.
 
 		Удачи!
 		
@@ -888,7 +888,6 @@
     <key alias="changePasswordDescription">Вы можете сменить свой пароль для доступа к административной панели Umbraco, заполнив нижеследующие поля и нажав на кнопку 'Изменить пароль'</key>
     <key alias="confirmNewPassword">Подтверждение нового пароля</key>
     <key alias="contentChannel">Канал содержимого</key>
-    <key alias="defaultToLiveEditing">При входе перевести в режим редактирования "на месте"</key>
     <key alias="descriptionField">Поле описания</key>
     <key alias="disabled">Отключить пользователя</key>
     <key alias="documentType">Тип документа</key>

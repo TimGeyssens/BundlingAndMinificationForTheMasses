@@ -1,5 +1,5 @@
-﻿<form ng-controller="Umbraco.DashboardController" class="umb-dashboard"> 
-<umb-panel val-show-validation>
+﻿<form ng-controller="Umbraco.DashboardController" class="umb-dashboard" val-form-manager> 
+<umb-panel>
     <umb-header tabs="dashboard.tabs">
     	<div class="umb-headline-editor-wrapper span12">
     			<h1>{{dashboard.name}}</h1>
@@ -19,7 +19,8 @@
                         <div class="span12 umb-dashboard-control clearfix" 
                             ng-switch-when="true">
                             <h3 ng-show="property.caption">{{property.caption}}</h3>
-                            <iframe style="min-height: 200px; max-height: 90%;" resize-to-content ng-src="dashboard/usercontrolproxy.aspx?ctrl={{ property.path}}"></iframe>
+                            
+                            <iframe ng-src="dashboard/usercontrolproxy.aspx?ctrl={{ property.path}}"></iframe>
                         </div>
 
                    	</div>

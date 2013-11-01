@@ -1,29 +1,35 @@
-﻿<div class="umb-panel" ng-controller="Umbraco.Dialogs.RteEmbedController">
- 
-    <div class="umb-panel-header">
-        <div class="umb-el-wrap umb-panel-buttons">
-            <div class="btn-toolbar umb-btn-toolbar">
-                <input type="button" ng-click="insert()" class="btn btn-primary" value="Insert" ng-disabled="!success" />
-            </div>
-        </div>
-    </div>
-       
-    <div class="umb-panel-body umb-scrollable" auto-scale="1">
-        <div class="umb-panel">
-            <div class="umb-control-group">
+﻿<form ng-controller="Umbraco.Dialogs.RteEmbedController" val-form-manager>
+    <div class="umb-panel">
+         <div class="umb-panel-body no-header with-footer">
+            <umb-pane>
+                <umb-control-group label="Url">
+                    <input id="url" class="umb-editor input-block-level" type="text" ng-model="form.url" ng-change="showPreview()" required/>
+                </umb-control-group>
 
-                <label for="url">Url</label> 
-                <input id="url" type="text" ng-model="url" ng-change="showPreview()"/>
+                <div ng-show="form.supportsDimensions">    
+                    <umb-control-group label="Size">
+                        <input type="text" ng-model="form.width" on-blur="changeSize('width')" style="width:50px"/> x <input type="text" ng-model="form.height" on-blur="changeSize('height')" style="width:50px"/>
 
-                <label>Size:</label> 
-                <input type="text" ng-model="width"/> x <input type="text" ng-model="height" />
-                <label for="constrain">Constrain:</label> 
-                <input id="constrain" type="checkbox" ng-model="constrain"/>
-    
-                <div ng-bind-html-unsafe="preview">
+                        <label for="constrain" style="display:inline">Constrain:</label> 
+                        <input id="constrain" type="checkbox" ng-model="form.constrain" style="margin-bottom: 10px;"/>
+                    </umb-control-group>
                 </div>
+                
+                <div>
+                    <p ng-bind="form.info"></p>
+                    <div ng-bind-html-unsafe="form.preview"></div>
+                </div>
+            </umb-pane>
+        </div>
+
+        <div class="umb-panel-footer">
+            <div class="btn-toolbar umb-btn-toolbar pull-right">
+                <a href class="btn btn-link" ng-click="close()">
+                    <localize key="cancel" />
+                </a>
+                
+                <input type="button" ng-click="insert()" class="btn btn-primary" value="Ok" ng-disabled="!form.success" />
             </div>
         </div>
     </div>
-
-</div>
+</form>

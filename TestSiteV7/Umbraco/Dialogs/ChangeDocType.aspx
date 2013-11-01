@@ -6,7 +6,7 @@
 
   <style type="text/css">
     #propertyMapping thead tr th{border-bottom:1px solid #ccc; padding: 4px; padding-right: 25px;
-                                background-image: url(<%= umbraco.IO.IOHelper.ResolveUrl(umbraco.IO.SystemDirectories.Umbraco_client) %>/tableSorting/img/bg.gif);     
+                                background-image: url(<%= Umbraco.Core.IO.IOHelper.ResolveUrl(Umbraco.Core.IO.SystemDirectories.UmbracoClient) %>/tableSorting/img/bg.gif);     
                                 cursor: pointer; 
                                 font-weight: bold; 
                                 background-repeat: no-repeat; 
@@ -73,7 +73,7 @@
                         <%# DataBinder.Eval(Container, "DataItem.Name") %>
                         <asp:HiddenField ID="Alias" runat="server" Value='<%#DataBinder.Eval(Container, "DataItem.Alias")%>' />
                         <asp:HiddenField ID="Name" runat="server" Value='<%#DataBinder.Eval(Container, "DataItem.Name")%>' />
-                        <asp:HiddenField ID="DataTypeId" runat="server" Value='<%#DataBinder.Eval(Container, "DataItem.DataTypeId")%>' />
+                        <asp:HiddenField ID="PropertyEditorAlias" runat="server" Value='<%#DataBinder.Eval(Container, "DataItem.PropertyEditorAlias")%>' />
                     </td>
                     <td><asp:DropDownList id="DestinationProperty" runat="server" /></td>
                 </tr>
