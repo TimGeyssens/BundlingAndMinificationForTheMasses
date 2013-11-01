@@ -160,30 +160,24 @@
     
     @if (Optimus.Helpers.CompatibilityHelper.IsVersion7OrNewer)
     {
-        <body class="umbracoPage"> <div id="body_body_Panel1_container" class="umb-panel tabbable">
-                <div id="body_body_body_Panel1_container_header" class="umb-panel-header">
-                    <div class="row-fluid"><span class="span8">
-                        <h1 class="headline">Bundle Editor</h1>
-                    </span><span class="span4">
-                        <div class="btn-toolbar umb-btn-toolbar">
-                            <div class="btn-group"><a id="save" title="Save" class="btn editorIcon btn-primary" data-hotkey="ctrl+s"><i class='icon icon-save'></i>Save</a></div>
-                        </div>
-                    </span>
-                        <ul class="nav nav-tabs umb-nav-tabs span12">
-                            <li class="active"><a href="#tab01" data-toggle="tab">Properties</a></li>
-                           
-                        </ul>
-                    </div>
-                </div>
+        <body class="umbracoPage">            <div class="umb-panel form-horizontal umb-panel-nobody">
+
+            <div id="body_body_body_UmbracoPanel_container_header" class="umb-panel-header">
+                <div class="row-fluid"><span class="span8">
+                    <h1 class="headline">Bundle Editor</h1>
+                </span><span class="span4">
+                    <div class="btn-toolbar umb-btn-toolbar">
+                        <div id="body_body_ctl06_group" class="btn-group"></div>
+                        <input type="submit" id="save" value="Save" title="Save File" class="btn btn-primary"></div>
+                </span></div>
+            </div>
+               
 
 
 
 
 
-                <div class="umb-panel-body umb-scrollable row-fluid">
-                    <div  class="tab-content form-horizontal umb-tab-content">
-                        <div  class='umb-tab-pane tab-pane form-horizontal umb-scrollable active tab01'>
-                            <div class='umb-tab-pane-inner'>
+              
                                 <div class="umb-pane ">
                                     <div class="control-group umb-control-group">
 
@@ -211,17 +205,13 @@
                                                     @foreach (var file in Model.Files)
                                                     {
                                                         <li class="file ext_@ext" rel="@file">@file <span class="delete"></span></li>
-                                                }
+                                                    }
                                                 </ul>
                                             </div>
                                         </div>
                                     </div>
                                 </div>
-                            </div>
-                        </div>
-                       
-                    </div>
-                </div>
+                        
             </div>
     
   
