@@ -67,8 +67,12 @@
         }
         
         <link href="Content/jqueryFileTree.css" rel="stylesheet">
-        <link href="Content/style.css" rel="stylesheet">
 
+        <link href="Content/style.css?u=y" rel="stylesheet">
+         @if (!CompatibilityHelper.IsVersion7OrNewer)
+         {
+              <link href="Content/stylev6.css" rel="stylesheet">
+         }
         <script>
 
             var data = [];
@@ -182,7 +186,7 @@
                                     <div class="control-group umb-control-group">
 
                                         <div class="umb-el-wrap ">
-                                            @Html.LabelFor(m => m.VirtualPath, new { @class= "control-label" })
+                                            @Html.LabelFor(m => m.VirtualPath, new { @class = "control-label" })
                                             <div class="controls controls-row">
 
                                                 @Html.EditorFor(m => m.VirtualPath)
@@ -190,14 +194,14 @@
                                             </div>
                                         </div>
                                         <div class="umb-el-wrap ">
-                                            @Html.LabelFor(m => m.DisableMinification, new { @class= "control-label" })
+                                            @Html.LabelFor(m => m.DisableMinification, new { @class = "control-label" })
                                             <div class="controls controls-row">
 
                                                 @Html.EditorFor(m => m.DisableMinification)
                                             </div>
                                         </div>
                                         <div class="umb-el-wrap ">
-                                            @Html.LabelFor(m => m.Files, new { @class= "control-label" })
+                                            @Html.LabelFor(m => m.Files, new { @class = "control-label" })
                                             <div class="controls controls-row">
 
                                                 <div id="file_tree"></div>
