@@ -33,7 +33,7 @@ namespace Optimus.Umbraco.Pages
             if (!CompatibilityHelper.IsVersion7OrNewer)
             {
                 var imageButton = UmbracoPanel.Menu.NewImageButton();
-                imageButton.AlternateText = "Save File";
+                imageButton.AlternateText = "Save Bundle";
                 imageButton.ImageUrl = GlobalSettings.Path + "/images/editor/save.gif";
                 imageButton.Click += MenuSaveClick;
             }
@@ -43,7 +43,7 @@ namespace Optimus.Umbraco.Pages
                 b.CssClass = "btn btn-primary";
 
                 b.Text = "Save";
-                b.ToolTip = "Save File";
+                b.ToolTip = "Save Bundle";
                 UmbracoPanel.Menu.Controls[0].Controls.Add(b);
                 b.Click += b_Click;
             }
