@@ -1,0 +1,315 @@
+﻿@model Optimus.Models.BundleViewModel
+@using Optimus.Helpers
+@using umbraco
+@{
+    var startDir = "/css/";
+    var exampleScript = "Styles";
+    var ext = "css";
+    var filter = Optimus.Settings.GetSetting("onlyAllowCssFilesInEditor") == "True" ? "*.css" : "*.*";
+    
+    if (Request["bundleType"] == "script")
+    {
+        startDir = "/scripts/";
+        exampleScript = "Scripts";
+        ext = "js";
+        filter = Optimus.Settings.GetSetting("onlyAllowJsFilesInEditor") == "True" ? "*.js" : "*.*";
+    }
+
+    //startDir = "/";
+    //filter = "*.*";
+}
+<!doctype html>
+<html>
+    <head>
+        <title>Bundle editor</title>
+        
+        <script src="scripts/jquery-2.0.3.js"></script>
+        <script src="scripts/jquery-ui-1.10.2.js"></script>
+        <script src="scripts/jqueryFileTree.js"></script>
+        <script src="scripts/underscore.js"></script>
+   
+        @if (CompatibilityHelper.IsVersion7OrNewer)
+        {
+           
+            <link href="~/umbraco_client/splitbutton/splitbutton.css?cdv=1" type="text/css" rel="stylesheet" />
+            <link href="~/umbraco/assets/css/umbraco.css?cdv=1" type="text/css" rel="stylesheet" />
+            <link href="~/umbraco_client/menuicon/style.css?cdv=1" type="text/css" rel="stylesheet" />
+          
+            <script src="~/umbraco_client/Application/NamespaceManager.js?cdv=1" type="text/javascript"></script>
+          
+           
+          
+            <script src="~/umbraco_client/Application/jQuery/jquery.cookie.js?cdv=1" type="text/javascript"></script>
+          
+            <script src="~/umbraco_client/Application/UmbracoApplicationActions.js?cdv=1" type="text/javascript"></script>
+            <script src="~/umbraco_client/Application/UmbracoUtils.js?cdv=1" type="text/javascript"></script>
+            <script src="~/umbraco_client/Application/UmbracoClientManager.js?cdv=1" type="text/javascript"></script>
+           
+          
+            <script src="~/umbraco_client/ui/default.js?cdv=1" type="text/javascript"></script>
+         
+            <script src="~/umbraco/lib/bootstrap/js/bootstrap.min.js?cdv=1" type="text/javascript"></script>
+            <script src="~/umbraco/lib/umbraco/compat.js?cdv=1" type="text/javascript"></script>
+           
+                
+        }
+        else
+        {
+        <script src="~/umbraco_client/Application/NamespaceManager.js?cdv=2" type="text/javascript"></script>        <script src="~/umbraco_client/Application/UmbracoApplicationActions.js?cdv=2" type="text/javascript"></script>        <script src="~/umbraco_client/Application/UmbracoUtils.js?cdv=2" type="text/javascript"></script>        <script src="~/umbraco_client/Application/UmbracoClientManager.js?cdv=2" type="text/javascript"></script>        <script src="~/umbraco_client/ui/default.js?cdv=2" type="text/javascript"></script>
+        <!-- Umbraco UI -->
+        <link href="~/umbraco_client/ui/default.css" rel="stylesheet" />
+        <link href="~/umbraco_client/menuicon/style.css" rel="stylesheet" />
+        <link href="~/umbraco_client/panel/style.css" rel="stylesheet" />
+        <link href="~/umbraco_client/propertypane/style.css" rel="stylesheet" />
+        <link href="~/umbraco_client/scrollingmenu/style.css" rel="stylesheet" />
+    
+       
+        }
+        
+        <link href="Content/jqueryFileTree.css" rel="stylesheet">
+        <link href="Content/style.css" rel="stylesheet">
+
+        <script>
+
+            var data = [];
+            var snd = new Audio("Content/Morphing.mp3");
+        
+            function FillData() {
+
+                data.VirtualPath = $('#VirtualPath').val();
+                data.Files = [];
+                $('#selected_files .file').each(function() {
+                    data.Files.push($(this).attr('rel'));
+                });
+                data.Directories = [];
+                $('#selected_files .directory').each(function () {
+                    data.Directories.push($(this).attr('rel'));
+                });
+            }
+
+            $(document).ready(function () {
+            
+           
+
+                //Setup file tree
+                $('#file_tree').fileTree({
+                        script: 'Services/jqueryfiletree.aspx',
+                        root: '@startDir',
+                        fileFilter: '@filter',
+                    }, function (file) {
+                        //If it's a file...
+                        file = '~' + file;
+                        if (!_.contains(data.Files, file)) {
+                            $('#selected_files').append('<li class="file ext_@ext" rel="' + file + '">' + file + ' <span class="delete"></span></li>');
+
+                            data.Files.push(file);
+                        }
+                    }, function (folder) {
+                        //If it's a folder in the list
+                        folder = '~' + folder;
+                        if (!_.contains(data.Directories, folder)) {
+                            $('#selected_files').append('<li class="directory" rel="' + folder + '">' + folder + ' <span class="delete"></span></li>');
+
+                            data.Directories.push(folder);
+                        }
+                    });
+
+                //Delete item from right
+                $(document).on("click", ".delete", function () {
+                    data.Files.splice(data.Files.indexOf($(this).parent().attr('rel')), 1);
+                    data.Directories.splice(data.Directories.indexOf($(this).parent().attr('rel')), 1);
+                    $(this).parent().remove();
+                });
+
+                //Make list sortable & run FillData()    
+                $("#selected_files").sortable();
+                FillData();
+            
+
+                //Save
+                $('#save').click(function(event) {
+                    FillData();
+                
+                    var model = {
+                        VirtualPath: $('#VirtualPath').val(),
+                        DisableMinification: $('#DisableMinification').is(':checked'),
+                        Files: data.Files
+                    };
+                
+                    $.ajax({
+                        type: "POST",
+                        url: 'api/PostBundleUpdate?bundleType=@Request["bundleType"]',
+                        dataType: 'json',
+                        contenttype: 'application/json; charset=utf-8',
+                        data: model,
+                        success: function() {
+                            //Saved file
+                            console.log("Saved");
+                            //play sound effect
+                        
+                            snd.play();
+                            //Show notification success bubble
+                            UmbClientMgr.mainWindow().UmbSpeechBubble.ShowMessage('save', 'Saved Bundle', 'Bundle successfully saved');
+                        }
+                    });
+                    event.preventDefault();
+                });
+            });
+        </script>
+    </head>
+    
+    @if (Optimus.Helpers.CompatibilityHelper.IsVersion7OrNewer)
+    {
+        <body class="umbracoPage"> <div id="body_body_Panel1_container" class="umb-panel tabbable">
+                <div id="body_body_body_Panel1_container_header" class="umb-panel-header">
+                    <div class="row-fluid"><span class="span8">
+                        <h1 class="headline">Bundle Editor</h1>
+                    </span><span class="span4">
+                        <div class="btn-toolbar umb-btn-toolbar">
+                            <div class="btn-group"><a id="save" title="Save" class="btn editorIcon btn-primary" data-hotkey="ctrl+s"><i class='icon icon-save'></i>Save</a></div>
+                        </div>
+                    </span>
+                        <ul class="nav nav-tabs umb-nav-tabs span12">
+                            <li class="active"><a href="#tab01" data-toggle="tab">Properties</a></li>
+                           
+                        </ul>
+                    </div>
+                </div>
+
+
+
+
+
+                <div class="umb-panel-body umb-scrollable row-fluid">
+                    <div  class="tab-content form-horizontal umb-tab-content">
+                        <div  class='umb-tab-pane tab-pane form-horizontal umb-scrollable active tab01'>
+                            <div class='umb-tab-pane-inner'>
+                                <div class="umb-pane ">
+                                    <div class="control-group umb-control-group">
+
+                                        <div class="umb-el-wrap ">
+                                            @Html.LabelFor(m => m.VirtualPath, new { @class= "control-label" })
+                                            <div class="controls controls-row">
+
+                                                @Html.EditorFor(m => m.VirtualPath)
+                                                <br/><small>use with @@@{@exampleScript}.Render("@Model.VirtualPath")</small>
+                                            </div>
+                                        </div>
+                                        <div class="umb-el-wrap ">
+                                            @Html.LabelFor(m => m.DisableMinification, new { @class= "control-label" })
+                                            <div class="controls controls-row">
+
+                                                @Html.EditorFor(m => m.DisableMinification)
+                                            </div>
+                                        </div>
+                                        <div class="umb-el-wrap ">
+                                            @Html.LabelFor(m => m.Files, new { @class= "control-label" })
+                                            <div class="controls controls-row">
+
+                                                <div id="file_tree"></div>
+                                                <ul id="selected_files" class="jqueryFileTree">
+                                                    @foreach (var file in Model.Files)
+                                                    {
+                                                        <li class="file ext_@ext" rel="@file">@file <span class="delete"></span></li>
+                                                }
+                                                </ul>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                       
+                    </div>
+                </div>
+            </div>
+    
+  
+
+        </body>
+    }
+    else
+    {
+  
+   
+        <body>
+        
+        
+            <div id="body_UmbracoPanel" class="panel" style="width:100%;">
+                <div class="boxhead">
+                    <h2 id="body_UmbracoPanelLabel">Bundle Editor</h2>
+                </div>
+                <div class="boxbody">
+                    <div id="body_UmbracoPanel_menubackground" class="menubar_panel">
+                        <span id="body_UmbracoPanel_menu">
+                            <table id="body_UmbracoPanel_menu_tableContainer">
+                                <tbody>
+                                    <tr id="body_UmbracoPanel_menu_tableContainerRow">
+                                        <td id="body_UmbracoPanel_menu_tableContainerButtons">
+                                            <button type="submit" id="save">
+                                                <img src="/umbraco/images/editor/save.gif" alt="Save Bundle" class="editorIcon"/>
+                                            </button>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </span>
+                    </div>
+                    <div id="body_UmbracoPanel_content" class="content">
+                        <div class="innerContent" id="body_UmbracoPanel_innerContent">
+                            <h2 class="propertypaneTitel">Edit Bundle</h2>
+                            <div class="propertypane">
+                                <div>
+                                    <div class="propertyItem">
+                                        <div class="propertyItemheader">@Html.LabelFor(m => m.VirtualPath)</div>
+                                        <div class="propertyItemContent">
+                                            @Html.EditorFor(m => m.VirtualPath)
+                                   
+                                            @*  @if (UmbracoSettings.GetKey("/settings/templates/defaultRenderingEngine").ToLower() == "mvc")
+                                        {
+                                        *@<small>use with @@@{@exampleScript}.Render("@Model.VirtualPath")</small>
+                                            @* }
+                                        else
+                                        {
+                                        <small>use with <%: @{@exampleScript}.Render("@Model.VirtualPath") %></small>    
+                                        }*@
+                                        </div>
+                                    </div>
+
+                                    <div class="propertyItem">
+                                        <div class="propertyItemheader">@Html.LabelFor(m => m.DisableMinification)</div>
+                                        <div class="propertyItemContent">
+                                            @Html.EditorFor(m => m.DisableMinification)
+                                        </div>
+                                    </div>
+
+                               
+
+                                    <div class="propertyItem">
+                                        <div class="propertyItemheader">@Html.LabelFor(m => m.Files)</div>
+                                        <div class="propertyItemContent">
+                                            <div id="file_tree"></div>
+                                            <ul id="selected_files" class="jqueryFileTree">
+                                                @foreach (var file in Model.Files)
+                                                {
+                                                    <li class="file ext_@ext" rel="@file">@file <span class="delete"></span></li>
+                                                }
+                                            </ul>           
+                                        </div>
+                                    </div>
+
+                                    <div class="propertyPaneFooter">-</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="boxfooter">
+                    <div class="statusBar">
+                        <h2></h2>
+                    </div>
+                </div>
+            </div>
+        </body>
+    }
+</html>
