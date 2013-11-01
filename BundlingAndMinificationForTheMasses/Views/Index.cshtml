@@ -72,7 +72,11 @@
          @if (!CompatibilityHelper.IsVersion7OrNewer)
          {
               <link href="Content/stylev6.css" rel="stylesheet">
-         }
+        }
+        else
+        {
+             <link href="Content/stylev7.css" rel="stylesheet">
+        }
         <script>
 
             var data = [];
@@ -92,9 +96,19 @@
             }
 
             $(document).ready(function () {
-            
-           
+                
+                 @if (Optimus.Helpers.CompatibilityHelper.IsVersion7OrNewer)
+                 {
+                     <text>
+                    // Setup drop down menu
+                    $('.dropdown-toggle').dropdown();
 
+                    // Fix input element click problem
+                    $('.dropdown-menu input, .dropdown-menu label').click(function (e) {
+                        e.stopPropagation();
+                    });
+                     </text>
+                 }
                 //Setup file tree
                 $('#file_tree').fileTree({
                         script: 'Services/jqueryfiletree.aspx',
@@ -170,9 +184,38 @@
                 <div class="row-fluid"><span class="span8">
                     <h1 class="headline">Bundle Editor</h1>
                 </span><span class="span4">
-                    <div class="btn-toolbar umb-btn-toolbar">
-                        <div id="body_body_ctl06_group" class="btn-group"></div>
-                        <input type="submit" id="save" value="Save" title="Save File" class="btn btn-primary"></div>
+                           <div class="btn-toolbar umb-btn-toolbar">
+                               
+                               <div class="btn-group">
+                                   <button type="button" class="btn btn-default dropdownn-toggle" data-toggle="dropdown">
+                                       <i class="icon-settings"></i> Settings <span class="caret"></span>
+                                   </button>
+                                   <ul class="dropdown-menu" role="menu">
+                                       
+                                       <div>
+                                           @Html.EditorFor(m => m.DisableMinification)
+                                           @Html.LabelFor(m => m.DisableMinification, new { @class = "control-label" })
+
+                                       </div>   
+                                       <hr/>
+                                       <div>
+                                           @Html.LabelFor(m => m.VirtualPath, new { @class = "control-label" })
+                                           <div>
+
+                                               @Html.EditorFor(m => m.VirtualPath)
+                                               
+                                           </div>
+                                           <div>
+                                               <small>use with @@@{@exampleScript}.Render("@Model.VirtualPath")</small>
+                                           </div>
+                                       </div>                                  
+
+                                   </ul>
+                               </div>
+                               <div class="btn-group">
+                                   <input type="submit" id="save" value="Save" title="Save File" class="btn btn-primary"></div>
+                           </div>
+                       
                 </span></div>
             </div>
                
@@ -184,8 +227,10 @@
               
                                 <div class="umb-pane ">
                                     <div class="control-group umb-control-group">
+                                        
+                                        <p class="umb-abstract">Edit Bundle</p>
 
-                                        <div class="umb-el-wrap ">
+                                       @* <div class="umb-el-wrap ">
                                             @Html.LabelFor(m => m.VirtualPath, new { @class = "control-label" })
                                             <div class="controls controls-row">
 
@@ -199,7 +244,7 @@
 
                                                 @Html.EditorFor(m => m.DisableMinification)
                                             </div>
-                                        </div>
+                                        </div>*@
                                         <div class="umb-el-wrap ">
                                             @Html.LabelFor(m => m.Files, new { @class = "control-label" })
                                             <div class="controls controls-row">

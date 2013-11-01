@@ -1,0 +1,29 @@
+﻿.umb-btn-toolbar .dropdown-menu small {
+    background: none;
+    font-size: 75%;
+}
+
+.dropdown-menu #VirtualPath {
+    display: block;
+    width: 200px;
+}
+
+.form-horizontal .control-label {
+
+    text-align: left;
+}
+
+.umb-btn-toolbar .dropdown-menu  {
+
+    padding: 10px;
+}
+
+.umb-btn-toolbar .dropdown-menu small {
+
+    padding: 0px;
+}
+
+.dropdown-menu hr {
+
+    margin: 0px;
+}

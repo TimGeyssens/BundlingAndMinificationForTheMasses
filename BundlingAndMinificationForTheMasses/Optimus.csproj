@@ -318,6 +318,7 @@
     <None Include="BundleTransformer.Configuration.xsd">
       <SubType>Designer</SubType>
     </None>
+    <Content Include="Content\stylev7.css" />
     <Content Include="Content\images\application.png" />
     <Content Include="Content\images\code.png" />
     <Content Include="Content\images\cross.png" />
