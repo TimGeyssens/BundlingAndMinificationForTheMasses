@@ -1,0 +1,46 @@
+﻿<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<umbPackage>
+	<info>
+		<package>
+			<name>Optimus.AddOns.V8JavaScriptEngine</name>
+			<version>0.0.0</version>
+			<license url="http://www.opensource.org/licenses/mit-license.php">MIT license</license>
+			<url>http://our.umbraco.org/projects/developer-tools/optimus</url>
+			<requirements>
+				<major>0</major>
+				<minor>0</minor>
+				<patch>0</patch>
+			</requirements>
+		</package>
+		<author>
+			<name>Warren Buckley, Tim Geyssens and Jeavon Leopold</name>
+			<website>https://github.com/TimGeyssens/BundlingAndMinificationForTheMasses</website>
+		</author>
+        <readme><![CDATA[V8 JavaScript Engine for Optimus, allows you to use V8 JS engine for Less, CoffeeScript and TypeScript]]></readme>
+	</info>
+
+	<DocumentTypes />
+	<Templates />
+	<Stylesheets />
+	<Macros />
+	<DictionaryItems />
+	<Languages />
+	<DataTypes />
+
+    <actions>
+        <Action runat="install" undo="false" alias="Umbundle.AddXmlFragment" file="~/web.config" xpath="//configSections/sectionGroup[@name= 'jsEngineSwitcher']" position="end">
+            <section name="v8" type="JavaScriptEngineSwitcher.V8.Configuration.V8Configuration, JavaScriptEngineSwitcher.V8" />
+        </Action>
+        <Action runat="install" undo="false" alias="Umbundle.V8.AddJSEngine">
+            <add name="V8JsEngine" type="JavaScriptEngineSwitcher.V8.V8JsEngine, JavaScriptEngineSwitcher.V8" />
+        </Action>
+        <Action runat="install" undo="false" alias="Umbundle.SetAttributeValue" file="~/web.config" xpath="//configuration/bundleTransformer/less/jsEngine" attributeName="name" attributeValue="V8JsEngine" />
+        <Action runat="install" undo="false" alias="Umbundle.SetAttributeValue" file="~/web.config" xpath="//configuration/bundleTransformer/coffeeScript/jsEngine" attributeName="name" attributeValue="V8JsEngine" />
+        <Action runat="install" undo="false" alias="Umbundle.SetAttributeValue" file="~/web.config" xpath="//configuration/bundleTransformer/typeScript/jsEngine" attributeName="name" attributeValue="V8JsEngine" />
+    </actions>
+	
+	<control />
+
+	<files />
+
+</umbPackage>
