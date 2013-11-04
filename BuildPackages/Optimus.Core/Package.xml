@@ -124,6 +124,20 @@ Also possible to install providers for dynamic stylesheet and script support (le
           </core>
         </bundleTransformer>
       </Action>
+      <Action runat="install" undo="false" alias="Umbundle.AddXmlFragment" file="~/web.config" xpath="//configuration" position="end">
+        <jsEngineSwitcher xmlns="http://tempuri.org/JavaScriptEngineSwitcher.Configuration.xsd">
+          <core>
+            <engines>
+              <add name="MsieJsEngine" type="JavaScriptEngineSwitcher.Msie.MsieJsEngine, JavaScriptEngineSwitcher.Msie" />
+            </engines>
+          </core>
+        </jsEngineSwitcher>
+      </Action>
+      <Action runat="install" undo="false" alias="Umbundle.AddXmlFragment" file="~/web.config" xpath="//configSections" position="end">
+        <sectionGroup name="jsEngineSwitcher">
+          <section name="core" type="JavaScriptEngineSwitcher.Core.Configuration.CoreConfiguration, JavaScriptEngineSwitcher.Core" />
+        </sectionGroup>
+      </Action>
     </Actions>
 	
 	<control />

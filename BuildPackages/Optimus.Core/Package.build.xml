@@ -80,7 +80,7 @@
       <ConfigFiles Include="$(CoreProjectDir)\Config\*.*" />
       <ContentFiles Include="$(CoreProjectDir)\Content\**\*.*" />
       <DialogFiles Include="$(CoreProjectDir)\Umbraco\Dialogs\*.ascx" />
-      <IconFiles Include="$(CoreProjectDir)\Umbraco\Dialogs\*.ascx" />
+      <IconFiles Include="$(CoreProjectDir)\Umbraco\Icons\*.*" />
       <PagesFiles Include="$(CoreProjectDir)\Umbraco\Pages\*.aspx" />
       <ScriptsFiles Include="$(CoreProjectDir)\Scripts\*.*" />
       <ServicesFiles Include="$(CoreProjectDir)\Services\*.aspx" />
