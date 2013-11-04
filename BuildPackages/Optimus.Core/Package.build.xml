@@ -24,6 +24,7 @@
 		<BuildDir>$(RootDir)\Build</BuildDir>
 		<PackageDir>$(RootDir)\..\..\Releases</PackageDir>
 		<CoreProjectDir>$(RootDir)\..\..\BundlingAndMinificationForTheMasses</CoreProjectDir>
+    <CoreV7ProjectDir>$(RootDir)\..\..\Optimus.V7</CoreV7ProjectDir>
     <AppPluginDir>$(BuildDir)\App_Plugins\Optimus</AppPluginDir>
 	</PropertyGroup>
 
@@ -55,8 +56,24 @@
 		<MSBuild Projects="$(CoreProjectDir)\Optimus.csproj" />
 	</Target>
 
-	<!-- PREPARE FILES -->
-	<Target Name="PrepairFiles" DependsOnTargets="Compile">
+  <!-- Update assembly version and compile v7 project -->
+  <Target Name="UpdateV7AssemblyInfo" DependsOnTargets="Clean">
+    <Version Major="$(VersionMajor)" Minor="$(VersionMinor)" BuildType="Automatic" RevisionType="Automatic" StartDate="08/03/2013">
+      <Output TaskParameter="Build" PropertyName="Build" />
+      <Output TaskParameter="Revision" PropertyName="Revision" />
+    </Version>
+    <AssemblyInfo CodeLanguage="CS"
+			OutputFile="$(CoreV7ProjectDir)\Properties\VersionInfo.cs"
+			AssemblyVersion="$(VersionMajor).$(VersionMinor).$(VersionPatch)"
+			AssemblyFileVersion="$(VersionMajor).$(VersionMinor).$(Build).$(Revision)"
+			AssemblyInformationalVersion="$(VersionMajor).$(VersionMinor).$(VersionPatch)$(VersionSuffix)"/>
+  </Target>
+  <Target Name="CompileV7" DependsOnTargets="UpdateV7AssemblyInfo">
+    <MSBuild Projects="$(CoreV7ProjectDir)\Optimus.V7.csproj" />
+  </Target>
+
+  <!-- PREPARE FILES -->
+	<Target Name="PrepairFiles" DependsOnTargets="Compile;CompileV7">
     
     <ItemGroup>
       <PackageFile Include="$(RootDir)\Package.xml" />
@@ -68,8 +85,9 @@
       <ScriptsFiles Include="$(CoreProjectDir)\Scripts\*.*" />
       <ServicesFiles Include="$(CoreProjectDir)\Services\*.aspx" />
       <ViewsFiles Include="$(CoreProjectDir)\Views\*.*" />
-      <BinFiles Include="$(CoreProjectDir)\bin\**\*.dll" />    
-		</ItemGroup>
+      <BinFiles Include="$(CoreProjectDir)\bin\**\*.dll" />
+      <v7BinFiles Include="$(CoreV7ProjectDir)\bin\Optimus.V7.dll" />
+    </ItemGroup>
     
     <Copy SourceFiles="@(PackageFile)" DestinationFolder="$(BuildDir)" />       
     <Copy SourceFiles="@(ConfigFiles)" DestinationFolder="$(AppPluginDir)\Config" /> 
@@ -83,6 +101,7 @@
     <Copy SourceFiles="@(ViewsFiles)" DestinationFolder="$(AppPluginDir)\Views" /> 
     <Copy SourceFiles="@(BinFiles)"
     DestinationFiles="@(BinFiles->'$(BuildDir)\bin\%(RecursiveDir)%(Filename)%(Extension)')" />
+    <Copy SourceFiles="@(v7BinFiles)" DestinationFolder="$(BuildDir)\bin" />
   </Target>
 
     
@@ -107,7 +126,7 @@
 			WorkingDirectory="$(BuildDir)"
 			OutputDirectory="$(PackageDir)"
 			Files="@(PackageFiles)" />
-      <RemoveDir Directories="$(BuildDir)" Condition="Exists('$(BuildDir)')" />
+    <RemoveDir Directories="$(BuildDir)" Condition="Exists('$(BuildDir)')" />
 	</Target>
 
 </Project>
