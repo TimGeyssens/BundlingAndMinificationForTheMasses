@@ -39,6 +39,13 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Optimus.AddOns.V8JavaScript
 		BuildPackages\Optimus.AddOns.V8JavaScriptEngine\Package.xml = BuildPackages\Optimus.AddOns.V8JavaScriptEngine\Package.xml
 	EndProjectSection
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Optimus.Core", "Optimus.Core", "{D16EAD8F-9A41-4D7A-845A-2C56E9F6781E}"
+	ProjectSection(SolutionItems) = preProject
+		BuildPackages\Optimus.Core\Package.build.cmd = BuildPackages\Optimus.Core\Package.build.cmd
+		BuildPackages\Optimus.Core\Package.build.xml = BuildPackages\Optimus.Core\Package.build.xml
+		BuildPackages\Optimus.Core\Package.xml = BuildPackages\Optimus.Core\Package.xml
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -95,5 +102,6 @@ Global
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
 		{7225EF91-ADB7-48FC-96FA-1E59C29323DB} = {4B3B80DC-A051-44A2-992B-CE7BFC192085}
+		{D16EAD8F-9A41-4D7A-845A-2C56E9F6781E} = {4B3B80DC-A051-44A2-992B-CE7BFC192085}
 	EndGlobalSection
 EndGlobal
