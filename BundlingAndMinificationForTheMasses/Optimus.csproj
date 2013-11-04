@@ -371,6 +371,11 @@
     <None Include="BundleTransformer.Configuration.xsd">
       <SubType>Designer</SubType>
     </None>
+    <Content Include="Content\images\cross_grey.png" />
+    <Content Include="Content\images\css_grey.png" />
+    <Content Include="Content\images\directory_grey.png" />
+    <Content Include="Content\images\folder_open_grey.png" />
+    <Content Include="Content\images\script_grey.png" />
     <Content Include="Content\stylev7.css" />
     <Content Include="Content\images\application.png" />
     <Content Include="Content\images\code.png" />

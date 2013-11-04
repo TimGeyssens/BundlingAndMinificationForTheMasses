@@ -27,3 +27,20 @@
 
     margin: 0px;
 }
+
+.jqueryFileTree LI.directory { background: url(images/directory_grey.png) left top no-repeat; }
+.jqueryFileTree LI.expanded { background: url(images/folder_open_grey.png) left top no-repeat; }
+.jqueryFileTree LI.ext_css { background: url(images/css_grey.png) left top no-repeat; }
+.jqueryFileTree LI.ext_js { background: url(images/script_grey.png) left top no-repeat; }
+#selected_files li span.delete {
+    background: url(images/cross_grey.png) no-repeat top left;
+}
+
+UL.jqueryFileTree A:hover, 
+#selected_files li:hover {
+    background-color: #f8f8f8;
+}
+
+#file_tree, #selected_files {
+    overflow: auto;
+}
