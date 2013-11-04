@@ -27,7 +27,7 @@
 	<Languages />
 	<DataTypes />
 
-    <actions>
+    <Actions>
         <Action runat="install" undo="false" alias="Umbundle.AddXmlFragment" file="~/web.config" xpath="//configSections/sectionGroup[@name= 'jsEngineSwitcher']" position="end">
             <section name="v8" type="JavaScriptEngineSwitcher.V8.Configuration.V8Configuration, JavaScriptEngineSwitcher.V8" />
         </Action>
@@ -37,7 +37,7 @@
         <Action runat="install" undo="false" alias="Umbundle.SetAttributeValue" file="~/web.config" xpath="//configuration/bundleTransformer/less/jsEngine" attributeName="name" attributeValue="V8JsEngine" />
         <Action runat="install" undo="false" alias="Umbundle.SetAttributeValue" file="~/web.config" xpath="//configuration/bundleTransformer/coffeeScript/jsEngine" attributeName="name" attributeValue="V8JsEngine" />
         <Action runat="install" undo="false" alias="Umbundle.SetAttributeValue" file="~/web.config" xpath="//configuration/bundleTransformer/typeScript/jsEngine" attributeName="name" attributeValue="V8JsEngine" />
-    </actions>
+    </Actions>
 	
 	<control />
 
