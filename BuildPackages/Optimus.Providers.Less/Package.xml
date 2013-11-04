@@ -1,0 +1,51 @@
+﻿<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<umbPackage>
+	<info>
+		<package>
+			<name>Optimus.Providers.Less</name>
+			<version>0.0.0</version>
+			<license url="http://www.opensource.org/licenses/mit-license.php">MIT license</license>
+			<url>http://our.umbraco.org/projects/developer-tools/optimus</url>
+			<requirements>
+				<major>0</major>
+				<minor>0</minor>
+				<patch>0</patch>
+			</requirements>
+		</package>
+		<author>
+			<name>Warren Buckley, Tim Geyssens and Jeavon Leopold</name>
+			<website>https://github.com/TimGeyssens/BundlingAndMinificationForTheMasses</website>
+		</author>
+        <readme>
+          <![CDATA[Less provider for Optimus, allows you to create less files in the Umbraco backoffice.]]>
+        </readme>
+	</info>
+
+	<DocumentTypes />
+	<Templates />
+	<Stylesheets />
+	<Macros />
+	<DictionaryItems />
+	<Languages />
+	<DataTypes />
+
+    <Actions>
+      <Action runat="install" undo="false" alias="Umbundle.AddXmlFragment" file="~/web.config" xpath="//configSections/sectionGroup [@name = 'bundleTransformer']" position="end">
+        <section name="less" type="BundleTransformer.Less.Configuration.LessSettings, BundleTransformer.Less" />
+      </Action>
+      <Action runat="install" undo="false" alias="Umbundle.AddXmlFragment" file="~/web.config" xpath="//bundleTransformer/core/css/translators" position="end">
+        <add name="LessTranslator" type="BundleTransformer.Less.Translators.LessTranslator, BundleTransformer.Less" />
+      </Action>
+      <Action runat="install" undo="false" alias="Umbundle.AddHttpHandler" name="LessAssetHandler" position="end" path="*.less" verb="GET" type="BundleTransformer.Less.HttpHandlers.LessAssetHandler, BundleTransformer.Less" validate="true" />
+      <Action runat="install" undo="false" alias="Umbundle.AddXmlFragment" file="~/web.config" xpath="//bundleTransformer" position="end">
+        <less>
+          <jsEngine name="MsieJsEngine" />
+        </less>
+      </Action>
+    </Actions>
+	
+	<control />
+
+	<files />
+
+</umbPackage>

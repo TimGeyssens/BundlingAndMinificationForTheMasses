@@ -46,6 +46,13 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Optimus.Core", "Optimus.Cor
 		BuildPackages\Optimus.Core\Package.xml = BuildPackages\Optimus.Core\Package.xml
 	EndProjectSection
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Optimus.Providers.Less", "Optimus.Providers.Less", "{244A1B68-F5B6-4692-B099-0E1E6C1F556C}"
+	ProjectSection(SolutionItems) = preProject
+		BuildPackages\Optimus.Providers.Less\Package.build.cmd = BuildPackages\Optimus.Providers.Less\Package.build.cmd
+		BuildPackages\Optimus.Providers.Less\Package.build.xml = BuildPackages\Optimus.Providers.Less\Package.build.xml
+		BuildPackages\Optimus.Providers.Less\Package.xml = BuildPackages\Optimus.Providers.Less\Package.xml
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -103,5 +110,6 @@ Global
 	GlobalSection(NestedProjects) = preSolution
 		{7225EF91-ADB7-48FC-96FA-1E59C29323DB} = {4B3B80DC-A051-44A2-992B-CE7BFC192085}
 		{D16EAD8F-9A41-4D7A-845A-2C56E9F6781E} = {4B3B80DC-A051-44A2-992B-CE7BFC192085}
+		{244A1B68-F5B6-4692-B099-0E1E6C1F556C} = {4B3B80DC-A051-44A2-992B-CE7BFC192085}
 	EndGlobalSection
 EndGlobal
