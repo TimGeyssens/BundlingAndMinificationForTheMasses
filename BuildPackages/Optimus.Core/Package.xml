@@ -140,8 +140,8 @@ Also possible to install providers for dynamic stylesheet and script support (le
       </Action>
       <Action runat="install" undo="false" alias="Umbundle.SetAttributeValue" file="~/config/appSettings.config" xpath="//add [@key = 'umbracoReservedPaths']" attributeName="value" attributeValue="~/umbraco,~/install/,~/bundles/" />
     </Actions>
-	
-	<control />
+
+  <control>/App_Plugins/Optimus/Dialogs/ProviderInstaller.ascx</control>
 
 	<files />
 
