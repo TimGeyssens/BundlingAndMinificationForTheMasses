@@ -138,6 +138,7 @@ Also possible to install providers for dynamic stylesheet and script support (le
           <section name="core" type="JavaScriptEngineSwitcher.Core.Configuration.CoreConfiguration, JavaScriptEngineSwitcher.Core" />
         </sectionGroup>
       </Action>
+      <Action runat="install" undo="false" alias="Umbundle.SetAttributeValue" file="~/config/appSettings.config" xpath="//add [@key = 'umbracoReservedPaths']" attributeName="value" attributeValue="~/umbraco,~/install/,~/bundles/" />
     </Actions>
 	
 	<control />
