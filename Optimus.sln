@@ -1,6 +1,8 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 2012
+# Visual Studio 2013
+VisualStudioVersion = 12.0.21005.1
+MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Optimus", "BundlingAndMinificationForTheMasses\Optimus.csproj", "{68A4FD95-45A1-4CC1-AFF1-7C2FAC5D26AF}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TestSite", "TestSite\TestSite.csproj", "{9219F09E-95A8-494D-AA98-40DFB8BEBF4D}"
@@ -51,6 +53,13 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Optimus.Providers.Less", "O
 		BuildPackages\Optimus.Providers.Less\Package.build.cmd = BuildPackages\Optimus.Providers.Less\Package.build.cmd
 		BuildPackages\Optimus.Providers.Less\Package.build.xml = BuildPackages\Optimus.Providers.Less\Package.build.xml
 		BuildPackages\Optimus.Providers.Less\Package.xml = BuildPackages\Optimus.Providers.Less\Package.xml
+	EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Optimus.Providers.SassAndScss", "Optimus.Providers.SassAndScss", "{B264390C-A41A-4840-8C95-AF2BAAA752BB}"
+	ProjectSection(SolutionItems) = preProject
+		BuildPackages\Optimus.Providers.SassAndScss\Package.build.cmd = BuildPackages\Optimus.Providers.SassAndScss\Package.build.cmd
+		BuildPackages\Optimus.Providers.SassAndScss\Package.build.xml = BuildPackages\Optimus.Providers.SassAndScss\Package.build.xml
+		BuildPackages\Optimus.Providers.SassAndScss\Package.xml = BuildPackages\Optimus.Providers.SassAndScss\Package.xml
 	EndProjectSection
 EndProject
 Global
@@ -111,5 +120,6 @@ Global
 		{7225EF91-ADB7-48FC-96FA-1E59C29323DB} = {4B3B80DC-A051-44A2-992B-CE7BFC192085}
 		{D16EAD8F-9A41-4D7A-845A-2C56E9F6781E} = {4B3B80DC-A051-44A2-992B-CE7BFC192085}
 		{244A1B68-F5B6-4692-B099-0E1E6C1F556C} = {4B3B80DC-A051-44A2-992B-CE7BFC192085}
+		{B264390C-A41A-4840-8C95-AF2BAAA752BB} = {4B3B80DC-A051-44A2-992B-CE7BFC192085}
 	EndGlobalSection
 EndGlobal

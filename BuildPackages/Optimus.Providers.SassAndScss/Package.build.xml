@@ -1,0 +1,98 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003" DefaultTargets="Package">
+
+	<!-- IMPORTS -->
+	<PropertyGroup>
+		<MSBuildCommunityTasksPath>$(MSBuildProjectDirectory)\..\Tools\MSBuildCommunityTasks</MSBuildCommunityTasksPath>
+		<MSBuildUmbracoTasksPath>$(MSBuildProjectDirectory)\..\Tools\MSBuildUmbracoTasks</MSBuildUmbracoTasksPath>
+	</PropertyGroup>
+
+	<Import Project="$(MSBuildCommunityTasksPath)\MSBuild.Community.Tasks.Targets" />
+	<Import Project="$(MSBuildUmbracoTasksPath)\MSBuild.Umbraco.Tasks.Targets" />
+
+	<!-- PROPERTIES -->
+	<PropertyGroup>
+		<VersionMajor>1</VersionMajor>
+		<VersionMinor>2</VersionMinor>
+		<VersionPatch>0</VersionPatch>
+		<VersionSuffix>-beta</VersionSuffix>
+		<UmbracoVersion>6.0.6</UmbracoVersion>
+	</PropertyGroup>
+
+	<PropertyGroup>
+		<RootDir>$(MSBuildProjectDirectory)</RootDir>
+		<BuildDir>$(RootDir)\Build</BuildDir>
+		<PackageDir>$(RootDir)\..\..\Releases</PackageDir>
+		<CoreProjectDir>$(RootDir)\..\..\BundlingAndMinificationForTheMasses.Providers.SCSS</CoreProjectDir>
+	</PropertyGroup>
+
+	<!-- TARGETS -->
+
+	<!-- CLEAN -->
+	<Target Name="Clean">
+		<RemoveDir Directories="$(BuildDir)" Condition="Exists('$(BuildDir)')" />
+		<MakeDir Directories="$(BuildDir)" />    
+		<MakeDir Directories="$(PackageDir)" />
+    <MakeDir Directories="$(AppPluginDir)" />
+	</Target>
+
+	<!-- UPDATE ASSEMBLEY VERSION -->
+	<Target Name="UpdateAssemblyInfo" DependsOnTargets="Clean">
+		<Version Major="$(VersionMajor)" Minor="$(VersionMinor)" BuildType="Automatic" RevisionType="Automatic" StartDate="08/03/2013">
+			<Output TaskParameter="Build" PropertyName="Build" />
+			<Output TaskParameter="Revision" PropertyName="Revision" />
+		</Version>
+		<AssemblyInfo CodeLanguage="CS"
+			OutputFile="$(CoreProjectDir)\Properties\VersionInfo.cs"
+			AssemblyVersion="$(VersionMajor).$(VersionMinor).$(VersionPatch)"
+			AssemblyFileVersion="$(VersionMajor).$(VersionMinor).$(Build).$(Revision)"
+			AssemblyInformationalVersion="$(VersionMajor).$(VersionMinor).$(VersionPatch)$(VersionSuffix)"/>
+	</Target>
+
+	<!-- COMPILE -->
+	<Target Name="Compile" DependsOnTargets="UpdateAssemblyInfo">
+		<MSBuild Projects="$(CoreProjectDir)\Optimus.Providers.SassAndSCSS.csproj" />
+	</Target>
+
+  <!-- PREPARE FILES -->
+	<Target Name="PrepairFiles" DependsOnTargets="Compile">
+    
+    <ItemGroup>
+      <PackageFile Include="$(RootDir)\Package.xml" />
+      <BinFiles Include="$(CoreProjectDir)\bin\**\*.dll" />
+      <CodeMirror Include="$(CoreProjectDir)\CodeMirror\**\*.*" />
+    </ItemGroup>
+    
+    <Copy SourceFiles="@(PackageFile)" DestinationFolder="$(BuildDir)" />       
+    <Copy SourceFiles="@(BinFiles)"
+    DestinationFiles="@(BinFiles->'$(BuildDir)\bin\%(RecursiveDir)%(Filename)%(Extension)')" />
+    <Copy SourceFiles="@(CodeMirror)"
+DestinationFiles="@(CodeMirror->'$(BuildDir)\umbraco_client\CodeMirror\Js\Mode\sass\%(RecursiveDir)%(Filename)%(Extension)')" />
+  </Target>
+
+    
+	<!-- MANIFEST -->
+	<Target Name="Manifest" DependsOnTargets="PrepairFiles">
+		<ItemGroup>
+			<ManifestFiles Include="$(BuildDir)\**\*" Exclude="$(BuildDir)\Package.xml" />
+		</ItemGroup>
+		<ManifestUpdate ManifestFile="$(BuildDir)\package.xml"
+			WorkingDirectory="$(BuildDir)"
+			MinimumRequiredUmbracoVersion="$(UmbracoVersion)"
+			PackageVersion="$(VersionMajor).$(VersionMinor).$(VersionPatch)$(VersionSuffix)"
+			Files="@(ManifestFiles)" />
+	</Target>
+
+	<!-- PACKAGE -->
+	<Target Name="Package" DependsOnTargets="Manifest">
+		<ItemGroup>
+			<PackageFiles Include="$(BuildDir)\**\*.*" />
+		</ItemGroup>
+		<Package ManifestFile="$(BuildDir)\Package.xml"
+			WorkingDirectory="$(BuildDir)"
+			OutputDirectory="$(PackageDir)"
+			Files="@(PackageFiles)" />
+    <RemoveDir Directories="$(BuildDir)" Condition="Exists('$(BuildDir)')" />
+	</Target>
+
+</Project>

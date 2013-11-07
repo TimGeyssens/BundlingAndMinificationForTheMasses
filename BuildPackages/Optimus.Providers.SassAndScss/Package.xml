@@ -1,0 +1,47 @@
+﻿<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<umbPackage>
+	<info>
+		<package>
+			<name>Optimus.Providers.Sass</name>
+			<version>0.0.0</version>
+			<license url="http://www.opensource.org/licenses/mit-license.php">MIT license</license>
+			<url>http://our.umbraco.org/projects/developer-tools/optimus</url>
+			<requirements>
+				<major>0</major>
+				<minor>0</minor>
+				<patch>0</patch>
+			</requirements>
+		</package>
+		<author>
+			<name>Warren Buckley, Tim Geyssens and Jeavon Leopold</name>
+			<website>https://github.com/TimGeyssens/BundlingAndMinificationForTheMasses</website>
+		</author>
+        <readme>
+          <![CDATA[Sass provider for Optimus, allows you to create Sass files in the Umbraco backoffice.]]>
+        </readme>
+	</info>
+
+	<DocumentTypes />
+	<Templates />
+	<Stylesheets />
+	<Macros />
+	<DictionaryItems />
+	<Languages />
+	<DataTypes />
+
+    <Actions>
+      <Action runat="install" undo="false" alias="Umbundle.AddXmlFragment" file="~/web.config" xpath="//configSections/sectionGroup [@name = 'bundleTransformer']" position="end">
+        <section name="sassAndScss" type="BundleTransformer.SassAndScss.Configuration.SassAndScssSettings, BundleTransformer.SassAndScss" />
+      </Action>
+      <Action runat="install" undo="false" alias="Umbundle.AddXmlFragment" file="~/web.config" xpath="//bundleTransformer/core/css/translators" position="end">
+        <add name="SassAndScssTranslator" type="BundleTransformer.SassAndScss.Translators.SassAndScssTranslator, BundleTransformer.SassAndScss" />
+      </Action>
+      <Action runat="install" undo="false" alias="Umbundle.AddHttpHandler" name="SassAssetHandler" position="end" path="*.sass" verb="GET" type="BundleTransformer.SassAndScss.HttpHandlers.SassAndScssAssetHandler, BundleTransformer.SassAndScss" validate="true" />
+      <Action runat="install" undo="false" alias="Umbundle.AddHttpHandler" name="ScssAssetHandler" position="end" path="*.scss" verb="GET" type="BundleTransformer.SassAndScss.HttpHandlers.SassAndScssAssetHandler, BundleTransformer.SassAndScss" validate="true" />
+    </Actions>
+	
+	<control />
+
+	<files />
+
+</umbPackage>
