@@ -69,6 +69,13 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Optimus.Providers.CoffeeScr
 		BuildPackages\Optimus.Providers.CoffeeScript\Package.xml = BuildPackages\Optimus.Providers.CoffeeScript\Package.xml
 	EndProjectSection
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Optimus.Providers.TypeScript", "Optimus.Providers.TypeScript", "{8534C935-A3A4-46BD-9A6C-B48EF4995CCA}"
+	ProjectSection(SolutionItems) = preProject
+		BuildPackages\Optimus.Providers.TypeScript\Package.build.cmd = BuildPackages\Optimus.Providers.TypeScript\Package.build.cmd
+		BuildPackages\Optimus.Providers.TypeScript\Package.build.xml = BuildPackages\Optimus.Providers.TypeScript\Package.build.xml
+		BuildPackages\Optimus.Providers.TypeScript\Package.xml = BuildPackages\Optimus.Providers.TypeScript\Package.xml
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -129,5 +136,6 @@ Global
 		{244A1B68-F5B6-4692-B099-0E1E6C1F556C} = {4B3B80DC-A051-44A2-992B-CE7BFC192085}
 		{B264390C-A41A-4840-8C95-AF2BAAA752BB} = {4B3B80DC-A051-44A2-992B-CE7BFC192085}
 		{828F244B-2B4C-4535-8461-A71F7E0588DC} = {4B3B80DC-A051-44A2-992B-CE7BFC192085}
+		{8534C935-A3A4-46BD-9A6C-B48EF4995CCA} = {4B3B80DC-A051-44A2-992B-CE7BFC192085}
 	EndGlobalSection
 EndGlobal

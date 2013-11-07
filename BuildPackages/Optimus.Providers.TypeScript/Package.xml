@@ -1,0 +1,51 @@
+﻿<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<umbPackage>
+	<info>
+		<package>
+			<name>Optimus.Providers.TypeScript</name>
+			<version>0.0.0</version>
+			<license url="http://www.opensource.org/licenses/mit-license.php">MIT license</license>
+			<url>http://our.umbraco.org/projects/developer-tools/optimus</url>
+			<requirements>
+				<major>0</major>
+				<minor>0</minor>
+				<patch>0</patch>
+			</requirements>
+		</package>
+		<author>
+			<name>Warren Buckley, Tim Geyssens and Jeavon Leopold</name>
+			<website>https://github.com/TimGeyssens/BundlingAndMinificationForTheMasses</website>
+		</author>
+        <readme>
+          <![CDATA[TypeScript provider for Optimus, allows you to create TypeScript files in the Umbraco backoffice.]]>
+        </readme>
+	</info>
+
+	<DocumentTypes />
+	<Templates />
+	<Stylesheets />
+	<Macros />
+	<DictionaryItems />
+	<Languages />
+	<DataTypes />
+
+    <Actions>
+      <Action runat="install" undo="false" alias="Umbundle.AddXmlFragment" file="~/web.config" xpath="//configSections/sectionGroup [@name = 'bundleTransformer']" position="end">
+        <section name="typeScript" type="BundleTransformer.TypeScript.Configuration.TypeScriptSettings, BundleTransformer.TypeScript" />
+      </Action>
+      <Action runat="install" undo="false" alias="Umbundle.AddXmlFragment" file="~/web.config" xpath="//bundleTransformer/core/js/translators" position="end">
+        <add name="TypeScriptTranslator" type="BundleTransformer.TypeScript.Translators.TypeScriptTranslator, BundleTransformer.TypeScript" enabled="true" />
+      </Action>
+      <Action runat="install" undo="false" alias="Umbundle.AddHttpHandler" name="TypeScriptAssetHandler" position="end" path="*.ts" verb="GET" type="BundleTransformer.TypeScript.HttpHandlers.TypeScriptAssetHandler, BundleTransformer.TypeScript" validate="true" />
+      <Action runat="install" undo="false" alias="Umbundle.AddXmlFragment" file="~/web.config" xpath="//bundleTransformer" position="end">
+        <typeScript>
+          <jsEngine name="MsieJsEngine" />
+        </typeScript>
+      </Action>
+    </Actions>
+	
+	<control />
+
+	<files />
+
+</umbPackage>
