@@ -39,7 +39,7 @@ Also possible to install providers for dynamic stylesheet and script support (le
       <Action runat="install" undo="false" alias="Umbundle.AddAssemblyBinding">
         <dependentAssembly>
           <assemblyIdentity name="BundleTransformer.Core" publicKeyToken="973c344c93aac60d" culture="neutral" />
-          <bindingRedirect oldVersion="0.0.0.0-1.8.10.0" newVersion="1.8.10.0" />
+          <bindingRedirect oldVersion="0.0.0.0-1.8.11.0" newVersion="1.8.11.0" />
         </dependentAssembly>
       </Action>
       <Action runat="install" undo="false" alias="Umbundle.AddAssemblyBinding">
