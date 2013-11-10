@@ -49,6 +49,7 @@
     </Reference>
     <Reference Include="BundleTransformer.Core">
       <HintPath>..\packages\BundleTransformer.Core.1.8.11\lib\net40\BundleTransformer.Core.dll</HintPath>
+      <Private>False</Private>
     </Reference>
     <Reference Include="BundleTransformer.TypeScript, Version=1.8.11.0, Culture=neutral, PublicKeyToken=973c344c93aac60d, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
