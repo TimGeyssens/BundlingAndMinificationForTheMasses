@@ -189,7 +189,7 @@ namespace Optimus.Providers.V8JavaScriptEngine.Umbraco.Installer
                 if (rootNode.HasChildNodes)
                 {
                     //Look for existing nodeType nodes
-                    XmlNode node = rootNode.SelectSingleNode(String.Format("//add[@segemnt = '{0}']", segment));
+                    XmlNode node = rootNode.SelectSingleNode(String.Format("//add[@segment = '{0}']", segment));
 
                     //If path already exists 
                     if (node != null)
@@ -285,7 +285,7 @@ namespace Optimus.Providers.V8JavaScriptEngine.Umbraco.Installer
             {
                 //Look for existing add nodes with attribute path
                 foreach (XmlNode existingNode in rootNode.SelectNodes(
-                   String.Format("//add[@segemnt = '{0}']", segment)))
+                   String.Format("//add[@segment = '{0}']", segment)))
                 {
                     //Remove existing node from root node
                     rootNode.RemoveChild(existingNode);
