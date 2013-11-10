@@ -37,6 +37,7 @@
         <Action runat="install" undo="false" alias="Umbundle.SetAttributeValue" file="~/web.config" xpath="//configuration/bundleTransformer/less/jsEngine" attributeName="name" attributeValue="V8JsEngine" />
         <Action runat="install" undo="false" alias="Umbundle.SetAttributeValue" file="~/web.config" xpath="//configuration/bundleTransformer/coffeeScript/jsEngine" attributeName="name" attributeValue="V8JsEngine" />
         <Action runat="install" undo="false" alias="Umbundle.SetAttributeValue" file="~/web.config" xpath="//configuration/bundleTransformer/typeScript/jsEngine" attributeName="name" attributeValue="V8JsEngine" />
+        <Action runat="install" undo="true" alias="Umbundle.V8.AddHiddenSegment" position="end" segment="Noesis.Javascript" />
     </Actions>
 	
 	<control />
