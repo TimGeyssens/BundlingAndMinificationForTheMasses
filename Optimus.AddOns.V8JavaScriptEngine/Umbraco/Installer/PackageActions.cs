@@ -6,6 +6,8 @@ using System.Threading.Tasks;
 using umbraco;
 using umbraco.BasePages;
 using umbraco.BusinessLogic;
+using Umbraco.Core;
+using Umbraco.Core.Logging;
 
 namespace Optimus.Providers.V8JavaScriptEngine.Umbraco.Installer
 {
@@ -80,7 +82,7 @@ namespace Optimus.Providers.V8JavaScriptEngine.Umbraco.Installer
         //Set the web.config full path
         const string FULL_PATH = "/web.config";
 
-        #region IPackageAction Members
+        #region IPackageAction AddHiddenSegment
 
         /// <summary>
         /// This Alias must be unique and is used as an identifier that must match 
@@ -105,8 +107,8 @@ namespace Optimus.Providers.V8JavaScriptEngine.Umbraco.Installer
 
             //Get attribute values of xmlData
             string position, segment;
-            position = getAttributeDefault(xmlData, "position", null);
-            if (!getAttribute(xmlData, "segment", out segment)) return result;
+            position = GetAttributeDefault(xmlData, "position", null);
+            if (!GetAttribute(xmlData, "segment", out segment)) return result;
 
             //Create a new xml document
             XmlDocument document = new XmlDocument();
@@ -205,7 +207,7 @@ namespace Optimus.Providers.V8JavaScriptEngine.Umbraco.Installer
                 //Create new node with attributes
                 XmlNode newNode = document.CreateElement("add");
                 newNode.Attributes.Append(
-                    xmlHelper.addAttribute(document, "segment", segment));
+                    XmlHelper.AddAttribute(document, "segment", segment));
 
                 //Select for new node insert position
                 if (position == null || position == "end")
@@ -241,7 +243,7 @@ namespace Optimus.Providers.V8JavaScriptEngine.Umbraco.Installer
                 {
                     //Log error message
                     string message = "Error at execute AddHiddenSegment package action: " + e.Message;
-                    Log.Add(LogTypes.Error, getUser(), -1, message);
+                    LogHelper.Error(typeof(AddHiddenSegment), message, e);
                 }
             }
             return result;
@@ -260,7 +262,7 @@ namespace Optimus.Providers.V8JavaScriptEngine.Umbraco.Installer
 
             //Get attribute values of xmlData
             string segment;
-            if (!getAttribute(xmlData, "segment", out segment)) return result;
+            if (!GetAttribute(xmlData, "segment", out segment)) return result;
 
             //Create a new xml document
             XmlDocument document = new XmlDocument();
@@ -307,22 +309,12 @@ namespace Optimus.Providers.V8JavaScriptEngine.Umbraco.Installer
                 {
                     //Log error message
                     string message = "Error at undo AddHiddenSegment package action: " + e.Message;
-                    Log.Add(LogTypes.Error, getUser(), -1, message);
+                    LogHelper.Error(typeof(AddHiddenSegment), message, e);
                 }
             }
             return result;
         }
 
-        /// <summary>
-        /// Get the current user, or when unavailable admin user
-        /// </summary>
-        /// <returns>The current user</returns>
-        private User getUser()
-        {
-            int id = BasePage.GetUserId(BasePage.umbracoUserContextID);
-            id = (id < 0) ? 0 : id;
-            return User.GetUser(id);
-        }
 
         /// <summary>
         /// Get a named attribute from xmlData root node
@@ -331,7 +323,7 @@ namespace Optimus.Providers.V8JavaScriptEngine.Umbraco.Installer
         /// <param name="attribute">The name of the attribute</param>
         /// <param name="value">returns the attribute value from xmlData</param>
         /// <returns>True, when attribute value available</returns>
-        private bool getAttribute(XmlNode xmlData, string attribute, out string value)
+        private bool GetAttribute(XmlNode xmlData, string attribute, out string value)
         {
             //Set result default to false
             bool result = false;
@@ -356,7 +348,7 @@ namespace Optimus.Providers.V8JavaScriptEngine.Umbraco.Installer
                 //Log error message
                 string message = "Error at AddHiddenSegment package action: "
                      + "Attribute \"" + attribute + "\" not found.";
-                Log.Add(LogTypes.Error, getUser(), -1, message);
+                LogHelper.Warn(typeof(AddHiddenSegment), message);
             }
             return result;
         }
@@ -369,7 +361,7 @@ namespace Optimus.Providers.V8JavaScriptEngine.Umbraco.Installer
         /// <param name="attribute">The name of the attribute</param>
         /// <param name="defaultValue">The default value</param>
         /// <returns>The attribute value or the default value</returns>
-        private string getAttributeDefault(XmlNode xmlData, string attribute, string defaultValue)
+        private string GetAttributeDefault(XmlNode xmlData, string attribute, string defaultValue)
         {
             //Set result default value
             string result = defaultValue;
