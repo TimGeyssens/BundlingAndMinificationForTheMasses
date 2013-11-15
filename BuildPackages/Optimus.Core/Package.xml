@@ -89,14 +89,8 @@ Also possible to install providers for dynamic stylesheet and script support (le
         <!-- End Optimus  Stuff -->
       </Action>
       <Action runat="install" undo="false" alias="Umbundle.SetAttributeValue" file="~/web.config" xpath="//add [@key = 'umbracoReservedPaths']" attributeName="value" attributeValue="~/umbraco,~/install/,~/bundles/" />
-      <Action runat="install" undo="false" alias="Umbundle.AddXmlFragment" file="~/views/web.config" xpath="//configuration/system.web.webPages.razor/pages/namespaces" position="end">
-        <add namespace="System.Web.Optimization" />
-      </Action>
-      <Action runat="install" undo="false" alias="Umbundle.AddXmlFragment" file="~/web.config" xpath="//system.web/pages" position="end">
-        <namespaces>
-          <add namespace="System.Web.Optimization" />
-        </namespaces>
-      </Action>
+      <Action runat="install" undo="false" alias="Umbundle.AddNamespace" file="~/views/web.config" xpath="//configuration/system.web.webPages.razor/pages" position="end" namespace="System.Web.Optimization" />
+      <Action runat="install" undo="false" alias="Umbundle.AddNamespace" file="~/web.config" xpath="//system.web/pages" position="end" namespace="System.Web.Optimization" />      
       <Action runat="install" undo="false" alias="Umbundle.AddXmlFragment" file="~/web.config" xpath="//configSections" position="end">
         <sectionGroup name="bundleTransformer">
           <section name="core" type="BundleTransformer.Core.Configuration.CoreSettings, BundleTransformer.Core" />
