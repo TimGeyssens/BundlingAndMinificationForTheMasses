@@ -17,6 +17,7 @@ namespace Optimus.Umbraco.Installer
     using global::Umbraco.Core.Logging;
 
     using umbraco.cms.businesslogic.packager.standardPackageActions;
+    using umbraco.NodeFactory;
 
     public class AddAssemblyBinding : IPackageAction
     {
@@ -27,6 +28,22 @@ namespace Optimus.Umbraco.Installer
 
         public bool Execute(string packageName, XmlNode xmlData)
         {
+
+            // Set result default to false
+            bool result = false;
+
+            // Set insert node default true
+            bool insertNode = true;
+
+            // Set modified document default to false
+            bool modified = false;
+
+            // Get attribute values of xmlData
+            string name, publicKeyToken, oldVersion, newVersion;
+            if (!this.GetAttribute(xmlData, "name", out name) || !this.GetAttribute(xmlData, "publicKeyToken", out publicKeyToken) || !this.GetAttribute(xmlData, "oldVersion", out oldVersion) || !this.GetAttribute(xmlData, "newVersion", out newVersion))
+            {
+                return result;
+            }
 
             string filename = HttpContext.Current.Server.MapPath("/web.config");
             XmlDocument document = new XmlDocument();
@@ -46,17 +63,76 @@ namespace Optimus.Umbraco.Installer
             {
                 throw new Exception("Invalid Configuration File");
             }
-           
-            XmlNode node = xmlData.SelectSingleNode("./*");
-            if (node == null)
+
+            // Look for existing nodes with same path like the new node
+            if (nav.HasChildren)
             {
-                throw new Exception("Invalid Configuration File");
+                // Look for existing nodeType nodes
+                var node =
+                    nav.SelectSingleNode(string.Format("./bindings:dependentAssembly/bindings:assemblyIdentity[@publicKeyToken = '{0}' and @name='{1}']", publicKeyToken, name), nsmgr);
+
+                // If path already exists 
+                if (node != null)
+                {
+                    if (node.MoveToNext())
+                    {
+                        node.MoveToAttribute("newVersion", string.Empty);
+                        node.SetValue(newVersion);
+                        node.MoveToAttribute("oldVersion", string.Empty);
+                        node.SetValue(oldVersion);
+
+                        // Cancel insert node operation
+                        insertNode = false;
+
+                        // Lets update versions instead
+                        modified = true;
+                    }
+                    else
+                    {
+                        //Log error message
+                        string message = "Error at AddNamespace package action: "
+                             + "Updating \"" + name + "\" assembly binding failed.";
+                        LogHelper.Warn(typeof(AddNamespace), message);                     
+                    }
+                }
             }
 
-            nav.AppendChild(node.OuterXml);
+            // Check for insert flag
+            if (insertNode)
+            {
+                var newNodeContent =
+                    string.Format(
+                        "<dependentAssembly><assemblyIdentity name=\"{0}\" publicKeyToken=\"{1}\" culture=\"neutral\" />"
+                        + "<bindingRedirect oldVersion=\"{2}\" newVersion=\"{3}\" /></dependentAssembly>",
+                        name,
+                        publicKeyToken,
+                        oldVersion,
+                        newVersion);
 
-            document.Save(filename);
-            return true;
+                nav.AppendChild(newNodeContent);
+
+                modified = true;
+
+            }
+
+            if (modified)
+            {
+                try
+                {
+                    document.Save(filename);
+
+                    // No errors so the result is true
+                    result = true;
+                }
+                catch (Exception e)
+                {
+                    // Log error message
+                    string message = "Error at execute AddAssemblyBinding package action: " + e.Message;
+                    LogHelper.Error(typeof(AddAssemblyBinding), message, e);
+                }
+            }
+            return result;
+
         }
 
         public XmlNode SampleXml()
@@ -74,6 +150,44 @@ namespace Optimus.Umbraco.Installer
         {
             return false;
         }
+
+        /// <summary>
+        /// Get a named attribute from xmlData root node
+        /// </summary>
+        /// <param name="xmlData">The data that must be appended to the web.config file</param>
+        /// <param name="attribute">The name of the attribute</param>
+        /// <param name="value">returns the attribute value from xmlData</param>
+        /// <returns>True, when attribute value available</returns>
+        private bool GetAttribute(XmlNode xmlData, string attribute, out string value)
+        {
+            //Set result default to false
+            bool result = false;
+
+            //Out params must be assigned
+            value = String.Empty;
+
+            //Search xml attribute
+            XmlAttribute xmlAttribute = xmlData.Attributes[attribute];
+
+            //When xml attribute exists
+            if (xmlAttribute != null)
+            {
+                //Get xml attribute value
+                value = xmlAttribute.Value;
+
+                //Set result successful to true
+                result = true;
+            }
+            else
+            {
+                //Log error message
+                string message = "Error at AddNamespace package action: "
+                     + "Attribute \"" + attribute + "\" not found.";
+                LogHelper.Warn(typeof(AddNamespace), message);
+            }
+            return result;
+        }
+
     }
  
     public class AddUIPackageAction : IPackageAction 
