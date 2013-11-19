@@ -11,7 +11,9 @@ using umbraco.interfaces;
 
 namespace Optimus.Umbraco.Installer
 {
+    using System.Configuration;
     using System.IO;
+    using System.Web.Configuration;
     using System.Xml.XPath;
 
     using global::Umbraco.Core.Logging;
@@ -965,7 +967,7 @@ namespace Optimus.Umbraco.Installer
 
     public class AddNamespace : IPackageAction
     {
-        #region IPackageAction AddHiddenSegment
+        #region IPackageAction AddNamespace
 
         /// <summary>
         /// This Alias must be unique and is used as an identifier that must match 
@@ -1249,5 +1251,127 @@ namespace Optimus.Umbraco.Installer
 
         #endregion
     }
+
+    public class AddSectionGroup : IPackageAction
+    {
+        #region IPackageAction AddSectionGroup
+
+        /// <summary>
+        /// This Alias must be unique and is used as an identifier that must match 
+        /// the alias in the package action XML
+        /// </summary>
+        /// <returns>The Alias in string format</returns>
+        public string Alias()
+        {
+            return "Umbundle.AddSectionGroup";
+        }
+
+        /// <summary>
+        /// Append the xmlData node to the web.config file
+        /// </summary>
+        /// <param name="packageName">Name of the package that we install</param>
+        /// <param name="xmlData">The data that must be appended to the web.config file</param>
+        /// <returns>True when succeeded</returns>
+        public bool Execute(string packageName, XmlNode xmlData)
+        {
+            
+            //Set result default to false
+            bool result = false;
+
+            //Get attribute values of xmlData
+            string name;
+            if (!this.GetAttribute(xmlData, "name", out name))
+            {
+                return result;
+            }
+
+            try
+            {
+                var config = WebConfigurationManager.OpenWebConfiguration("~");
+                var sectionGroupName = name;
+
+                ConfigurationSectionGroup sectionGroup = new ConfigurationSectionGroup();
+
+                if (config.SectionGroups[sectionGroupName] == null)
+                {
+                    config.SectionGroups.Add(sectionGroupName, sectionGroup);
+                    config.Save(ConfigurationSaveMode.Full);
+                }
+                result = true;
+            }
+            catch (Exception e)
+            {
+                var message = "Error at execute AddConfigurationSectionGroup package action: " + e.Message;
+                LogHelper.Error(typeof(AddSectionGroup), message, e);
+            }
+            return result;
+        }
+
+        /// <summary>
+        /// Removes the xmlData node from the web.config file
+        /// </summary>
+        /// <param name="packageName">Name of the package that we install</param>
+        /// <param name="xmlData">The data that must be appended to the web.config file</param>
+        /// <returns>True when succeeded</returns>
+        public bool Undo(string packageName, System.Xml.XmlNode xmlData)
+        {
+            //Set result default to false
+
+            return false;
+        }
+
+        /// <summary>
+        /// Get a named attribute from xmlData root node
+        /// </summary>
+        /// <param name="xmlData">The data that must be appended to the web.config file</param>
+        /// <param name="attribute">The name of the attribute</param>
+        /// <param name="value">returns the attribute value from xmlData</param>
+        /// <returns>True, when attribute value available</returns>
+        private bool GetAttribute(XmlNode xmlData, string attribute, out string value)
+        {
+            //Set result default to false
+            bool result = false;
+
+            //Out params must be assigned
+            value = String.Empty;
+
+            //Search xml attribute
+            XmlAttribute xmlAttribute = xmlData.Attributes[attribute];
+
+            //When xml attribute exists
+            if (xmlAttribute != null)
+            {
+                //Get xml attribute value
+                value = xmlAttribute.Value;
+
+                //Set result successful to true
+                result = true;
+            }
+            else
+            {
+                //Log error message
+                string message = "Error at AddConfigurationSectionGroup package action: "
+                     + "Attribute \"" + attribute + "\" not found.";
+                LogHelper.Warn(typeof(AddNamespace), message);
+            }
+            return result;
+        }
+
+        /// <summary>
+        /// Returns a Sample XML Node 
+        /// In this case we are adding the System.Web.Optimization namespace
+        /// </summary>
+        /// <returns>The sample xml as node</returns>
+        public XmlNode SampleXml()
+        {
+            return helper.parseStringToXmlNode(
+                "<Action runat=\"install\" undo=\"true/false\" alias=\"Umbundle.AddConfigurationSectionGroup\" "
+                    + "name=\"bundleTransformer\""
+                    + " />");
+        }
+
+        #endregion
+    }
+
 
 }
