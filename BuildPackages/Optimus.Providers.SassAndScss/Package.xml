@@ -30,12 +30,8 @@
 	<DataTypes />
 
     <Actions>
-      <Action runat="install" undo="false" alias="Umbundle.AddXmlFragment" file="~/web.config" xpath="//configSections/sectionGroup [@name = 'bundleTransformer']" position="end">
-        <section name="sassAndScss" type="BundleTransformer.SassAndScss.Configuration.SassAndScssSettings, BundleTransformer.SassAndScss" />
-      </Action>
-      <Action runat="install" undo="false" alias="Umbundle.AddXmlFragment" file="~/web.config" xpath="//bundleTransformer/core/css/translators" position="end">
-        <add name="SassAndScssTranslator" type="BundleTransformer.SassAndScss.Translators.SassAndScssTranslator, BundleTransformer.SassAndScss" />
-      </Action>
+      <Action runat="install" undo="false" alias="Umbundle.AddConfigSection" name="sassAndScss" type="BundleTransformer.SassAndScss.Configuration.SassAndScssSettings, BundleTransformer.SassAndScss" sectionGroup="bundleTransformer" />
+      <Action runat="install" undo="false" alias="Umbundle.AddBundleTransformerProvider" name="SassAndScssTranslator" type="BundleTransformer.SassAndScss.Translators.SassAndScssTranslator, BundleTransformer.SassAndScss" addType="css-translator" />      
       <Action runat="install" undo="false" alias="Umbundle.AddHttpHandler" name="SassAssetHandler" position="end" path="*.sass" verb="GET" type="BundleTransformer.SassAndScss.HttpHandlers.SassAndScssAssetHandler, BundleTransformer.SassAndScss" validate="true" />
       <Action runat="install" undo="false" alias="Umbundle.AddHttpHandler" name="ScssAssetHandler" position="end" path="*.scss" verb="GET" type="BundleTransformer.SassAndScss.HttpHandlers.SassAndScssAssetHandler, BundleTransformer.SassAndScss" validate="true" />
     </Actions>
