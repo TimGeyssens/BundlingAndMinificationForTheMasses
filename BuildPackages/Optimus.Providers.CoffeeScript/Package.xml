@@ -30,20 +30,13 @@
 	<DataTypes />
 
     <Actions>
-      <Action runat="install" undo="false" alias="Umbundle.AddXmlFragment" file="~/web.config" xpath="//configSections/sectionGroup [@name = 'bundleTransformer']" position="end">
-        <section name="coffeeScript" type="BundleTransformer.CoffeeScript.Configuration.CoffeeScriptSettings, BundleTransformer.CoffeeScript" />
-      </Action>
-      <Action runat="install" undo="false" alias="Umbundle.AddXmlFragment" file="~/web.config" xpath="//bundleTransformer/core/js/translators" position="end">
-        <add name="CoffeeScriptTranslator" type="BundleTransformer.CoffeeScript.Translators.CoffeeScriptTranslator, BundleTransformer.CoffeeScript" />
-      </Action>
+      <Action runat="install" undo="false" alias="Umbundle.AddConfigSection" name="coffeeScript" type="BundleTransformer.CoffeeScript.Configuration.CoffeeScriptSettings, BundleTransformer.CoffeeScript" sectionGroup="bundleTransformer" />
+      <Action runat="install" undo="false" alias="Umbundle.AddBundleTransformerProvider" name="CoffeeScriptTranslator" type="BundleTransformer.CoffeeScript.Translators.CoffeeScriptTranslator, BundleTransformer.CoffeeScript" addType="js-translator" />
+
       <Action runat="install" undo="false" alias="Umbundle.AddHttpHandler" name="CoffeeScriptAssetHandler" position="end" path="*.coffee" verb="GET" type="BundleTransformer.CoffeeScript.HttpHandlers.CoffeeScriptAssetHandler, BundleTransformer.CoffeeScript" validate="true" />
       <Action runat="install" undo="false" alias="Umbundle.AddHttpHandler" name="LiterateCoffeeScriptAssetHandler" position="end" path="*.litcoffee" verb="GET" type="BundleTransformer.CoffeeScript.HttpHandlers.CoffeeScriptAssetHandler, BundleTransformer.CoffeeScript" validate="true" />
       <Action runat="install" undo="false" alias="Umbundle.AddHttpHandler" name="CoffeeScriptMarkdownAssetHandler" position="end" path="*.coffee.md" verb="GET" type="BundleTransformer.CoffeeScript.HttpHandlers.CoffeeScriptAssetHandler, BundleTransformer.CoffeeScript" validate="true" />
-      <Action runat="install" undo="false" alias="Umbundle.AddXmlFragment" file="~/web.config" xpath="//bundleTransformer" position="end">
-        <coffeeScript>
-          <jsEngine name="MsieJsEngine" />
-        </coffeeScript>
-      </Action>
+      <Action runat="install" undo="false" alias="Umbundle.AddBundleTransformerJSEngine" name="coffeeScript" engine="MsieJsEngine"  />
     </Actions>
 	
 	<control />
