@@ -1256,7 +1256,7 @@ namespace Optimus.Umbraco.Installer
 
     public class AddConfigSectionGroup : IPackageAction
     {
-        #region IPackageAction AddSectionGroup
+        #region IPackageAction AddConfigSectionGroup
 
         const string FULL_PATH = "/web.config";
 
@@ -1362,9 +1362,9 @@ namespace Optimus.Umbraco.Installer
             else
             {
                 //Log error message
-                string message = "Error at AddConfigurationSectionGroup package action: "
+                string message = "Error at AddConfigSectionGroup package action: "
                      + "Attribute \"" + attribute + "\" not found.";
-                LogHelper.Warn(typeof(AddNamespace), message);
+                LogHelper.Warn(typeof(AddConfigSectionGroup), message);
             }
             return result;
         }
@@ -1377,7 +1377,7 @@ namespace Optimus.Umbraco.Installer
         public XmlNode SampleXml()
         {
             return helper.parseStringToXmlNode(
-                "<Action runat=\"install\" undo=\"true/false\" alias=\"Umbundle.AddConfigurationSectionGroup\" "
+                "<Action runat=\"install\" undo=\"true/false\" alias=\"Umbundle.AddConfigSectionGroup\" "
                     + "name=\"bundleTransformer\""
                     + " />");
         }
@@ -1509,9 +1509,9 @@ namespace Optimus.Umbraco.Installer
             else
             {
                 //Log error message
-                string message = "Error at AddConfigurationSectionGroup package action: "
+                string message = "Error at AddConfigSection package action: "
                      + "Attribute \"" + attribute + "\" not found.";
-                LogHelper.Warn(typeof(AddNamespace), message);
+                LogHelper.Warn(typeof(AddConfigSection), message);
             }
             return result;
         }
@@ -1524,7 +1524,7 @@ namespace Optimus.Umbraco.Installer
         public XmlNode SampleXml()
         {
             return helper.parseStringToXmlNode(
-                "<Action runat=\"install\" undo=\"true/false\" alias=\"Umbundle.AddSection\" "
+                "<Action runat=\"install\" undo=\"true/false\" alias=\"Umbundle.AddConfigSection\" "
                     + "name=\"core\" type=\"BundleTransformer.Core.Configuration.CoreSettings, BundleTransformer.Core\" sectionGroup=\"myGroup\""
                     + " />");
         }
@@ -1715,12 +1715,12 @@ namespace Optimus.Umbraco.Installer
         #endregion
     }
 
-    public class AddBundleTransformerItem : IPackageAction
+    public class AddBundleTransformerProvider: IPackageAction
     {
         //Set the web.config full path
         const string FULL_PATH = "/web.config";
 
-        #region IPackageAction AddBundleTransformerItem
+        #region IPackageAction AddBundleTransformerProvider
 
         /// <summary>
         /// This Alias must be unique and is used as an identifier that must match 
@@ -1729,7 +1729,7 @@ namespace Optimus.Umbraco.Installer
         /// <returns>The Alias in string format</returns>
         public string Alias()
         {
-            return "Umbundle.AddBundleTransformerItem";
+            return "Umbundle.AddBundleTransformerProvider";
         }
 
         /// <summary>
@@ -1832,8 +1832,8 @@ namespace Optimus.Umbraco.Installer
                 catch (Exception e)
                 {
                     // Log error message
-                    string message = "Error at execute AddBundleTransformerItem package action: " + e.Message;
-                    LogHelper.Error(typeof(AddBundleTransformerItem), message, e);
+                    string message = "Error at execute AddBundleTransformerProvider package action: " + e.Message;
+                    LogHelper.Error(typeof(AddBundleTransformerProvider), message, e);
                 }
             }
             return result;
@@ -1880,9 +1880,9 @@ namespace Optimus.Umbraco.Installer
             else
             {
                 //Log error message
-                string message = "Error at AddConfigurationSectionGroup package action: "
+                string message = "Error at AddBundleTransformerProvider package action: "
                      + "Attribute \"" + attribute + "\" not found.";
-                LogHelper.Warn(typeof(AddNamespace), message);
+                LogHelper.Warn(typeof(AddBundleTransformerProvider), message);
             }
             return result;
         }
