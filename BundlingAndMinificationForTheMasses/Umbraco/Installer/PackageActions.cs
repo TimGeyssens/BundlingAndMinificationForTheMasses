@@ -1537,7 +1537,7 @@ namespace Optimus.Umbraco.Installer
         //Set the web.config full path
         const string FULL_PATH = "/web.config";
 
-        #region IPackageAction AddHiddenSegment
+        #region IPackageAction AddBundleTransformer
 
         /// <summary>
         /// This Alias must be unique and is used as an identifier that must match 
