@@ -80,10 +80,18 @@ namespace Optimus.Umbraco.Installer
                 {
                     if (node.MoveToNext())
                     {
-                        node.MoveToAttribute("newVersion", string.Empty);
-                        node.SetValue(newVersion);
-                        node.MoveToAttribute("oldVersion", string.Empty);
-                        node.SetValue(oldVersion);
+                        if (node.MoveToAttribute("oldVersion", string.Empty))
+                        {
+                            node.SetValue(oldVersion);
+                        }
+
+                        if (node.MoveToParent())
+                        {
+                            if (node.MoveToAttribute("newVersion", string.Empty))
+                            {
+                                node.SetValue(newVersion);
+                            }
+                        }
 
                         // Cancel insert node operation
                         insertNode = false;
@@ -94,9 +102,9 @@ namespace Optimus.Umbraco.Installer
                     else
                     {
                         //Log error message
-                        string message = "Error at AddNamespace package action: "
+                        string message = "Error at AddAssemblyBinding package action: "
                              + "Updating \"" + name + "\" assembly binding failed.";
-                        LogHelper.Warn(typeof(AddNamespace), message);                     
+                        LogHelper.Warn(typeof(AddAssemblyBinding), message);                     
                     }
                 }
             }
@@ -185,9 +193,9 @@ namespace Optimus.Umbraco.Installer
             else
             {
                 //Log error message
-                string message = "Error at AddNamespace package action: "
+                string message = "Error at AddAssemblyBinding package action: "
                      + "Attribute \"" + attribute + "\" not found.";
-                LogHelper.Warn(typeof(AddNamespace), message);
+                LogHelper.Warn(typeof(AddAssemblyBinding), message);
             }
             return result;
         }
