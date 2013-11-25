@@ -1598,12 +1598,6 @@ namespace Optimus.Umbraco.Installer
             XmlNamespaceManager nsmgr = new XmlNamespaceManager(document.NameTable);
             nsmgr.AddNamespace("transformer", "http://tempuri.org/BundleTransformer.Configuration.xsd");
 
-            var checker = document.CreateNavigator().SelectSingleNode("//bundleTransformer", nsmgr);
-            if (checker != null)
-            {
-                //somehow add the xmlns
-            }
-
             XPathNavigator nav = document.CreateNavigator().SelectSingleNode("//transformer:bundleTransformer", nsmgr);
 
             if (nav == null)
@@ -1896,6 +1890,295 @@ namespace Optimus.Umbraco.Installer
         {
             return helper.parseStringToXmlNode(
                 "<Action runat=\"install\" undo=\"true/false\" alias=\"Umbundle.AddBundleTransformerItem\" name=\"NullTranslator\" type\"BundleTransformer.Core.Translators.NullTranslator, BundleTransformer.Core\" addType=\"js-translator\" />");
+        }
+
+        #endregion
+    }
+
+    public class AddJSEngineSwitcher : IPackageAction
+    {
+        //Set the web.config full path
+        const string FULL_PATH = "/web.config";
+
+        #region IPackageAction AddJSEngineSwitcher
+
+        /// <summary>
+        /// This Alias must be unique and is used as an identifier that must match 
+        /// the alias in the package action XML
+        /// </summary>
+        /// <returns>The Alias in string format</returns>
+        public string Alias()
+        {
+            return "Umbundle.AddJSEngineSwitcher";
+        }
+
+        /// <summary>
+        /// Append the xmlData node to the web.config file
+        /// </summary>
+        /// <param name="packageName">Name of the package that we install</param>
+        /// <param name="xmlData">The data that must be appended to the web.config file</param>
+        /// <returns>True when succeeded</returns>
+        public bool Execute(string packageName, XmlNode xmlData)
+        {
+            // Set result default to false
+            bool result = false;
+
+            // Set modified document default to false
+            bool modified = false;
+
+
+            string filename = HttpContext.Current.Server.MapPath("/web.config");
+
+            XmlDocument document = new XmlDocument();
+            try
+            {
+                document.Load(filename);
+            }
+            catch (FileNotFoundException)
+            {
+            }
+
+            XmlNamespaceManager nsmgr = new XmlNamespaceManager(document.NameTable);
+            nsmgr.AddNamespace("jsengine", "http://tempuri.org/JavaScriptEngineSwitcher.Configuration.xsd");
+
+            XPathNavigator nav = document.CreateNavigator().SelectSingleNode("//jsengine:jsEngineSwitcher", nsmgr);
+
+            if (nav == null)
+            {
+                nav = document.CreateNavigator().SelectSingleNode("//configuration");
+                if (nav != null)
+                {
+                    nav.AppendChildElement(
+                        nav.Prefix,
+                        "jsEngineSwitcher",
+                        "http://tempuri.org/JavaScriptEngineSwitcher.Configuration.xsd",
+                        null);
+                    modified = true;
+                }
+            }
+
+            var coreNode = nav.SelectSingleNode("//jsengine:jsEngineSwitcher/jsengine:core", nsmgr);
+            if (coreNode == null)
+            {
+                coreNode = nav.SelectSingleNode("//jsengine:jsEngineSwitcher", nsmgr);
+                coreNode.AppendChild("<core/>");
+                modified = true;
+            }
+            var enginesNode = nav.SelectSingleNode("//jsengine:jsEngineSwitcher/jsengine:core/jsengine:engines", nsmgr);
+            if (enginesNode == null)
+            {
+                enginesNode = nav.SelectSingleNode("//jsengine:jsEngineSwitcher/jsengine:core", nsmgr);
+                enginesNode.AppendChild("<engines/>");
+                modified = true;
+            }
+
+            if (modified)
+            {
+                try
+                {
+                    document.Save(filename);
+
+                    // No errors so the result is true
+                    result = true;
+                }
+                catch (Exception e)
+                {
+                    // Log error message
+                    string message = "Error at execute AddJSEngineSwitcher package action: " + e.Message;
+                    LogHelper.Error(typeof(AddJSEngineSwitcher), message, e);
+                }
+            }
+
+            return result;
+        }
+
+        /// <summary>
+        /// Removes the xmlData node from the web.config file
+        /// </summary>
+        /// <param name="packageName">Name of the package that we install</param>
+        /// <param name="xmlData">The data that must be appended to the web.config file</param>
+        /// <returns>True when succeeded</returns>
+        public bool Undo(string packageName, System.Xml.XmlNode xmlData)
+        {
+            return false;
+        }
+
+        /// <summary>
+        /// Returns a Sample XML Node 
+        /// In this case the Sample HTTP Module TimingModule 
+        /// </summary>
+        /// <returns>The sample xml as node</returns>
+        public XmlNode SampleXml()
+        {
+            return helper.parseStringToXmlNode(
+                "<Action runat=\"install\" undo=\"true/false\" alias=\"Umbundle.AddBundleTransformer\" />");
+        }
+
+        #endregion
+    }
+
+    public class AddJSEngineSwitcherProvider : IPackageAction
+    {
+        //Set the web.config full path
+        const string FULL_PATH = "/web.config";
+
+        #region IPackageAction AddJSEngineSwitcherProvider
+
+        /// <summary>
+        /// This Alias must be unique and is used as an identifier that must match 
+        /// the alias in the package action XML
+        /// </summary>
+        /// <returns>The Alias in string format</returns>
+        public string Alias()
+        {
+            return "Umbundle.AddJSEngineSwitcherProvider";
+        }
+
+        /// <summary>
+        /// Append the xmlData node to the web.config file
+        /// </summary>
+        /// <param name="packageName">Name of the package that we install</param>
+        /// <param name="xmlData">The data that must be appended to the web.config file</param>
+        /// <returns>True when succeeded</returns>
+        public bool Execute(string packageName, XmlNode xmlData)
+        {
+            // Set result default to false
+            bool result = false;
+
+            // Set insert node default true
+            bool insertNode = true;
+
+            // Set modified document default to false
+            bool modified = false;
+
+            string filename = HttpContext.Current.Server.MapPath("/web.config");
+
+            //Get attribute values of xmlData
+            string name, type;
+            if (!this.GetAttribute(xmlData, "name", out name) || !this.GetAttribute(xmlData, "type", out type))
+            {
+                return result;
+            }
+
+
+            XmlDocument document = new XmlDocument();
+            try
+            {
+                document.Load(filename);
+            }
+            catch (FileNotFoundException)
+            {
+            }
+
+            XmlNamespaceManager nsmgr = new XmlNamespaceManager(document.NameTable);
+            nsmgr.AddNamespace("jsengine", "http://tempuri.org/JavaScriptEngineSwitcher.Configuration.xsd");
+
+            XPathNavigator nav = document.CreateNavigator().SelectSingleNode("//jsengine:jsEngineSwitcher/jsengine:core/jsengine:engines", nsmgr);
+            if (nav == null)
+            {
+                throw new Exception("Invalid Configuration File");
+            }
+
+            // Look for existing nodes with same path like the new node
+            if (nav.HasChildren)
+            {
+                // Look for existing nodeType nodes
+                var node =
+                    nav.SelectSingleNode(
+                        string.Format("./jsengine:add[@type = '{0}' and @name='{1}']", type, name),
+                        nsmgr);
+
+                // If path already exists 
+                if (node != null)
+                {
+                    insertNode = false;
+                }
+            }
+            // Check for insert flag
+            if (insertNode)
+            {
+                var newNodeContent = string.Format("<add name=\"{0}\" type=\"{1}\" />", name, type);
+
+                nav.AppendChild(newNodeContent);
+
+                modified = true;
+            }
+            if (modified)
+            {
+                try
+                {
+                    document.Save(filename);
+
+                    // No errors so the result is true
+                    result = true;
+                }
+                catch (Exception e)
+                {
+                    // Log error message
+                    string message = "Error at execute AddJSEngineSwitcherProvider package action: " + e.Message;
+                    LogHelper.Error(typeof(AddJSEngineSwitcherProvider), message, e);
+                }
+            }
+            return result;
+        }
+
+        /// <summary>
+        /// Removes the xmlData node from the web.config file
+        /// </summary>
+        /// <param name="packageName">Name of the package that we install</param>
+        /// <param name="xmlData">The data that must be appended to the web.config file</param>
+        /// <returns>True when succeeded</returns>
+        public bool Undo(string packageName, System.Xml.XmlNode xmlData)
+        {
+            return false;
+        }
+
+        /// <summary>
+        /// Get a named attribute from xmlData root node
+        /// </summary>
+        /// <param name="xmlData">The data that must be appended to the web.config file</param>
+        /// <param name="attribute">The name of the attribute</param>
+        /// <param name="value">returns the attribute value from xmlData</param>
+        /// <returns>True, when attribute value available</returns>
+        private bool GetAttribute(XmlNode xmlData, string attribute, out string value)
+        {
+            //Set result default to false
+            bool result = false;
+
+            //Out params must be assigned
+            value = String.Empty;
+
+            //Search xml attribute
+            XmlAttribute xmlAttribute = xmlData.Attributes[attribute];
+
+            //When xml attribute exists
+            if (xmlAttribute != null)
+            {
+                //Get xml attribute value
+                value = xmlAttribute.Value;
+
+                //Set result successful to true
+                result = true;
+            }
+            else
+            {
+                //Log error message
+                string message = "Error at AddJSEngineSwitcherProvider package action: "
+                     + "Attribute \"" + attribute + "\" not found.";
+                LogHelper.Warn(typeof(AddJSEngineSwitcherProvider), message);
+            }
+            return result;
+        }
+
+        /// <summary>
+        /// Returns a Sample XML Node 
+        /// In this case the Sample HTTP Module TimingModule 
+        /// </summary>
+        /// <returns>The sample xml as node</returns>
+        public XmlNode SampleXml()
+        {
+            return helper.parseStringToXmlNode(
+                "<Action runat=\"install\" undo=\"true/false\" alias=\"Umbundle.AddBundleTransformerItem\" name=\"NullTranslator\" type\"BundleTransformer.Core.Translators.NullTranslator, BundleTransformer.Core\" />");
         }
 
         #endregion
