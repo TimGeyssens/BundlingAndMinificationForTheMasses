@@ -82,28 +82,12 @@ Also possible to install providers for dynamic stylesheet and script support (le
       <Action runat="install" undo="false" alias="Umbundle.AddConfigSectionGroup" name="jsEngineSwitcher" />
       <Action runat="install" undo="false" alias="Umbundle.AddConfigSection" name="core" type="JavaScriptEngineSwitcher.Core.Configuration.CoreConfiguration, JavaScriptEngineSwitcher.Core" sectionGroup="jsEngineSwitcher" />
 
-      <Action runat="install" undo="false" alias="Umbundle.AddXmlFragment" file="~/web.config" xpath="//configuration" position="end">
-        <bundleTransformer>
-          <core>
-            <css>
-              <minifiers>
-                <add name="NullMinifier" type="BundleTransformer.Core.Minifiers.NullMinifier, BundleTransformer.Core" />
-              </minifiers>
-              <translators>
-                <add name="NullTranslator" type="BundleTransformer.Core.Translators.NullTranslator, BundleTransformer.Core" enabled="false" />
-              </translators>
-            </css>
-            <js>
-              <minifiers>
-                <add name="NullMinifier" type="BundleTransformer.Core.Minifiers.NullMinifier, BundleTransformer.Core" />
-              </minifiers>
-              <translators>
-                <add name="NullTranslator" type="BundleTransformer.Core.Translators.NullTranslator, BundleTransformer.Core" enabled="false" />
-              </translators>
-            </js>
-          </core>
-        </bundleTransformer>
-      </Action>
+      <Action runat="install" undo="false" alias="Umbundle.AddBundleTransformer" />
+      <Action runat="install" undo="false" alias="Umbundle.AddBundleTransformerItem" name="NullMinifier" type="BundleTransformer.Core.Minifiers.NullMinifier, BundleTransformer.Core" addType="css-minifier" />
+      <Action runat="install" undo="false" alias="Umbundle.AddBundleTransformerItem" name="NullTranslator" type="BundleTransformer.Core.Translators.NullTranslator, BundleTransformer.Core" addType="css-translator" />
+      <Action runat="install" undo="false" alias="Umbundle.AddBundleTransformerItem" name="NullMinifier" type="BundleTransformer.Core.Minifiers.NullMinifier, BundleTransformer.Core" addType="js-minifier" />
+      <Action runat="install" undo="false" alias="Umbundle.AddBundleTransformerItem" name="NullTranslator" type="BundleTransformer.Core.Translators.NullTranslator, BundleTransformer.Core" addType="js-translator" />
+
       <Action runat="install" undo="false" alias="Umbundle.AddXmlFragment" file="~/web.config" xpath="//configuration" position="end">
         <jsEngineSwitcher xmlns="http://tempuri.org/JavaScriptEngineSwitcher.Configuration.xsd">
           <core>

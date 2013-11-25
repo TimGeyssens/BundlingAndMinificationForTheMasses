@@ -8,6 +8,7 @@ using umbraco;
 using umbraco.BasePages;
 using umbraco.BusinessLogic;
 using umbraco.interfaces;
+using System.Xml.Linq;
 
 namespace Optimus.Umbraco.Installer
 {
@@ -1530,4 +1531,374 @@ namespace Optimus.Umbraco.Installer
 
         #endregion
     }
+
+    public class AddBundleTransformer : IPackageAction
+    {
+        //Set the web.config full path
+        const string FULL_PATH = "/web.config";
+
+        #region IPackageAction AddHiddenSegment
+
+        /// <summary>
+        /// This Alias must be unique and is used as an identifier that must match 
+        /// the alias in the package action XML
+        /// </summary>
+        /// <returns>The Alias in string format</returns>
+        public string Alias()
+        {
+            return "Umbundle.AddBundleTransformer";
+        }
+
+        /// <summary>
+        /// Append the xmlData node to the web.config file
+        /// </summary>
+        /// <param name="packageName">Name of the package that we install</param>
+        /// <param name="xmlData">The data that must be appended to the web.config file</param>
+        /// <returns>True when succeeded</returns>
+        public bool Execute(string packageName, XmlNode xmlData)
+        {
+             // Set result default to false
+            bool result = false;
+
+            // Set insert node default true
+            bool insertNode = true;
+
+            // Set modified document default to false
+            bool modified = false;
+
+
+            string filename = HttpContext.Current.Server.MapPath("/web.config");
+
+            //check for Optimus v1 and v1.1 BundleTransformer config which didn't have the namespace and fix if required
+            XmlDocument documentCheck = new XmlDocument();
+            try
+            {
+                documentCheck.Load(filename);
+            }
+            catch (FileNotFoundException)
+            {
+            }
+            XmlNode rootNode = documentCheck.SelectSingleNode("//bundleTransformer");
+            if (rootNode != null)
+            {
+                rootNode.Attributes.Append(
+                    XmlHelper.AddAttribute(documentCheck, "xmlns", "http://tempuri.org/BundleTransformer.Configuration.xsd"));
+                documentCheck.Save(filename);
+            }
+
+            XmlDocument document = new XmlDocument();
+            try
+            {
+                document.Load(filename);
+            }
+            catch (FileNotFoundException)
+            {
+            }
+
+            XmlNamespaceManager nsmgr = new XmlNamespaceManager(document.NameTable);
+            nsmgr.AddNamespace("transformer", "http://tempuri.org/BundleTransformer.Configuration.xsd");
+
+            var checker = document.CreateNavigator().SelectSingleNode("//bundleTransformer", nsmgr);
+            if (checker != null)
+            {
+                //somehow add the xmlns
+            }
+
+            XPathNavigator nav = document.CreateNavigator().SelectSingleNode("//transformer:bundleTransformer", nsmgr);
+
+            if (nav == null)
+            {
+                nav = document.CreateNavigator().SelectSingleNode("//configuration");
+                if (nav != null)
+                {
+                    nav.AppendChildElement(
+                        nav.Prefix,
+                        "bundleTransformer",
+                        "http://tempuri.org/BundleTransformer.Configuration.xsd",
+                        null);
+                    modified = true;
+                }
+            }
+
+            var coreNode = nav.SelectSingleNode("//transformer:bundleTransformer/transformer:core", nsmgr);
+            if (coreNode == null)
+            {
+                coreNode = nav.SelectSingleNode("//transformer:bundleTransformer", nsmgr);
+                coreNode.AppendChild("<core/>");
+                modified = true;
+            }
+            var cssNode = nav.SelectSingleNode("//transformer:bundleTransformer/transformer:core/transformer:css", nsmgr);
+            if (cssNode == null)
+            {
+                cssNode = nav.SelectSingleNode("//transformer:bundleTransformer/transformer:core", nsmgr);
+                cssNode.AppendChild("<css/>");
+                modified = true;
+            }
+            var cssNodeTranslators = nav.SelectSingleNode("//transformer:bundleTransformer/transformer:core/transformer:css/transformer:translators", nsmgr);
+            if (cssNodeTranslators == null)
+            {
+                cssNodeTranslators = nav.SelectSingleNode("//transformer:bundleTransformer/transformer:core/transformer:css", nsmgr);
+                cssNodeTranslators.AppendChild("<translators/>");
+                modified = true;
+            }
+            var cssNodeMinifiers = nav.SelectSingleNode("//transformer:bundleTransformer/transformer:core/transformer:css/transformer:minifiers", nsmgr);
+            if (cssNodeMinifiers == null)
+            {
+                cssNodeMinifiers = nav.SelectSingleNode("//transformer:bundleTransformer/transformer:core/transformer:css", nsmgr);
+                cssNodeMinifiers.AppendChild("<minifiers/>");
+                modified = true;
+            }
+            var jsNode = nav.SelectSingleNode("//transformer:bundleTransformer/transformer:core/transformer:js", nsmgr);
+            if (jsNode == null)
+            {
+                jsNode = nav.SelectSingleNode("//transformer:bundleTransformer/transformer:core", nsmgr);
+                jsNode.AppendChild("<js/>");
+                modified = true;
+            }
+            var jsNodeTranslators = nav.SelectSingleNode("//transformer:bundleTransformer/transformer:core/transformer:js/transformer:translators", nsmgr);
+            if (jsNodeTranslators == null)
+            {
+                jsNodeTranslators = nav.SelectSingleNode("//transformer:bundleTransformer/transformer:core/transformer:js", nsmgr);
+                jsNodeTranslators.AppendChild("<translators/>");
+                modified = true;
+            }
+            var jsNodeMinifiers = nav.SelectSingleNode("//transformer:bundleTransformer/transformer:core/transformer:js/transformer:minifiers", nsmgr);
+            if (jsNodeMinifiers == null)
+            {
+                jsNodeMinifiers = nav.SelectSingleNode("//transformer:bundleTransformer/transformer:core/transformer:js", nsmgr);
+                jsNodeMinifiers.AppendChild("<minifiers/>");
+                modified = true;
+            }
+
+            if (modified)
+            {
+                try
+                {
+                    document.Save(filename);
+
+                    // No errors so the result is true
+                    result = true;
+                }
+                catch (Exception e)
+                {
+                    // Log error message
+                    string message = "Error at execute AddBundleTransformer package action: " + e.Message;
+                    LogHelper.Error(typeof(AddBundleTransformer), message, e);
+                }
+            }
+
+            return result;
+        }
+
+        /// <summary>
+        /// Removes the xmlData node from the web.config file
+        /// </summary>
+        /// <param name="packageName">Name of the package that we install</param>
+        /// <param name="xmlData">The data that must be appended to the web.config file</param>
+        /// <returns>True when succeeded</returns>
+        public bool Undo(string packageName, System.Xml.XmlNode xmlData)
+        {
+            return false;
+        }
+
+        /// <summary>
+        /// Returns a Sample XML Node 
+        /// In this case the Sample HTTP Module TimingModule 
+        /// </summary>
+        /// <returns>The sample xml as node</returns>
+        public XmlNode SampleXml()
+        {
+            return helper.parseStringToXmlNode(
+                "<Action runat=\"install\" undo=\"true/false\" alias=\"Umbundle.AddBundleTransformer\" />");
+        }
+
+        #endregion
+    }
+
+    public class AddBundleTransformerItem : IPackageAction
+    {
+        //Set the web.config full path
+        const string FULL_PATH = "/web.config";
+
+        #region IPackageAction AddBundleTransformerItem
+
+        /// <summary>
+        /// This Alias must be unique and is used as an identifier that must match 
+        /// the alias in the package action XML
+        /// </summary>
+        /// <returns>The Alias in string format</returns>
+        public string Alias()
+        {
+            return "Umbundle.AddBundleTransformerItem";
+        }
+
+        /// <summary>
+        /// Append the xmlData node to the web.config file
+        /// </summary>
+        /// <param name="packageName">Name of the package that we install</param>
+        /// <param name="xmlData">The data that must be appended to the web.config file</param>
+        /// <returns>True when succeeded</returns>
+        public bool Execute(string packageName, XmlNode xmlData)
+        {
+            // Set result default to false
+            bool result = false;
+
+            // Set insert node default true
+            bool insertNode = true;
+
+            // Set modified document default to false
+            bool modified = false;
+
+
+            string filename = HttpContext.Current.Server.MapPath("/web.config");
+
+            //Get attribute values of xmlData
+            string addType, name, type;
+            if (!this.GetAttribute(xmlData, "addType", out addType) || !this.GetAttribute(xmlData, "name", out name) || !this.GetAttribute(xmlData, "type", out type))
+            {
+                return result;
+            }
+
+
+            XmlDocument document = new XmlDocument();
+            try
+            {
+                document.Load(filename);
+            }
+            catch (FileNotFoundException)
+            {
+            }
+
+            XmlNamespaceManager nsmgr = new XmlNamespaceManager(document.NameTable);
+            nsmgr.AddNamespace("transformer", "http://tempuri.org/BundleTransformer.Configuration.xsd");
+
+            var xpath = string.Empty;
+
+            switch (addType)
+            {
+                case "css-minifier":
+                    xpath = "//transformer:bundleTransformer/transformer:core/transformer:css/transformer:minifiers";
+                    break;
+                case "css-translator":
+                    xpath = "//transformer:bundleTransformer/transformer:core/transformer:css/transformer:translators";
+                    break;
+                case "js-minifier":
+                    xpath = "//transformer:bundleTransformer/transformer:core/transformer:js/transformer:minifiers";
+                    break;
+                case "js-translator":
+                    xpath = "//transformer:bundleTransformer/transformer:core/transformer:js/transformer:translators";
+                    break;
+            }
+
+            XPathNavigator nav = document.CreateNavigator().SelectSingleNode(xpath, nsmgr);
+            if (nav == null)
+            {
+                throw new Exception("Invalid Configuration File");
+            }
+
+            // Look for existing nodes with same path like the new node
+            if (nav.HasChildren)
+            {
+                // Look for existing nodeType nodes
+                var node =
+                    nav.SelectSingleNode(
+                        string.Format("./transformer:add[@type = '{0}' and @name='{1}']", type, name),
+                        nsmgr);
+
+                // If path already exists 
+                if (node != null)
+                {
+                    insertNode = false;
+                }
+            }
+            // Check for insert flag
+            if (insertNode)
+            {
+                var newNodeContent = string.Format("<add name=\"{0}\" type=\"{1}\" />", name, type);
+
+                nav.AppendChild(newNodeContent);
+
+                modified = true;
+            }
+            if (modified)
+            {
+                try
+                {
+                    document.Save(filename);
+
+                    // No errors so the result is true
+                    result = true;
+                }
+                catch (Exception e)
+                {
+                    // Log error message
+                    string message = "Error at execute AddBundleTransformerItem package action: " + e.Message;
+                    LogHelper.Error(typeof(AddBundleTransformerItem), message, e);
+                }
+            }
+            return result;
+        }
+
+        /// <summary>
+        /// Removes the xmlData node from the web.config file
+        /// </summary>
+        /// <param name="packageName">Name of the package that we install</param>
+        /// <param name="xmlData">The data that must be appended to the web.config file</param>
+        /// <returns>True when succeeded</returns>
+        public bool Undo(string packageName, System.Xml.XmlNode xmlData)
+        {
+            return false;
+        }
+
+        /// <summary>
+        /// Get a named attribute from xmlData root node
+        /// </summary>
+        /// <param name="xmlData">The data that must be appended to the web.config file</param>
+        /// <param name="attribute">The name of the attribute</param>
+        /// <param name="value">returns the attribute value from xmlData</param>
+        /// <returns>True, when attribute value available</returns>
+        private bool GetAttribute(XmlNode xmlData, string attribute, out string value)
+        {
+            //Set result default to false
+            bool result = false;
+
+            //Out params must be assigned
+            value = String.Empty;
+
+            //Search xml attribute
+            XmlAttribute xmlAttribute = xmlData.Attributes[attribute];
+
+            //When xml attribute exists
+            if (xmlAttribute != null)
+            {
+                //Get xml attribute value
+                value = xmlAttribute.Value;
+
+                //Set result successful to true
+                result = true;
+            }
+            else
+            {
+                //Log error message
+                string message = "Error at AddConfigurationSectionGroup package action: "
+                     + "Attribute \"" + attribute + "\" not found.";
+                LogHelper.Warn(typeof(AddNamespace), message);
+            }
+            return result;
+        }
+
+        /// <summary>
+        /// Returns a Sample XML Node 
+        /// In this case the Sample HTTP Module TimingModule 
+        /// </summary>
+        /// <returns>The sample xml as node</returns>
+        public XmlNode SampleXml()
+        {
+            return helper.parseStringToXmlNode(
+                "<Action runat=\"install\" undo=\"true/false\" alias=\"Umbundle.AddBundleTransformerItem\" name=\"NullTranslator\" type\"BundleTransformer.Core.Translators.NullTranslator, BundleTransformer.Core\" addType=\"js-translator\" />");
+        }
+
+        #endregion
+    }
+
 }
