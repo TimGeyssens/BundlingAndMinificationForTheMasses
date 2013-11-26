@@ -28,7 +28,6 @@
 	<DataTypes />
 
     <Actions>
-      <Action runat="install" undo="false" alias="Umbundle.AddConfigSection" name="v8" type="JavaScriptEngineSwitcher.V8.Configuration.V8Configuration, JavaScriptEngineSwitcher.V8" sectionGroup="jsEngineSwitcher" />
       <Action runat="install" undo="false" alias="Umbundle.AddJSEngineSwitcherProvider" name="V8JsEngine" type="JavaScriptEngineSwitcher.V8.V8JsEngine, JavaScriptEngineSwitcher.V8" />
 
       <Action runat="install" undo="false" alias="Umbundle.AddBundleTransformerJSEngine" name="less" engine="V8JsEngine" updateOnly="true" />

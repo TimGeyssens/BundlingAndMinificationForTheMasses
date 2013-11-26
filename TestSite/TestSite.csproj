@@ -95,8 +95,9 @@
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\packages\JavaScriptEngineSwitcher.Msie.0.9.2\lib\net40\JavaScriptEngineSwitcher.Msie.dll</HintPath>
     </Reference>
-    <Reference Include="JavaScriptEngineSwitcher.V8">
-      <HintPath>..\packages\JavaScriptEngineSwitcher.V8.0.9.2\lib\net40\JavaScriptEngineSwitcher.V8.dll</HintPath>
+    <Reference Include="JavaScriptEngineSwitcher.V8, Version=0.9.3.0, Culture=neutral, PublicKeyToken=c608b2a8cc9e4472, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\packages\JavaScriptEngineSwitcher.V8.0.9.3\lib\net40\JavaScriptEngineSwitcher.V8.dll</HintPath>
     </Reference>
     <Reference Include="log4net">
       <HintPath>..\packages\UmbracoCms.Core.6.0.5\lib\log4net.dll</HintPath>
@@ -297,8 +298,12 @@
     <Content Include="macroScripts\dummy.txt" />
     <Content Include="masterpages\dummy.txt" />
     <Content Include="media\dummy.txt" />
-    <Content Include="Noesis.Javascript\x64\Noesis.Javascript.dll" />
-    <Content Include="Noesis.Javascript\x86\Noesis.Javascript.dll" />
+    <None Include="Noesis.Javascript\Noesis.Javascript.x64.dll">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="Noesis.Javascript\Noesis.Javascript.x86.dll">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
     <Content Include="scripts\dummy.txt" />
     <Content Include="umbraco\Config\Create\UI.xml" />
     <Content Include="usercontrols\dummy.txt" />
