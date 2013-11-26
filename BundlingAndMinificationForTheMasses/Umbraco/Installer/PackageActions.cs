@@ -1755,12 +1755,16 @@ namespace Optimus.Umbraco.Installer
             string filename = HttpContext.Current.Server.MapPath("/web.config");
 
             //Get attribute values of xmlData
-            string addType, name, type;
+            string addType, name, type, enabled;
             if (!this.GetAttribute(xmlData, "addType", out addType) || !this.GetAttribute(xmlData, "name", out name) || !this.GetAttribute(xmlData, "type", out type))
             {
                 return result;
             }
 
+            if (!this.GetAttribute(xmlData, "enabled", out enabled))
+            {
+                enabled = string.Empty;
+            }
 
             XmlDocument document = new XmlDocument();
             try
@@ -1816,8 +1820,7 @@ namespace Optimus.Umbraco.Installer
             // Check for insert flag
             if (insertNode)
             {
-                var newNodeContent = string.Format("<add name=\"{0}\" type=\"{1}\" />", name, type);
-
+                var newNodeContent = !string.IsNullOrEmpty(enabled) ? string.Format("<add name=\"{0}\" type=\"{1}\" enabled=\"{2}\" />", name, type, enabled) : string.Format("<add name=\"{0}\" type=\"{1}\" />", name, type);
                 nav.AppendChild(newNodeContent);
 
                 modified = true;
