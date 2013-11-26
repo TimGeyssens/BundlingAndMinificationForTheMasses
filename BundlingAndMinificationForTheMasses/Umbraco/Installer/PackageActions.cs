@@ -22,6 +22,7 @@ namespace Optimus.Umbraco.Installer
 
     using umbraco.cms.businesslogic.packager.standardPackageActions;
     using umbraco.NodeFactory;
+    using umbraco.presentation.translation;
 
     public class AddAssemblyBinding : IPackageAction
     {
@@ -1482,9 +1483,55 @@ namespace Optimus.Umbraco.Installer
         /// <returns>True when succeeded</returns>
         public bool Undo(string packageName, System.Xml.XmlNode xmlData)
         {
-            //Set result default to false
+            bool result = false;
 
-            return false;
+            string name, type, sectionGroup;
+            if (!this.GetAttribute(xmlData, "name", out name) || !this.GetAttribute(xmlData, "type", out type))
+            {
+                return result;
+            }
+
+            this.GetAttribute(xmlData, "sectionGroup", out sectionGroup);
+
+            var document = new XmlDocument { PreserveWhitespace = true };
+
+            document.Load(HttpContext.Current.Server.MapPath(FULL_PATH));
+
+            var xPath = "//configSections";
+
+            if (!string.IsNullOrEmpty(sectionGroup))
+            {
+                xPath = string.Format("//configSections/sectionGroup[@name = '{0}']", sectionGroup);
+            }
+
+            XmlNode rootNode = document.SelectSingleNode(xPath);
+
+            if (rootNode == null) return result;
+
+            bool modified = false;
+
+            if (rootNode.SelectSingleNode(string.Format("section[@name = '{0}']", name)) != null)
+            {
+                rootNode.RemoveChild(
+                    rootNode.SelectSingleNode(string.Format("section[@name = '{0}']", name)));
+
+                modified = true;
+            }
+
+            if (modified)
+            {
+                try
+                {
+                    document.Save(HttpContext.Current.Server.MapPath(FULL_PATH));
+                    result = true;
+                }
+                catch (Exception e)
+                {
+                    string message = "Error at execute AddConfigSection package action: " + e.Message;
+                    LogHelper.Error(typeof(AddConfigSection), message, e);
+                }
+            }
+            return result;
         }
 
         /// <summary>

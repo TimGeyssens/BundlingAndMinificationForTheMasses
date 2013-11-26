@@ -16,6 +16,8 @@ namespace Optimus.Providers.V8JavaScriptEngine.Umbraco.Installer
     using System.Xml;
     using System.Xml.XPath;
 
+    using Optimus.Umbraco.Installer;
+
     using umbraco.cms.businesslogic.packager.standardPackageActions;
     using umbraco.interfaces;
 
@@ -395,5 +397,69 @@ namespace Optimus.Providers.V8JavaScriptEngine.Umbraco.Installer
         #endregion
     }
 
+    /// <summary>
+    /// This package action removes the config section and x86 & x64 subfolders in the Noesis.Javascript folder as these were changed in V8 Engine Switcher v0.9.3
+    /// </summary>
+    public class RemoveLegacy : IPackageAction
+    {
+        #region IPackageAction RemoveConfigSection
 
+        const string FULL_PATH = "/web.config";
+
+        /// <summary>
+        /// This Alias must be unique and is used as an identifier that must match 
+        /// the alias in the package action XML
+        /// </summary>
+        /// <returns>The Alias in string format</returns>
+        public string Alias()
+        {
+            return "Umbundle.V8.RemoveLegacy";
+        }
+
+        /// <summary>
+        /// Append the xmlData node to the web.config file
+        /// </summary>
+        /// <param name="packageName">Name of the package that we install</param>
+        /// <param name="xmlData">The data that must be appended to the web.config file</param>
+        /// <returns>True when succeeded</returns>
+        public bool Execute(string packageName, XmlNode xmlData)
+        {
+            var addSectionAction = new AddConfigSection();
+            var removeSection = addSectionAction.Undo(packageName, xmlData);
+            string folderPath = HttpContext.Current.Server.MapPath("/Noesis.Javascript");
+
+            foreach (var subDir in new DirectoryInfo(folderPath).GetDirectories())
+            {
+                subDir.Delete(true);
+            }
+            return removeSection;
+        }
+
+        /// <summary>
+        /// Removes the xmlData node from the web.config file
+        /// </summary>
+        /// <param name="packageName">Name of the package that we install</param>
+        /// <param name="xmlData">The data that must be appended to the web.config file</param>
+        /// <returns>True when succeeded</returns>
+        public bool Undo(string packageName, System.Xml.XmlNode xmlData)
+        {
+            return false;
+        }
+
+
+        /// <summary>
+        /// Returns a Sample XML Node 
+        /// In this case we are adding the System.Web.Optimization namespace
+        /// </summary>
+        /// <returns>The sample xml as node</returns>
+        public XmlNode SampleXml()
+        {
+            return helper.parseStringToXmlNode(
+                "<Action runat=\"install\" undo=\"true/false\" alias=\"Umbundle.V8.RemoveLegacy\" "
+                    + "name=\"core\" type=\"BundleTransformer.Core.Configuration.CoreSettings, BundleTransformer.Core\" sectionGroup=\"myGroup\""
+                    + " />");
+        }
+
+        #endregion
+    }
 }

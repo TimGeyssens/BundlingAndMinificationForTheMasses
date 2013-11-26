@@ -233,6 +233,13 @@
     <None Include="Noesis.Javascript\Noesis.Javascript.x86.dll" />
     <None Include="packages.config" />
   </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\BundlingAndMinificationForTheMasses\Optimus.csproj">
+      <Project>{68a4fd95-45a1-4cc1-aff1-7c2fac5d26af}</Project>
+      <Name>Optimus</Name>
+      <Private>False</Private>
+    </ProjectReference>
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Import Project="$(SolutionDir)\.nuget\NuGet.targets" Condition="Exists('$(SolutionDir)\.nuget\NuGet.targets')" />
   <PropertyGroup>
