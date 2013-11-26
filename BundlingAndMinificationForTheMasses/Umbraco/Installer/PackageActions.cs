@@ -2230,12 +2230,16 @@ namespace Optimus.Umbraco.Installer
             string filename = HttpContext.Current.Server.MapPath("/web.config");
 
             //Get attribute values of xmlData
-            string engine, name;
+            string engine, name, updateOnlyString;
+            bool updateOnly = false;
+
             if (!this.GetAttribute(xmlData, "engine", out engine) || !this.GetAttribute(xmlData, "name", out name))
             {
                 return result;
             }
 
+            this.GetAttribute(xmlData, "updateOnly", out updateOnlyString);
+            bool.TryParse(updateOnlyString, out updateOnly);
 
             XmlDocument document = new XmlDocument();
             try
@@ -2253,7 +2257,7 @@ namespace Optimus.Umbraco.Installer
             if (nav == null)
             {
                 nav = document.CreateNavigator().SelectSingleNode("//transformer:bundleTransformer", nsmgr);
-                if (nav != null)
+                if (nav != null  && !updateOnly)
                 {
                     nav.AppendChild(string.Format("<{0}/>", name));
                     modified = true;

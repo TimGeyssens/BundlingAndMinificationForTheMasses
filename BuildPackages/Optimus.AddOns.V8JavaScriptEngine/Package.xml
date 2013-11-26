@@ -28,16 +28,14 @@
 	<DataTypes />
 
     <Actions>
-        <Action runat="install" undo="false" alias="Umbundle.AddXmlFragment" file="~/web.config" xpath="//configSections/sectionGroup[@name= 'jsEngineSwitcher']" position="end">
-            <section name="v8" type="JavaScriptEngineSwitcher.V8.Configuration.V8Configuration, JavaScriptEngineSwitcher.V8" />
-        </Action>
-        <Action runat="install" undo="false" alias="Umbundle.V8.AddJSEngine">
-            <add name="V8JsEngine" type="JavaScriptEngineSwitcher.V8.V8JsEngine, JavaScriptEngineSwitcher.V8" />
-        </Action>
-        <Action runat="install" undo="false" alias="Umbundle.SetAttributeValue" file="~/web.config" xpath="//configuration/bundleTransformer/less/jsEngine" attributeName="name" attributeValue="V8JsEngine" />
-        <Action runat="install" undo="false" alias="Umbundle.SetAttributeValue" file="~/web.config" xpath="//configuration/bundleTransformer/coffeeScript/jsEngine" attributeName="name" attributeValue="V8JsEngine" />
-        <Action runat="install" undo="false" alias="Umbundle.SetAttributeValue" file="~/web.config" xpath="//configuration/bundleTransformer/typeScript/jsEngine" attributeName="name" attributeValue="V8JsEngine" />
-        <Action runat="install" undo="true" alias="Umbundle.V8.AddHiddenSegment" position="end" segment="Noesis.Javascript" />
+      <Action runat="install" undo="false" alias="Umbundle.AddConfigSection" name="v8" type="JavaScriptEngineSwitcher.V8.Configuration.V8Configuration, JavaScriptEngineSwitcher.V8" sectionGroup="jsEngineSwitcher" />
+      <Action runat="install" undo="false" alias="Umbundle.AddJSEngineSwitcherProvider" name="V8JsEngine" type="JavaScriptEngineSwitcher.V8.V8JsEngine, JavaScriptEngineSwitcher.V8" />
+
+      <Action runat="install" undo="false" alias="Umbundle.AddBundleTransformerJSEngine" name="less" engine="V8JsEngine" updateOnly="true" />
+      <Action runat="install" undo="false" alias="Umbundle.AddBundleTransformerJSEngine" name="coffeeScript" engine="V8JsEngine" updateOnly="true"   />
+      <Action runat="install" undo="false" alias="Umbundle.AddBundleTransformerJSEngine" name="typeScript" engine="V8JsEngine" updateOnly="true"  />
+
+      <Action runat="install" undo="false" alias="Umbundle.V8.AddHiddenSegment" position="end" segment="Noesis.Javascript" />
     </Actions>
 	
 	<control />
