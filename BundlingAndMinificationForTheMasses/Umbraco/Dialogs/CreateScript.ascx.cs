@@ -20,13 +20,13 @@ namespace Optimus.Umbraco.Dialogs
             {
                 //scriptType.Items.Add(new ListItem("Plain script", "js"));
 
-                scriptType.Items.Add(new ListItem(ui.Text("folder"), ""));
-                scriptType.Items.FindByText(ui.Text("folder")).Selected = true;
-
                 foreach (var trans in new Translation.Core().GetScriptTranslators())
                 {
                     scriptType.Items.Add(new ListItem(trans.Name, trans.FileExtension));
                 }
+
+                scriptType.Items.Add(new ListItem(ui.Text("folder"), ""));
+                //scriptType.Items.FindByText(ui.Text("folder")).Selected = true;
             }
         }
 

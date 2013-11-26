@@ -23,13 +23,13 @@ namespace Optimus.Umbraco.Dialogs
             {
                 //styleSheetType.Items.Add(new ListItem("Plain stylesheet", "css"));
 
-                styleSheetType.Items.Add(new ListItem(ui.Text("folder"), ""));
-                styleSheetType.Items.FindByText(ui.Text("folder")).Selected = true;
-
                 foreach (var trans in new Translation.Core().GetStyleSheetTranslators())
                 {
                     styleSheetType.Items.Add(new ListItem(trans.Name, trans.FileExtension));
                 }
+
+                styleSheetType.Items.Add(new ListItem(ui.Text("folder"), ""));
+                //styleSheetType.Items.FindByText(ui.Text("folder")).Selected = true;
             }
         }
 
