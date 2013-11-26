@@ -30,18 +30,10 @@
 	<DataTypes />
 
     <Actions>
-      <Action runat="install" undo="false" alias="Umbundle.AddXmlFragment" file="~/web.config" xpath="//configSections/sectionGroup [@name = 'bundleTransformer']" position="end">
-        <section name="less" type="BundleTransformer.Less.Configuration.LessSettings, BundleTransformer.Less" />
-      </Action>
-      <Action runat="install" undo="false" alias="Umbundle.AddXmlFragment" file="~/web.config" xpath="//bundleTransformer/core/css/translators" position="end">
-        <add name="LessTranslator" type="BundleTransformer.Less.Translators.LessTranslator, BundleTransformer.Less" />
-      </Action>
+      <Action runat="install" undo="false" alias="Umbundle.AddConfigSection" name="less" type="BundleTransformer.Less.Configuration.LessSettings, BundleTransformer.Less" sectionGroup="bundleTransformer" />
+      <Action runat="install" undo="false" alias="Umbundle.AddBundleTransformerProvider" name="LessTranslator" type="BundleTransformer.Less.Translators.LessTranslator, BundleTransformer.Less" addType="css-translator" />
       <Action runat="install" undo="false" alias="Umbundle.AddHttpHandler" name="LessAssetHandler" position="end" path="*.less" verb="GET" type="BundleTransformer.Less.HttpHandlers.LessAssetHandler, BundleTransformer.Less" validate="true" />
-      <Action runat="install" undo="false" alias="Umbundle.AddXmlFragment" file="~/web.config" xpath="//bundleTransformer" position="end">
-        <less>
-          <jsEngine name="MsieJsEngine" />
-        </less>
-      </Action>
+      <Action runat="install" undo="false" alias="Umbundle.AddBundleTransformerJSEngine" name="less" engine="MsieJsEngine"  />
     </Actions>
 	
 	<control />

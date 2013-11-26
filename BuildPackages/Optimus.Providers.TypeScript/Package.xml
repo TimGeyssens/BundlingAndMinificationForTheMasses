@@ -30,18 +30,12 @@
 	<DataTypes />
 
     <Actions>
-      <Action runat="install" undo="false" alias="Umbundle.AddXmlFragment" file="~/web.config" xpath="//configSections/sectionGroup [@name = 'bundleTransformer']" position="end">
-        <section name="typeScript" type="BundleTransformer.TypeScript.Configuration.TypeScriptSettings, BundleTransformer.TypeScript" />
-      </Action>
-      <Action runat="install" undo="false" alias="Umbundle.AddXmlFragment" file="~/web.config" xpath="//bundleTransformer/core/js/translators" position="end">
-        <add name="TypeScriptTranslator" type="BundleTransformer.TypeScript.Translators.TypeScriptTranslator, BundleTransformer.TypeScript" enabled="true" />
-      </Action>
+
+      <Action runat="install" undo="false" alias="Umbundle.AddConfigSection" name="typeScript" type="BundleTransformer.TypeScript.Configuration.TypeScriptSettings, BundleTransformer.TypeScript" sectionGroup="bundleTransformer" />
+      <Action runat="install" undo="false" alias="Umbundle.AddBundleTransformerProvider" name="TypeScriptTranslator" type="BundleTransformer.TypeScript.Translators.TypeScriptTranslator, BundleTransformer.TypeScript" addType="js-translator" />
       <Action runat="install" undo="false" alias="Umbundle.AddHttpHandler" name="TypeScriptAssetHandler" position="end" path="*.ts" verb="GET" type="BundleTransformer.TypeScript.HttpHandlers.TypeScriptAssetHandler, BundleTransformer.TypeScript" validate="true" />
-      <Action runat="install" undo="false" alias="Umbundle.AddXmlFragment" file="~/web.config" xpath="//bundleTransformer" position="end">
-        <typeScript>
-          <jsEngine name="MsieJsEngine" />
-        </typeScript>
-      </Action>
+      <Action runat="install" undo="false" alias="Umbundle.AddBundleTransformerJSEngine" name="typeScript" engine="MsieJsEngine"  />
+      
     </Actions>
 	
 	<control />
