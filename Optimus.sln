@@ -33,6 +33,9 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TestSiteV7", "TestSiteV7\TestSiteV7.csproj", "{3BC3A1A4-C9D1-4AF2-9E6B-32096845B6C8}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "PackageBuild", "PackageBuild", "{4B3B80DC-A051-44A2-992B-CE7BFC192085}"
+	ProjectSection(SolutionItems) = preProject
+		BuildPackages\Autobots.cmd = BuildPackages\Autobots.cmd
+	EndProjectSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Optimus.AddOns.V8JavaScriptEngine", "Optimus.AddOns.V8JavaScriptEngine", "{7225EF91-ADB7-48FC-96FA-1E59C29323DB}"
 	ProjectSection(SolutionItems) = preProject
