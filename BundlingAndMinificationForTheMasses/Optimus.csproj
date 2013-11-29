@@ -576,15 +576,7 @@ xcopy "$(ProjectDir)Umbraco\Pages\*.aspx" "$(ProjectDir)..\TestSite\App_Plugins\
 xcopy "$(ProjectDir)Umbraco\Icons\*.*" "$(ProjectDir)..\TestSite\App_Plugins\Optimus\Icons\" /Y
 
 
-xcopy "$(ProjectDir)bin\Optimus.*" "$(ProjectDir)..\TestSiteV7\bin\" /Y
-
-xcopy "$(ProjectDir)bin\System.Web.Optimization.*" "$(ProjectDir)..\TestSiteV7\bin\" /Y
-
-xcopy "$(ProjectDir)bin\BundleTransformer.Core.*" "$(ProjectDir)..\TestSiteV7\bin\" /Y
-
-xcopy "$(ProjectDir)bin\WebGrease.*" "$(ProjectDir)..\TestSiteV7\bin\" /Y
-
-xcopy "$(ProjectDir)bin\Antlr3.Runtime*" "$(ProjectDir)..\TestSiteV7\bin\" /Y
+xcopy "$(ProjectDir)bin\*.dll" "$(ProjectDir)..\TestSiteV7\bin\" /Y
 
 xcopy "$(ProjectDir)Views\*.*" "$(ProjectDir)..\TestSiteV7\App_Plugins\Optimus\Views\" /Y   
 
