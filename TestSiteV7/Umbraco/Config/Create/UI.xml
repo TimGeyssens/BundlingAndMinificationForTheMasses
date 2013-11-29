@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <createUI>
   <nodeType alias="nodeTypes">
     <header>Nodetype</header>
@@ -336,6 +336,36 @@
     <tasks>
       <create assembly="umbraco" type="PartialViewMacroTasks" />
       <delete assembly="umbraco" type="PartialViewMacroTasks" />
+    </tasks>
+  </nodeType>
+  <nodeType alias="scriptBundle">
+    <header>Script bundle</header>
+    <usercontrol>/create/simple.ascx</usercontrol>
+    <tasks>
+      <create assembly="Optimus" type="Umbraco.Tasks.ScriptBundleTasks" />
+      <delete assembly="Optimus" type="Umbraco.Tasks.ScriptBundleTasks" />
+    </tasks>
+  </nodeType>
+  <nodeType alias="styleBundle">
+    <header>Style bundle</header>
+    <usercontrol>/create/simple.ascx</usercontrol>
+    <tasks>
+      <create assembly="Optimus" type="Umbraco.Tasks.StyleBundleTasks" />
+      <delete assembly="Optimus" type="Umbraco.Tasks.StyleBundleTasks" />
+    </tasks>
+  </nodeType>
+  <nodeType alias="initstylesheetsNew">
+    <header>Dynamic Stylesheets</header>
+    <usercontrol>../../App_Plugins/Optimus/Dialogs/CreateStyleSheet.ascx</usercontrol>
+    <tasks>
+      <delete assembly="Optimus" type="Umbraco.Tasks.DynamicStyleTasks" />
+    </tasks>
+  </nodeType>
+  <nodeType alias="initscriptsNew">
+    <header>Dynamic Scripts</header>
+    <usercontrol>../../App_Plugins/Optimus/Dialogs/CreateScript.ascx</usercontrol>
+    <tasks>
+      <delete assembly="Optimus" type="Umbraco.Tasks.DynamicScriptTasks" />
     </tasks>
   </nodeType>
 </createUI>
