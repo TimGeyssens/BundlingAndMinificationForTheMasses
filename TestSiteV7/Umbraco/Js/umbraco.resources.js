@@ -1,4 +1,4 @@
-/*! umbraco - v0.0.1-TechnicalPReview - 2013-11-01
+/*! umbraco - v7.0.0-Beta - 2013-11-21
  * https://github.com/umbraco/umbraco-cms/tree/7.0.0
  * Copyright (c) 2013 Umbraco HQ;
  * Licensed MIT
@@ -648,10 +648,57 @@ function contentResource($q, $http, umbDataFormatter, umbRequestHelper) {
             return saveContentItem(content, "publish" + (isNew ? "New" : ""), files);
         },
         
+
+        /**
+         * @ngdoc method
+         * @name umbraco.resources.contentResource#sendToPublish
+         * @methodOf umbraco.resources.contentResource
+         *
+         * @description
+         * Saves changes made to a content item, and notifies any subscribers about a pending publication
+         * 
+         * ##usage
+         * <pre>
+         * contentResource.getById(1234)
+         *    .then(function(content) {
+         *          content.name = "I want a new name, and be published!";
+         *          contentResource.sendToPublish(content, false)
+         *            .then(function(content){
+         *                alert("Retrieved, updated and notication send off");
+         *            });
+         *    });
+         * </pre> 
+         * 
+         * @param {Object} content The content item object with changes applied
+         * @param {Bool} isNew set to true to create a new item or to update an existing 
+         * @param {Array} files collection of files for the document      
+         * @returns {Promise} resourcePromise object containing the saved content item.
+         *
+         */
         sendToPublish: function (content, isNew, files) {
             return saveContentItem(content, "sendPublish" + (isNew ? "New" : ""), files);
         },
 
+        /**
+         * @ngdoc method
+         * @name umbraco.resources.contentResource#publishByid
+         * @methodOf umbraco.resources.contentResource
+         *
+         * @description
+         * Publishes a content item with a given ID
+         * 
+         * ##usage
+         * <pre>
+         * contentResource.publishById(1234)
+         *    .then(function(content) {
+         *        alert("published");
+         *    });
+         * </pre> 
+         * 
+         * @param {Int} id The ID of the conten to publish
+         * @returns {Promise} resourcePromise object containing the published content item.
+         *
+         */
         publishById: function(id){
 
             if (!id) {
@@ -683,7 +730,25 @@ function contentTypeResource($q, $http, umbRequestHelper) {
 
     return {
 
-        //return a content type with a given ID
+        /**
+         * @ngdoc method
+         * @name umbraco.resources.contentTypeResource#getContentType
+         * @methodOf umbraco.resources.contentTypeResource
+         *
+         * @description
+         * Returns a content type with a given ID
+         *
+         * ##usage
+         * <pre>
+         * contentTypeResource.getContentType(1234)
+         *    .then(function(type) {
+         *        $scope.type = type;
+         *    });
+         * </pre> 
+         * @param {Int} id id of the content type to retrieve
+         * @returns {Promise} resourcePromise object.
+         *
+         */
         getContentType: function (id) {
 
             var deferred = $q.defer();
@@ -698,7 +763,25 @@ function contentTypeResource($q, $http, umbRequestHelper) {
             return deferred.promise;
         },
         
-        //return all types allowed under given document
+        /**
+         * @ngdoc method
+         * @name umbraco.resources.contentTypeResource#getAllowedTypes
+         * @methodOf umbraco.resources.contentTypeResource
+         *
+         * @description
+         * Returns a list of allowed content types underneath a content item with a given ID
+         *
+         * ##usage
+         * <pre>
+         * contentTypeResource.getAllowedTypes(1234)
+         *    .then(function(array) {
+         *        $scope.type = type;
+         *    });
+         * </pre> 
+         * @param {Int} contentId id of the content item to retrive allowed child types for
+         * @returns {Promise} resourcePromise object.
+         *
+         */
         getAllowedTypes: function (contentId) {
            
             return umbRequestHelper.resourcePromise(
@@ -715,12 +798,79 @@ function contentTypeResource($q, $http, umbRequestHelper) {
 angular.module('umbraco.resources').factory('contentTypeResource', contentTypeResource);
 /**
     * @ngdoc service
+    * @name umbraco.resources.currentUserResource
+    * @description Used for read/updates for the currently logged in user
+    * 
+    *
+    **/
+function currentUserResource($q, $http, umbRequestHelper) {
+
+    //the factory object returned
+    return {
+     
+        /**
+         * @ngdoc method
+         * @name umbraco.resources.currentUserResource#changePassword
+         * @methodOf umbraco.resources.currentUserResource
+         *
+         * @description
+         * Changes the current users password
+         * 
+         * @returns {Promise} resourcePromise object containing the user array.
+         *
+         */
+        changePassword: function (changePasswordArgs) {
+            return umbRequestHelper.resourcePromise(
+               $http.post(
+                   umbRequestHelper.getApiUrl(
+                       "currentUserApiBaseUrl",
+                       "PostChangePassword"),
+                       changePasswordArgs),
+               'Failed to change password');
+        },
+        
+        /**
+         * @ngdoc method
+         * @name umbraco.resources.currentUserResource#getMembershipProviderConfig
+         * @methodOf umbraco.resources.currentUserResource
+         *
+         * @description
+         * Gets the configuration of the user membership provider which is used to configure the change password form         
+         */
+        getMembershipProviderConfig: function () {
+            return umbRequestHelper.resourcePromise(
+               $http.get(
+                   umbRequestHelper.getApiUrl(
+                       "currentUserApiBaseUrl",
+                       "GetMembershipProviderConfig")),
+               'Failed to retreive membership provider config');
+        },
+    };
+}
+
+angular.module('umbraco.resources').factory('currentUserResource', currentUserResource);
+
+/**
+    * @ngdoc service
     * @name umbraco.resources.dashboardResource
     * @description Handles loading the dashboard manifest
     **/
 function dashboardResource($q, $http, umbRequestHelper) {
     //the factory object returned
     return {
+
+        /**
+         * @ngdoc method
+         * @name umbraco.resources.dashboardResource#getDashboard
+         * @methodOf umbraco.resources.dashboardResource
+         *
+         * @description
+         * Retrieves the dashboard configuration for a given section
+         * 
+         * @param {string} section Alias of section to retrieve dashboard configuraton for
+         * @returns {Promise} resourcePromise object containing the user array.
+         *
+         */
         getDashboard: function (section) {
           
             return umbRequestHelper.resourcePromise(
@@ -744,7 +894,28 @@ function dataTypeResource($q, $http, umbDataFormatter, umbRequestHelper) {
     
     return {
         
-        getPreValues: function (editorId, dataTypeId) {
+        /**
+         * @ngdoc method
+         * @name umbraco.resources.dataTypeResource#getPreValues
+         * @methodOf umbraco.resources.dataTypeResource
+         *
+         * @description
+         * Retrieves available prevalues for a given data type + editor
+         *
+         * ##usage
+         * <pre>
+         * dataTypeResource.getPrevalyes("Umbraco.MediaPicker", 1234)
+         *    .then(function(prevalues) {
+         *        alert('its gone!');
+         *    });
+         * </pre> 
+         * 
+         * @param {String} editorAlias string alias of editor type to retrive prevalues configuration for
+         * @param {Int} id id of datatype to retrieve prevalues for        
+         * @returns {Promise} resourcePromise object.
+         *
+         */  
+        getPreValues: function (editorAlias, dataTypeId) {
 
             if (!dataTypeId) {
                 dataTypeId = -1;
@@ -755,10 +926,30 @@ function dataTypeResource($q, $http, umbDataFormatter, umbRequestHelper) {
                    umbRequestHelper.getApiUrl(
                        "dataTypeApiBaseUrl",
                        "GetPreValues",
-                       [{ editorAlias: editorId }, { dataTypeId: dataTypeId }])),
+                       [{ editorAlias: editorAlias }, { dataTypeId: dataTypeId }])),
                'Failed to retreive pre values for editor id ' + editorId);
         },
 
+        /**
+         * @ngdoc method
+         * @name umbraco.resources.dataTypeResource#getById
+         * @methodOf umbraco.resources.dataTypeResource
+         *
+         * @description
+         * Gets a data type item with a given id
+         *
+         * ##usage
+         * <pre>
+         * dataTypeResource.getById(1234)
+         *    .then(function() {
+         *        alert('its gone!');
+         *    });
+         * </pre> 
+         * 
+         * @param {Int} id id of data type to retrieve        
+         * @returns {Promise} resourcePromise object.
+         *
+         */
         getById: function (id) {
             
             return umbRequestHelper.resourcePromise(
@@ -776,21 +967,45 @@ function dataTypeResource($q, $http, umbDataFormatter, umbRequestHelper) {
                $http.get(
                    umbRequestHelper.getApiUrl(
                        "dataTypeApiBaseUrl",
-                       "GetAll",
-                       [{ id: id }])),
-               'Failed to retreive data for data type id ' + id);
+                       "GetAll")),
+               'Failed to retreive data');
         },
 
-        /** returns an empty content object which can be persistent on the content service
-            requires the parent id and the alias of the content type to base the scaffold on */
-        getScaffold: function (parentId, alias) {
+        /**
+         * @ngdoc method
+         * @name umbraco.resources.contentResource#getScaffold
+         * @methodOf umbraco.resources.contentResource
+         *
+         * @description
+         * Returns a scaffold of an empty data type item
+         * 
+         * The scaffold is used to build editors for data types that has not yet been populated with data.
+         * 
+         * ##usage
+         * <pre>
+         * dataTypeResource.getScaffold()
+         *    .then(function(scaffold) {
+         *        var myType = scaffold;
+         *        myType.name = "My new data type"; 
+         *
+         *        dataTypeResource.save(myType, myType.preValues, true)
+         *            .then(function(type){
+         *                alert("Retrieved, updated and saved again");
+         *            });
+         *    });
+         * </pre> 
+         * 
+         * @returns {Promise} resourcePromise object containing the data type scaffold.
+         *
+         */
+        getScaffold: function () {
             
             return umbRequestHelper.resourcePromise(
                $http.get(
                    umbRequestHelper.getApiUrl(
                        "dataTypeApiBaseUrl",
                        "GetEmpty")),
-               'Failed to retreive data for empty datatype ' + alias);
+               'Failed to retreive data for empty datatype');
         },
         /**
          * @ngdoc method
@@ -798,7 +1013,7 @@ function dataTypeResource($q, $http, umbDataFormatter, umbRequestHelper) {
          * @methodOf umbraco.resources.dataTypeResource
          *
          * @description
-         * Deletes a content item with a given id
+         * Deletes a data type with a given id
          *
          * ##usage
          * <pre>
@@ -821,7 +1036,33 @@ function dataTypeResource($q, $http, umbDataFormatter, umbRequestHelper) {
                         [{ id: id }])),
                 'Failed to delete item ' + id);
         },
-        /** saves or updates a data type object */
+        
+        /**
+         * @ngdoc method
+         * @name umbraco.resources.dataTypeResource#deleteById
+         * @methodOf umbraco.resources.dataTypeResource
+         *
+         * @description
+         * Saves or update a data typw
+         *
+         * ##usage
+         * <pre>
+         * dataTypeResource.getById(1234)
+         *    .then(function(type) {
+         *        type.name ="hibba";
+         *  
+         *        dataTypeResource.save(type, type.preValues, false).then(function(type){
+         *          alert('its done!');
+         *        }): 
+         *    });
+         * </pre> 
+         * 
+         * @param {Object} dataType data type object to create/update
+         * @param {Array} preValues collection of prevalues on the datatype
+         * @param {Bool} isNew set to true if type should be create instead of updated  
+         * @returns {Promise} resourcePromise object.
+         *
+         */
         save: function (dataType, preValues, isNew) {
             
             var saveModel = umbDataFormatter.formatDataTypePostData(dataType, preValues, "save" + (isNew ? "New" : ""));
@@ -899,7 +1140,7 @@ function entityResource($q, $http, umbRequestHelper) {
                    umbRequestHelper.getApiUrl(
                        "entityApiBaseUrl",
                        "GetPath",
-                       [{ id: id, type: type }])),
+                       [{ id: id }, {type: type }])),
                'Failed to retrieve path for id:' + id);
         },
 
@@ -1101,6 +1342,28 @@ function entityResource($q, $http, umbRequestHelper) {
                'Failed to retreive entity data for query ' + query);
         },
         
+
+        /**
+         * @ngdoc method
+         * @name umbraco.resources.entityResource#searchAll
+         * @methodOf umbraco.resources.entityResource
+         *
+         * @description
+         * Gets an array of entities from all available search indexes, given a lucene query
+         *
+         * ##usage
+         * <pre>
+         * entityResource.searchAll("bob")
+         *    .then(function(array) {
+         *        var myDoc = array; 
+         *        alert('they are here!');
+         *    });
+         * </pre> 
+         * 
+         * @param {String} Query search query 
+         * @returns {Promise} resourcePromise object containing the entity array.
+         *
+         */
         searchAll: function (query) {
 
             return umbRequestHelper.resourcePromise(
@@ -1656,12 +1919,59 @@ function mediaResource($q, $http, umbDataFormatter, umbRequestHelper) {
                'Failed to retreive children for media item ' + parentId);
         },
         
-        /** saves or updates a media object */
+        /**
+         * @ngdoc method
+         * @name umbraco.resources.mediaResource#save
+         * @methodOf umbraco.resources.mediaResource
+         *
+         * @description
+         * Saves changes made to a media item, if the media item is new, the isNew paramater must be passed to force creation
+         * if the media item needs to have files attached, they must be provided as the files param and passed seperately 
+         * 
+         * 
+         * ##usage
+         * <pre>
+         * mediaResource.getById(1234)
+         *    .then(function(media) {
+         *          media.name = "I want a new name!";
+         *          mediaResource.save(media, false)
+         *            .then(function(media){
+         *                alert("Retrieved, updated and saved again");
+         *            });
+         *    });
+         * </pre> 
+         * 
+         * @param {Object} media The media item object with changes applied
+         * @param {Bool} isNew set to true to create a new item or to update an existing 
+         * @param {Array} files collection of files for the media item      
+         * @returns {Promise} resourcePromise object containing the saved media item.
+         *
+         */
         save: function (media, isNew, files) {
             return saveMediaItem(media, "save" + (isNew ? "New" : ""), files);
         },
 
-        //** shorthand for creating a new folder under a given parent **/
+        /**
+         * @ngdoc method
+         * @name umbraco.resources.mediaResource#addFolder
+         * @methodOf umbraco.resources.mediaResource
+         *
+         * @description
+         * Shorthand for adding a media item of the type "Folder" under a given parent ID
+         *
+         * ##usage
+         * <pre>
+         * mediaResource.addFolder("My gallery", 1234)
+         *    .then(function(folder) {
+         *        alert('New folder');
+         *    });
+         * </pre> 
+         *
+         * @param {string} name Name of the folder to create
+         * @param {int} parentId Id of the media item to create the folder underneath         
+         * @returns {Promise} resourcePromise object.
+         *
+         */
         addFolder: function(name, parentId){
             return umbRequestHelper.resourcePromise(
                 $http.post(umbRequestHelper
@@ -1671,6 +1981,34 @@ function mediaResource($q, $http, umbDataFormatter, umbRequestHelper) {
                         parentId: parentId
                     }),
                 'Failed to add folder');
+        },
+
+        /**
+         * @ngdoc method
+         * @name umbraco.resources.mediaResource#emptyRecycleBin
+         * @methodOf umbraco.resources.mediaResource
+         *
+         * @description
+         * Empties the media recycle bin
+         *
+         * ##usage
+         * <pre>
+         * mediaResource.emptyRecycleBin()
+         *    .then(function() {
+         *        alert('its empty!');
+         *    });
+         * </pre> 
+         *         
+         * @returns {Promise} resourcePromise object.
+         *
+         */
+        emptyRecycleBin: function() {
+            return umbRequestHelper.resourcePromise(
+                $http.delete(
+                    umbRequestHelper.getApiUrl(
+                        "mediaApiBaseUrl",
+                        "EmptyRecycleBin")),
+                'Failed to empty the recycle bin');
         }
     };
 }
@@ -1686,16 +2024,34 @@ function mediaTypeResource($q, $http, umbRequestHelper) {
 
     return {
 
-        //return all types allowed under given document
-        getAllowedTypes: function (contentId) {
+        /**
+         * @ngdoc method
+         * @name umbraco.resources.mediaTypeResource#getAllowedTypes
+         * @methodOf umbraco.resources.mediaTypeResource
+         *
+         * @description
+         * Returns a list of allowed media types underneath a media item with a given ID
+         *
+         * ##usage
+         * <pre>
+         * mediaTypeResource.getAllowedTypes(1234)
+         *    .then(function(array) {
+         *        $scope.type = type;
+         *    });
+         * </pre> 
+         * @param {Int} mediaId id of the media item to retrive allowed child types for
+         * @returns {Promise} resourcePromise object.
+         *
+         */
+        getAllowedTypes: function (mediaId) {
 
             return umbRequestHelper.resourcePromise(
                $http.get(
                    umbRequestHelper.getApiUrl(
                        "mediaTypeApiBaseUrl",
                        "GetAllowedChildren",
-                       [{ contentId: contentId }])),
-               'Failed to retreive data for media id ' + contentId);
+                       [{ contentId: mediaId }])),
+               'Failed to retreive data for media id ' + mediaId);
         }
 
     };
@@ -1821,17 +2177,54 @@ function memberResource($q, $http, umbDataFormatter, umbRequestHelper) {
          */
         getScaffold: function (alias) {
             
-            return umbRequestHelper.resourcePromise(
-               $http.get(
-                   umbRequestHelper.getApiUrl(
-                       "memberApiBaseUrl",
-                       "GetEmpty",
-                       [{ contentTypeAlias: alias }])),
-               'Failed to retreive data for empty member item type ' + alias);
+            if (alias) {
+                return umbRequestHelper.resourcePromise(
+                    $http.get(
+                        umbRequestHelper.getApiUrl(
+                            "memberApiBaseUrl",
+                            "GetEmpty",
+                            [{ contentTypeAlias: alias }])),
+                    'Failed to retreive data for empty member item type ' + alias);
+            }
+            else {
+                return umbRequestHelper.resourcePromise(
+                    $http.get(
+                        umbRequestHelper.getApiUrl(
+                            "memberApiBaseUrl",
+                            "GetEmpty")),
+                    'Failed to retreive data for empty member item type ' + alias);
+            }
 
         },
         
-        /** saves or updates a member object */
+        /**
+         * @ngdoc method
+         * @name umbraco.resources.memberResource#save
+         * @methodOf umbraco.resources.memberResource
+         *
+         * @description
+         * Saves changes made to a member, if the member is new, the isNew paramater must be passed to force creation
+         * if the member needs to have files attached, they must be provided as the files param and passed seperately 
+         * 
+         * 
+         * ##usage
+         * <pre>
+         * memberResource.getBykey("23234-sd8djsd-3h8d3j-sdh8d")
+         *    .then(function(member) {
+         *          member.name = "Bob";
+         *          memberResource.save(member, false)
+         *            .then(function(member){
+         *                alert("Retrieved, updated and saved again");
+         *            });
+         *    });
+         * </pre> 
+         * 
+         * @param {Object} media The member item object with changes applied
+         * @param {Bool} isNew set to true to create a new item or to update an existing 
+         * @param {Array} files collection of files for the media item      
+         * @returns {Promise} resourcePromise object containing the saved media item.
+         *
+         */
         save: function (member, isNew, files) {
             return saveMember(member, "save" + (isNew ? "New" : ""), files);
         }
@@ -1933,24 +2326,61 @@ function stylesheetResource($q, $http, umbRequestHelper) {
                'Failed to retreive stylesheets ');
         },
 
+        /**
+         * @ngdoc method
+         * @name umbraco.resources.stylesheetResource#getRules
+         * @methodOf umbraco.resources.stylesheetResource
+         *
+         * @description
+         * Returns all defined child rules for a stylesheet with a given ID
+         *
+         * ##usage
+         * <pre>
+         * stylesheetResource.getRules(2345)
+         *    .then(function(rules) {
+         *        alert('its here!');
+         *    });
+         * </pre> 
+         * 
+         * @returns {Promise} resourcePromise object containing the rules.
+         *
+         */
         getRules: function (id) {            
             return umbRequestHelper.resourcePromise(
                $http.get(
                    umbRequestHelper.getApiUrl(
                        "stylesheetApiBaseUrl",
                        "GetRules",
-                       [{ id: id }]
-                       )),
+                       [{ id: id }]) +"&rnd=" + Math.floor(Math.random()*1001), {cache: false}),
                'Failed to retreive stylesheets ');
         },
 
+        /**
+         * @ngdoc method
+         * @name umbraco.resources.stylesheetResource#getRulesByName
+         * @methodOf umbraco.resources.stylesheetResource
+         *
+         * @description
+         * Returns all defined child rules for a stylesheet with a given name
+         *
+         * ##usage
+         * <pre>
+         * stylesheetResource.getRulesByName("ie7stylesheet")
+         *    .then(function(rules) {
+         *        alert('its here!');
+         *    });
+         * </pre> 
+         * 
+         * @returns {Promise} resourcePromise object containing the rules.
+         *
+         */
         getRulesByName: function (name) {            
             return umbRequestHelper.resourcePromise(
                $http.get(
                    umbRequestHelper.getApiUrl(
                        "stylesheetApiBaseUrl",
                        "GetRulesByName",
-                       [{ name: name }])),
+                       [{ name: name }]) +"&rnd=" + Math.floor(Math.random()*1001), {cache: false}),
                'Failed to retreive stylesheets ');
         }
     };
@@ -2005,25 +2435,29 @@ function treeResource($q, $http, umbRequestHelper) {
             if (!options.isDialog) {
                 options.isDialog = false;
             }
+          
+            //create the query string for the tree request, these are the mandatory options:
+            var query = "application=" + options.section + "&tree=" + options.tree + "&isDialog=" + options.isDialog;
+
+            //the options can contain extra query string parameters
+            if (options.queryString) {
+                query += "&" + options.queryString;
+            }
 
             return umbRequestHelper.resourcePromise(
                 $http.get(
                     umbRequestHelper.getApiUrl(
                         "treeApplicationApiBaseUrl",
                         "GetApplicationTrees",
-                            [
-                                {application: options.section}, 
-                                { tree: options.tree },
-                                { isDialog: options.isDialog }
-                            ])),
+                            query)),
                 'Failed to retreive data for application tree ' + options.section);
         },
         
         /** Loads in the data to display the child nodes for a given node */
         loadNodes: function (options) {
 
-            if (!options || !options.node || !options.section) {
-                throw "The options parameter object does not contain the required properties: 'node' and 'section'";
+            if (!options || !options.node) {
+                throw "The options parameter object does not contain the required properties: 'node'";
             }
 
             return umbRequestHelper.resourcePromise(
@@ -2034,119 +2468,5 @@ function treeResource($q, $http, umbRequestHelper) {
 }
 
 angular.module('umbraco.resources').factory('treeResource', treeResource);
-/**
-    * @ngdoc service
-    * @name umbraco.resources.userResource
-    * @description Retrives user data from the server, cannot be used for authentication, for this, use the user.service
-    * 
-    *
-    **/
-function userResource($q, $http, umbRequestHelper) {
-
-    //the factory object returned
-    return {
-        
-        /**
-         * @ngdoc method
-         * @name umbraco.resources.userResource#getById
-         * @methodOf umbraco.resources.userResource
-         *
-         * @description
-         * Gets a user with a given id
-         *
-         * ##usage
-         * <pre>
-         * userResource.getById(1234)
-         *    .then(function(ent) {
-         *        var myUser = ent; 
-         *        alert('im here!');
-         *    });
-         * </pre> 
-         * 
-         * @param {Int} id id of user to return        
-         * @returns {Promise} resourcePromise object containing the user.
-         *
-         */
-        getById: function (id) {            
-            return umbRequestHelper.resourcePromise(
-               $http.get(
-                   umbRequestHelper.getApiUrl(
-                       "userApiBaseUrl",
-                       "GetById",
-                       [{ id: id }])),
-               'Failed to retreive user data for id ' + id);
-        },
-        
-        /**
-         * @ngdoc method
-         * @name umbraco.resources.userResource#getAll
-         * @methodOf umbraco.resources.userResource
-         *
-         * @description
-         * Gets all users available on the system
-         *
-         * ##usage
-         * <pre>
-         * contentResource.getAll()
-         *    .then(function(userArray) {
-         *        var myUsers = userArray; 
-         *        alert('they are here!');
-         *    });
-         * </pre> 
-         * 
-         * @returns {Promise} resourcePromise object containing the user array.
-         *
-         */
-        getAll: function () {
-            return umbRequestHelper.resourcePromise(
-               $http.get(
-                   umbRequestHelper.getApiUrl(
-                       "userApiBaseUrl",
-                       "GetAll")),
-               'Failed to retreive all users');
-        },
-
-        /**
-         * @ngdoc method
-         * @name umbraco.resources.userResource#changePassword
-         * @methodOf umbraco.resources.userResource
-         *
-         * @description
-         * Changes the current users password
-         * 
-         * @returns {Promise} resourcePromise object containing the user array.
-         *
-         */
-        changePassword: function (changePasswordArgs) {
-            return umbRequestHelper.resourcePromise(
-               $http.post(
-                   umbRequestHelper.getApiUrl(
-                       "userApiBaseUrl",
-                       "PostChangePassword"),
-                       changePasswordArgs),
-               'Failed to change password');
-        },
-        
-        /**
-         * @ngdoc method
-         * @name umbraco.resources.userResource#getMembershipProviderConfig
-         * @methodOf umbraco.resources.userResource
-         *
-         * @description
-         * Gets the configuration of the user membership provider which is used to configure the change password form         
-         */
-        getMembershipProviderConfig: function () {
-            return umbRequestHelper.resourcePromise(
-               $http.get(
-                   umbRequestHelper.getApiUrl(
-                       "userApiBaseUrl",
-                       "GetMembershipProviderConfig")),
-               'Failed to retreive membership provider config');
-        },
-    };
-}
-
-angular.module('umbraco.resources').factory('userResource', userResource);
-
 
 })();

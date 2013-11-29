@@ -1,11 +1,11 @@
 <div id="leftcolumn" ng-controller="Umbraco.NavigationController" 
-    ng-mouseleave="nav.leaveTree($event)" ng-mouseenter="nav.enterTree($event)">
+    ng-mouseleave="leaveTree($event)" ng-mouseenter="enterTree($event)">
     
-    <umb-sections sections="sections">
+    <umb-sections sections="sections" ng-if="authenticated">
     </umb-sections>
 
     <!-- navigation container -->
-    <div id="navigation" ng-show="nav.ui.showNavigation" class="fill shadow umb-modalcolumn" ng-animate="'slide'">
+    <div id="navigation" ng-show="showNavigation" class="fill umb-modalcolumn" ng-animate="'slide'">
 
         <div ng-swipe-left="nav.hideNavigation()" class="navigation-inner-container span6" style="z-index: 100">
             
@@ -19,17 +19,18 @@
                         <form class="form-search" novalidate>
                             <i class="icon-search"></i>
                             <input type="text"
-                                   id="search-field"
-                                   ng-model="searchTerm"
-                                   class="umb-search-field search-query"
-                                   localize="placeholder"
-                                   placeholder="@placeholders_search"/>                            
+                                hotkey="ctrl+shift+s"
+                                id="search-field"
+                                ng-model="searchTerm"
+                                class="umb-search-field search-query"
+                                localize="placeholder"
+                                placeholder="@placeholders_search"/>                            
                         </form>
                     </div>
                 </div>
 
                 <!-- Search results -->
-                <div id="search-results" class="umb-modalcolumn-body" ng-show="nav.ui.showSearchResults">
+                <div id="search-results" class="umb-modalcolumn-body" ng-show="showSearchResults">
 
                     <ul class="umb-tree">
                         <li class="root">
@@ -40,7 +41,7 @@
                             <ul class="umb-search-group" ng-repeat="resultGroup in searchResults">
                                 <li ng-repeat="result in resultGroup.results">
                                     <div>
-                                        <a ng-class="{'first':$first}" ng-href="#/{{result.editorPath}}">
+                                        <a ng-class="{'first':$first}" ng-click="searchHide()" ng-href="#/{{result.editorPath}}">
 
                                             <i class="icon umb-tree-icon sprTree {{result.icon}}"></i>
                                             {{result.name}}
@@ -61,27 +62,34 @@
             </div>
 
             <!-- the tree -->
-            <div id="tree" class="umb-modalcolumn-body">
+            <div id="tree" class="umb-modalcolumn-body" ng-if="authenticated">
                 <umb-tree 
                     cachekey="_"
                     eventhandler="treeEventHandler" 
-                    path="{{nav.ui.currentPath}}" 
-                    section="{{nav.ui.currentSection}}"
-                    activetree="{{nav.ui.currentTree}}" >
+                    section="{{currentSection}}" >
                 </umb-tree>
             </div>
         </div>
 
         <div class="offset6" style="z-index: 10">
+            
             <!-- The context menu -->
-            <umb-context-menu></umb-context-menu>
+            <div id='contextMenu' class="umb-modalcolumn fill shadow" ng-swipe-left="nav.hideMenu()" ng-show="showContextMenu" ng-animate="'slide'">
+                <umb-context-menu                     
+                    menu-dialog-title="{{menuDialogTitle}}"
+                    current-section="{{currentSection}}"
+                    current-node="menuNode"
+                    menu-actions="menuActions">
+                </umb-context-menu>    
+            </div>
+            
             
             <!-- Tree dialogs -->
             <div id="dialog" class='umb-modalcolumn fill shadow'
                 ng-swipe-left="nav.hideDialog()"
-                ng-show="nav.ui.showContextMenuDialog" ng-animate="'slide'">
+                ng-show="showContextMenuDialog" ng-animate="'slide'">
                 <div class='umb-modalcolumn-header'>
-                    <h1>{{nav.ui.dialogTitle}}</h1>
+                    <h1>{{menuDialogTitle}}</h1>
                 </div>
                 <div class='umb-modalcolumn-body'>
                 </div>

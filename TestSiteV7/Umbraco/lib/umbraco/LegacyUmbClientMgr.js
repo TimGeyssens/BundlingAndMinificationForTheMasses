@@ -83,23 +83,70 @@ Umbraco.Sys.registerNamespace("Umbraco.Application");
             mainTree: function() {
                 var injector = getRootInjector();
                 var navService = injector.get("navigationService");
+                var appState = injector.get("appState");
+                var angularHelper = injector.get("angularHelper");
+                var $rootScope = injector.get("$rootScope");
 
                 //mimic the API of the legacy tree
                 var tree = {
-                    setActiveTreeType : function(treeType){
-                         navService.setActiveTreeType(treeType);
+                    setActiveTreeType: function (treeType) {
+                        angularHelper.safeApply($rootScope, function() {
+                            navService._setActiveTreeType(treeType);
+                        });
                     },
-                    syncTree : function(path,forceReload){
-                        navService.syncPath(path, forceReload);
+                    syncTree: function (path, forceReload) {
+                        angularHelper.safeApply($rootScope, function() {
+                            navService._syncPath(path, forceReload);
+                        });
+                    },
+                    clearTreeCache: function(){
+                        var treeService = injector.get("treeService");
+                        angularHelper.safeApply($rootScope, function() {
+                            treeService.clearCache();
+                        });
+                    },
+                    reloadActionNode: function () {
+                        angularHelper.safeApply($rootScope, function() {
+                            var currentMenuNode = appState.getMenuState("currentNode");
+                            if (currentMenuNode) {
+                                navService.reloadNode(currentMenuNode);
+                            }
+                        });
+                    },
+                    refreshTree: function (treeAlias) {
+                        angularHelper.safeApply($rootScope, function() {
+                            navService._setActiveTreeType(treeAlias, true);
+                        });                        
+                    },
+                    moveNode: function (id, path) {
+                        angularHelper.safeApply($rootScope, function() {
+                            var currentMenuNode = appState.getMenuState("currentNode");
+                            if (currentMenuNode) {
+                                var treeService = injector.get("treeService");
+                                var treeRoot = treeService.getTreeRoot(currentMenuNode);
+                                if (treeRoot) {
+                                    var found = treeService.getDescendantNode(treeRoot, id);
+                                    if (found) {
+                                        treeService.removeNode(found);
+                                    }
+                                }
+                            }
+                            navService._syncPath(path, true);
+                        });                        
                     },
                     getActionNode: function () {
                         //need to replicate the legacy tree node
+                        var currentMenuNode = appState.getMenuState("currentNode");
+                        if (!currentMenuNode) {
+                            return null;
+                        }
+                        
                         var legacyNode = {
-                            nodeId: navService.ui.currentNode.id,
-                            nodeName: navService.ui.currentNode.name,
-                            nodeType: navService.ui.currentNode.nodeType,
-                            treeType: navService.ui.currentNode.nodeType,
-                            sourceUrl: navService.ui.currentNode.childNodesUrl,
+                            nodeId: currentMenuNode.id,
+                            nodeName: currentMenuNode.name,
+                            nodeType: currentMenuNode.nodeType,
+                            treeType: currentMenuNode.nodeType,
+                            sourceUrl: currentMenuNode.childNodesUrl,
                             updateDefinition: function() {
                                 throw "'updateDefinition' method is not supported in Umbraco 7, consider upgrading to the new v7 APIs";
                             }
@@ -245,8 +292,10 @@ Umbraco.Sys.registerNamespace("Umbraco.Application");
                 // will show up on the right hand side and a dialog will show up as if it is in the menu.
                 // with the legacy API we cannot know what is expected so we can only check if the menu is active, if it is
                 // we'll launch a dialog, otherwise a modal.
+                var appState = injector.get("appState");
+                var navMode = appState.getGlobalState("navMode");
                 var dialog;
-                if (navService.ui.currentMode === "menu") {
+                if (navMode === "menu") {
                     dialog = navService.showDialog({
                         //create a 'fake' action to passin with the specified actionUrl since it needs to load into an iframe
                         action: {
@@ -312,7 +361,7 @@ Umbraco.Sys.registerNamespace("Umbraco.Application");
                 else {
                     //instead of calling just the dialog service we funnel it through the global 
                     //event emitter
-                    getRootScope().$emit("closeDialogs", event);
+                    getRootScope().$emit("closeDialogs", undefined);
                 }                
             },
             _debug: function(strMsg) {

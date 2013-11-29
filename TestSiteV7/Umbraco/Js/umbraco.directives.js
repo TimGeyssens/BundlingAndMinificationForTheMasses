@@ -1,4 +1,4 @@
-/*! umbraco - v0.0.1-TechnicalPReview - 2013-11-01
+/*! umbraco - v7.0.0-Beta - 2013-11-21
  * https://github.com/umbraco/umbraco-cms/tree/7.0.0
  * Copyright (c) 2013 Umbraco HQ;
  * Licensed MIT
@@ -510,12 +510,60 @@ angular.module("umbraco.directives.html")
 * @restrict E
 **/
 angular.module("umbraco.directives.html")
-	.directive('umbPanel', function(){
+	.directive('umbPanel', function($timeout){
 		return {
 			restrict: 'E',
 			replace: true,
 			transclude: 'true',
-			templateUrl: 'views/directives/html/umb-panel.html'
+			templateUrl: 'views/directives/html/umb-panel.html',
+			link: function (scope, el, attrs) {
+				
+				function _setClass(resize){
+					var bar = $(".tab-content .active .umb-tab-buttons");
+
+					//incase this runs without any tabs
+					if(bar.length === 0){
+						bar = $(".tab-content .umb-tab-buttons");
+					}
+
+					//no need to process
+					if(resize){
+						bar.removeClass("umb-bottom-bar");
+					}	
+
+					//already positioned
+					if(bar.hasClass("umb-bottom-bar")){
+						return;
+					}
+
+					var offset = bar.offset();
+
+					if(offset){
+						var bottom = bar.offset().top + bar.height();
+			            if(bottom > $(window).height()){
+							bar.addClass("umb-bottom-bar");
+							$(".tab-content .active").addClass("with-buttons");
+						}else{
+							bar.removeClass("umb-bottom-bar");
+							$(".tab-content .active").removeClass("with-buttons");
+						}	
+					}
+				}
+
+
+				//initial loading
+				$timeout(function(){
+					$('a[data-toggle="tab"]').on('shown', function (e) {
+						_setClass();	
+					});
+					_setClass();
+				}, 1000, false);
+				
+				
+				$(window).bind("resize", function () {
+				  _setClass(true);
+				});	
+			}
 		};
 	});
 /**
@@ -623,18 +671,19 @@ angular.module("umbraco.directives.html")
             // if total width is slightly smaller than 
             // actual div width then add 1 to each 
             // photo width till they match
-            i = 0;
-            while (tw < w) {
+            
+            /*i = 0;
+            while (tw < w-1) {
                 row.photos[i].style.width++;
                 i = (i + 1) % c;
                 tw++;
-            }
+            }*/
 
             // if total width is slightly bigger than 
             // actual div width then subtract 1 from each 
             // photo width till they match
             i = 0;
-            while (tw > w) {
+            while (tw > w-1) {
                 row.photos[i].style.width--;
                 i = (i + 1) % c;
                 tw--;
@@ -658,6 +707,7 @@ angular.module("umbraco.directives.html")
                     $timeout(function () {
                         var photos = ngModel.$modelValue;
 
+                        scope.imagesOnly = element.attr('imagesOnly');
                         scope.baseline = element.attr('baseline') ? parseInt(element.attr('baseline'), 10) : 0;
                         scope.minWidth = element.attr('min-width') ? parseInt(element.attr('min-width'), 10) : 420;
                         scope.minHeight = element.attr('min-height') ? parseInt(element.attr('min-height'), 10) : 200;
@@ -830,6 +880,14 @@ angular.module("umbraco.directives")
         }
     };
 });
+angular.module("umbraco.directives")
+  .directive('selectOnFocus', function () {
+    return function (scope, el, attrs) {
+        $(el).bind("click", function(){
+          this.select();
+        });
+    };
+  });
 /**
 * @ngdoc directive
 * @name umbraco.directives.directive:umbItemSorter
@@ -951,54 +1009,24 @@ function confirmDirective() {
 }
 angular.module('umbraco.directives').directive("umbConfirm", confirmDirective);
 angular.module("umbraco.directives")
-.directive('umbContextMenu', function ($injector) {
+.directive('umbContextMenu', function (navigationService) {
     return {
+        scope: {
+            menuDialogTitle: "@",
+            currentSection: "@",
+            currentNode: "=",
+            menuActions: "="
+        },
         restrict: 'E',
         replace: true,
         templateUrl: 'views/directives/umb-contextmenu.html',
         link: function (scope, element, attrs, ctrl) {
-
+            
             //adds a handler to the context menu item click, we need to handle this differently
             //depending on what the menu item is supposed to do.
-            scope.executeMenuItem = function (currentNode, action, currentSection) {
-
-                if (action.metaData && action.metaData["jsAction"] && angular.isString(action.metaData["jsAction"])) {
-
-                    //we'll try to get the jsAction from the injector
-                    var menuAction = action.metaData["jsAction"].split('.');
-                    if (menuAction.length !== 2) {
-
-                        //if it is not two parts long then this most likely means that it's a legacy action                         
-                        var js = action.metaData["jsAction"].replace("javascript:", "");
-                        //there's not really a different way to acheive this except for eval 
-                        eval(js);
-
-                    }
-                    else {
-                        var service = $injector.get(menuAction[0]);
-                        if (!service) {
-                            throw "The angular service " + menuAction[0] + " could not be found";
-                        }
-
-                        var method = service[menuAction[1]];
-
-                        if (!method) {
-                            throw "The method " + menuAction[1] + " on the angular service " + menuAction[0] + " could not be found";
-                        }
-
-                        method.apply(this, [{
-                            treeNode: currentNode,
-                            action: action,
-                            section: currentSection
-                        }]);
-                    }
-                }
-                else {
-                    //by default we launch the dialog
-                    scope.openDialog(currentNode, action, currentSection);
-                }
+            scope.executeMenuItem = function (action) {
+                navigationService.executeMenuAction(action, scope.currentNode, scope.currentSection);
             };
-
         }
     };
 });
@@ -1073,10 +1101,14 @@ angular.module("umbraco.directives")
         },
         link: function (scope, iElement, iAttrs) {
 
+            var maxTabs = 4;
+
             function collectFromDom(activeTab){
                 var $panes = $('div.tab-content');
-                $panes.find('.tab-pane').each(function (index) {
-                    var $this = angular.element(this);
+                
+                angular.forEach($panes.find('.tab-pane'), function (pane, index) {
+                    var $this = angular.element(pane);
+
                     var id = $this.attr("rel");
                     var label = $this.attr("label");
                     var tab = {id: id, label: label, active: false};
@@ -1091,44 +1123,38 @@ angular.module("umbraco.directives")
                     else {
                         $this.removeClass('active');
                     }
-
-                    //this is sorta hacky since we add a tab object to the tabs collection
-                    //based on a dom element, there is most likely a better way...    
-                    if (label) {
-                        scope.collectedTabs.push(tab);
+                    
+                    if(label){
+                            scope.visibleTabs.push(tab);
                     }
+
                 });
             }
 
             scope.showTabs = iAttrs.tabs ? true : false;
-            scope.collectedTabs = [];
+            scope.visibleTabs = [];
+            scope.overflownTabs = [];
 
             $timeout(function () {
-                                collectFromDom(undefined);
-                            }, 500);
+                collectFromDom(undefined);
+            }, 500);
 
             //when the tabs change, we need to hack the planet a bit and force the first tab content to be active,
             //unfortunately twitter bootstrap tabs is not playing perfectly with angular.
             scope.$watch("tabs", function (newValue, oldValue) {
 
-                $(newValue).each(function(i, val){
-                        scope.collectedTabs.push({id: val.id, label: val.label});
+                angular.forEach(newValue, function(val, index){
+                        var tab = {id: val.id, label: val.label};
+                        scope.visibleTabs.push(tab);
                 });
-                //scope.collectedTabs = newValue;
-
+                
                 //don't process if we cannot or have already done so
                 if (!newValue) {return;}
-                //if (hasProcessed || !newValue.length || newValue.length == 0) return;
                 if (!newValue.length || newValue.length === 0){return;}
-                
-                //set the flag
-                //hasProcessed = true;
-
                 
                 var activeTab = _.find(newValue, function (item) {
                     return item.active;
                 });
-
 
                 //we need to do a timeout here so that the current sync operation can complete
                 // and update the UI, then this will fire and the UI elements will be available.
@@ -1185,6 +1211,45 @@ function notificationDirective() {
 }
 
 angular.module('umbraco.directives').directive("umbNotifications", notificationDirective);
+angular.module("umbraco.directives")
+.directive('umbOptionsMenu', function ($injector, treeService, navigationService, umbModelMapper, appState) {
+    return {
+        scope: {
+            currentSection: "@",
+            currentNode: "="
+        },
+        restrict: 'E',
+        replace: true,
+        templateUrl: 'views/directives/umb-optionsmenu.html',
+        link: function (scope, element, attrs, ctrl) {
+
+            //adds a handler to the context menu item click, we need to handle this differently
+            //depending on what the menu item is supposed to do.
+            scope.executeMenuItem = function (action) {
+                navigationService.executeMenuAction(action, scope.currentNode, scope.currentSection);
+            };
+
+            //callback method to go and get the options async
+            scope.getOptions = function () {
+
+                if (!scope.currentNode) {
+                    return;
+                }
+                
+                //when the options item is selected, we need to set the current menu item in appState (since this is synonymous with a menu)
+                appState.setMenuState("currentNode", scope.currentNode);
+
+                if (!scope.actions) {
+                    treeService.getMenu({ treeNode: scope.currentNode })
+                        .then(function (data) {
+                            scope.actions = data.menuItems;
+                        });
+                }
+            };
+
+        }
+    };
+});
 /**
 * @ngdoc directive
 * @name umbraco.directives.directive:umbProperty
@@ -1210,18 +1275,29 @@ angular.module("umbraco.directives")
 * @name umbraco.directives.directive:umbSections
 * @restrict E
 **/
-function sectionsDirective($timeout, $window, navigationService, treeService, sectionResource) {
+function sectionsDirective($timeout, $window, navigationService, treeService, sectionResource, appState) {
     return {
         restrict: "E",    // restrict to an element
         replace: true,   // replace the html element with the template
         templateUrl: 'views/directives/umb-sections.html',
         link: function (scope, element, attr, ctrl) {
 			
+            //setup scope vars
 			scope.maxSections = 7;
 			scope.overflowingSections = 0;
             scope.sections = [];
-            scope.nav = navigationService;
-
+            scope.currentSection = appState.getSectionState("currentSection");
+            scope.showTray = false; //appState.getGlobalState("showTray");
+            scope.stickyNavigation = appState.getGlobalState("stickyNavigation");
+            scope.needTray = false;
+            scope.trayAnimation = function() {                
+                if (scope.showTray) {
+                    return 'slide';
+                }
+                else {
+                    return '';
+                }
+            };
 
 			function loadSections(){
 				sectionResource.getSections()
@@ -1245,15 +1321,23 @@ function sectionsDirective($timeout, $window, navigationService, treeService, se
 					}
 				});
 			}
-
-			//When the user logs in
-			scope.$on("authenticated", function (evt, data) {
-				//populate their sections if the user has changed
-				if (data.lastUserId !== data.user.id) {
-					loadSections();
-				}        
-			});	
             
+            //Listen for global state changes
+			scope.$on("appState.globalState.changed", function (e, args) {
+			    if (args.key === "showTray") {
+			        scope.showTray = args.value;
+			    }
+			    if (args.key === "stickyNavigation") {
+			        scope.stickyNavigation = args.value;
+			    }
+			});
+
+			scope.$on("appState.sectionState.changed", function (e, args) {
+			    if (args.key === "currentSection") {
+			        scope.currentSection = args.value;
+			    }
+			});
+
 			//on page resize
 			window.onresize = calculateHeight;
 			
@@ -1277,6 +1361,8 @@ function sectionsDirective($timeout, $window, navigationService, treeService, se
 			scope.trayClick = function(){
 				navigationService.showTray();
 			};
+            
+			loadSections();
 
         }
     };
@@ -1337,7 +1423,7 @@ angular.module("umbraco.directives")
 * @restrict E
 **/
 angular.module("umbraco.directives")
-.directive('umbTabView', function(){
+.directive('umbTabView', function($timeout, $log){
 	return {
 		restrict: 'E',
 		replace: true,
@@ -1350,261 +1436,376 @@ angular.module("umbraco.directives")
 * @name umbraco.directives.directive:umbTree
 * @restrict E
 **/
-angular.module("umbraco.directives")
-  .directive('umbTree', function ($compile, $log, $q, $rootScope, treeService, notificationsService, $timeout) {
-    
+function umbTreeDirective($compile, $log, $q, $rootScope, treeService, notificationsService, $timeout) {
+
     return {
-      restrict: 'E',
-      replace: true,
-      terminal: false,
+        restrict: 'E',
+        replace: true,
+        terminal: false,
 
-      scope: {
-        section: '@',
-        treealias: '@',
-        showoptions: '@',
-        showheader: '@',
-        cachekey: '@',
-        isdialog: '@',
-        eventhandler: '='
-      },
+        scope: {
+            section: '@',
+            treealias: '@',
+            hideoptions: '@',
+            hideheader: '@',
+            cachekey: '@',
+            isdialog: '@',
+            //Custom query string arguments to pass in to the tree as a string, example: "startnodeid=123&something=value"
+            customtreeparams: '@',
+            eventhandler: '='
+        },
 
-      compile: function (element, attrs) {
-         //config
-         var hideheader = (attrs.showheader === 'false') ? true : false;
-         var hideoptions = (attrs.showoptions === 'false') ? "hide-options" : "";
-         
-         var template = '<ul class="umb-tree ' + hideoptions + '">' + 
-         '<li class="root">';
-
-         if(!hideheader){ 
-           template +='<div>' + 
-           '<h5><a href="#/{{section}}" ng-click="select(this, tree.root, $event)" on-right-click="altSelect(this, tree.root, $event)"  class="root-link">{{tree.name}}</a></h5>' +
-               '<a href class="umb-options" ng-hide="tree.root.isContainer || !tree.root.menuUrl" ng-click="options(this, tree.root, $event)" ng-swipe-right="options(this, tree.root, $event)"><i></i><i></i><i></i></a>' +
-           '</div>';
-         }
-         template += '<ul>' +
-                  '<umb-tree-item ng-repeat="child in tree.root.children" eventhandler="eventhandler" path="{{path}}" activetree="{{activetree}}" node="child" current-node="currentNode" tree="child" section="{{section}}" ng-animate="animation()"></umb-tree-item>' +
-                  '</ul>' +
+        compile: function(element, attrs) {
+            //config
+            //var showheader = (attrs.showheader !== 'false');
+            var hideoptions = (attrs.hideoptions === 'true') ? "hide-options" : "";
+            var template = '<ul class="umb-tree ' + hideoptions + '"><li class="root">';
+            template += '<div ng-hide="hideheader">' +
+                '<h5><a href="#/{{section}}" ng-click="select(this, tree.root, $event)" on-right-click="altSelect(this, tree.root, $event)"  class="root-link">{{tree.name}}</a></h5>' +
+                '<a href class="umb-options" ng-hide="tree.root.isContainer || !tree.root.menuUrl" ng-click="options(this, tree.root, $event)" ng-swipe-right="options(this, tree.root, $event)"><i></i><i></i><i></i></a>' +
+                '</div>';
+            template += '<ul>' +
+                '<umb-tree-item ng-repeat="child in tree.root.children" eventhandler="eventhandler" node="child" current-node="currentNode" tree="child" section="{{section}}" ng-animate="animation()"></umb-tree-item>' +
+                '</ul>' +
                 '</li>' +
-               '</ul>';
+                '</ul>';
 
-        element.replaceWith(template);
+            element.replaceWith(template);
 
-        return function (scope, elem, attr, controller) {
+            return function(scope, elem, attr, controller) {
 
-            //flag to track the last loaded section when the tree 'un-loads'. We use this to determine if we should
-            // re-load the tree again. For example, if we hover over 'content' the content tree is shown. Then we hover
-            // outside of the tree and the tree 'un-loads'. When we re-hover over 'content', we don't want to re-load the 
-            // entire tree again since we already still have it in memory. Of course if the section is different we will
-            // reload it. This saves a lot on processing if someone is navigating in and out of the same section many times
-            // since it saves on data retreival and DOM processing.
-            var lastSection = "";
-            
-            //keeps track of the currently active tree being called by editors syncing
-            var activeTree;
-
-            //flag to enable/disable delete animations
-            var enableDeleteAnimations = false;
-
-            /** Helper function to emit tree events */
-            function emitEvent(eventName, args) {
-              if (scope.eventhandler) {
-                $(scope.eventhandler).trigger(eventName, args);
-              }
-            }
-
-            function setupExternalEvents() {
-              if (scope.eventhandler) {
+                //flag to track the last loaded section when the tree 'un-loads'. We use this to determine if we should
+                // re-load the tree again. For example, if we hover over 'content' the content tree is shown. Then we hover
+                // outside of the tree and the tree 'un-loads'. When we re-hover over 'content', we don't want to re-load the 
+                // entire tree again since we already still have it in memory. Of course if the section is different we will
+                // reload it. This saves a lot on processing if someone is navigating in and out of the same section many times
+                // since it saves on data retreival and DOM processing.
+                var lastSection = "";
                 
-                scope.eventhandler.clearCache = function(section){
-                    treeService.clearCache({ section: section });
-                };
+                //setup a default internal handler
+                if (!scope.eventhandler) {
+                    scope.eventhandler = $({});
+                }
 
-                scope.eventhandler.load = function(section){
-                  scope.section = section;
-                  loadTree();
-                };
+                //flag to enable/disable delete animations
+                var deleteAnimations = false;
 
-                scope.eventhandler.syncPath = function(path, forceReload){
-                  if(!angular.isArray(path)){
-                    path = path.split(',');
-                  }
-                  //reset current node selection
-                  scope.currentNode = undefined;
 
-                  //filter the path for root node ids
-                  path = _.filter(path, function(item){ return (item !== "init" && item !== "-1"); });
-                   
-                  //if we have a active tree, we sync based on that.
-                  var root = activeTree ? activeTree : scope.tree.root;
-
-                   //tell the tree to sync the children below the root
-                   syncTree(root, path, forceReload);
-                };
+                /** Helper function to emit tree events */
+                function emitEvent(eventName, args) {
+                    if (scope.eventhandler) {
+                        $(scope.eventhandler).trigger(eventName, args);
+                    }
+                }
                 
-                scope.eventhandler.setActiveTreeType = function(treeAlias){
-                    activeTree = _.find(scope.tree.root.children, function(node){ return node.metaData.treeAlias === treeAlias; });
-                };
-              }
-            }
+                /** This will deleteAnimations to true after the current digest */
+                function enableDeleteAnimations() {
+                    //do timeout so that it re-enables them after this digest
+                    $timeout(function () {
+                        //enable delete animations
+                        deleteAnimations = true;
+                    }, 0, false);
+                }
 
-            /** Method to load in the tree data */
-            function loadTree() {                
-                if (!scope.loading && scope.section) {
-                    scope.loading = true;
 
-                    //anytime we want to load the tree we need to disable the delete animations
-                    enableDeleteAnimations = false;
+                /*this is the only external interface a tree has */
+                function setupExternalEvents() {
+                    if (scope.eventhandler) {
 
-                    //use $q.when because a promise OR raw data might be returned.
-                    treeService.getTree({ section: scope.section, tree: scope.treealias, cacheKey: scope.cachekey, isDialog: scope.isdialog ? scope.isdialog : false })
-                        .then(function (data) {
-                            //set the data once we have it
-                            scope.tree = data;
+                        scope.eventhandler.clearCache = function(section) {
+                            treeService.clearCache({ section: section });
+                        };
 
-                            //do timeout so that it re-enables them after this digest
-                            $timeout(function() {
-                                
-                                //enable delete animations
-                                enableDeleteAnimations = true;
+                        scope.eventhandler.load = function(section) {
+                            scope.section = section;
+                            loadTree();
+                        };
+
+                        scope.eventhandler.reloadNode = function(node) {
+
+                            if (!node) {
+                                node = scope.currentNode;
+                            }
+
+                            if (node) {
+                                scope.loadChildren(node, true);
+                            }
+                        };
+                        
+                        /** 
+                            Used to do the tree syncing. If the args.tree is not specified we are assuming it has been 
+                            specified previously using the _setActiveTreeType
+                        */
+                        scope.eventhandler.syncTree = function(args) {
+                            if (!args) {
+                                throw "args cannot be null";
+                            }
+                            if (!args.path) {
+                                throw "args.path cannot be null";
+                            }
+                            
+                            var deferred = $q.defer();
+
+                            //this is super complex but seems to be working in other places, here we're listening for our
+                            // own events, once the tree is sycned we'll resolve our promise.
+                            scope.eventhandler.one("treeSynced", function (e, syncArgs) {
+                                deferred.resolve(syncArgs);
                             });
 
-                            scope.loading = false;
-                        }, function (reason) {
-                            scope.loading = false;
-                            notificationsService.error("Tree Error", reason);
-                        });
+                            //this should normally be set unless it is being called from legacy 
+                            // code, so set the active tree type before proceeding.
+                            if (args.tree) {
+                                loadActiveTree(args.tree);
+                            }
+
+                            if (angular.isString(args.path)) {
+                                args.path = args.path.replace('"', '').split(',');
+                            }
+
+                            //reset current node selection
+                            //scope.currentNode = null;
+
+                            //filter the path for root node ids
+                            args.path = _.filter(args.path, function (item) { return (item !== "init" && item !== "-1"); });
+                            loadPath(args.path, args.forceReload, args.activate);
+
+                            return deferred.promise;
+                        };
+
+                        /** 
+                            Internal method that should ONLY be used by the legacy API wrapper, the legacy API used to 
+                            have to set an active tree and then sync, the new API does this in one method by using syncTree.
+                            loadChildren is optional but if it is set, it will set the current active tree and load the root
+                            node's children - this is synonymous with the legacy refreshTree method - again should not be used
+                            and should only be used for the legacy code to work.
+                        */
+                        scope.eventhandler._setActiveTreeType = function(treeAlias, loadChildren) {
+                            loadActiveTree(treeAlias, loadChildren);
+                        };
+                    }
                 }
-            }
 
-            function syncTree(node, array, forceReload) {
-              if(!node || !array || array.length === 0){
-                return;
-              }
 
-              scope.loadChildren(node, forceReload)
-                .then(function(children){
-                    var next = _.where(children, {id: array[0]});
-                    if(next && next.length > 0){
-                      
-                      if(array.length > 0){
-                        array.splice(0,1);
-                      }else{
+                //helper to load a specific path on the active tree as soon as its ready
+                function loadPath(path, forceReload, activate) {
 
-                      }
-                      
-                      if(array.length === 0){
-                          scope.currentNode = next[0];
-                      }
+                    if (scope.activeTree) {
+                        syncTree(scope.activeTree, path, forceReload, activate);
+                    }
+                    else {
+                        scope.eventhandler.one("activeTreeLoaded", function (e, args) {
+                            syncTree(args.tree, path, forceReload, activate);
+                        });
+                    }
+                }
 
-                      syncTree(next[0], array, forceReload);
+                
+                //given a tree alias, this will search the current section tree for the specified tree alias and
+                //set that to the activeTree
+                //NOTE: loadChildren is ONLY used for legacy purposes, do not use this when syncing the tree as it will cause problems
+                // since there will be double request and event handling operations.
+                function loadActiveTree(treeAlias, loadChildren) {
+                    scope.activeTree = undefined;
+
+                    function doLoad(tree) {
+                        var childrenAndSelf = [tree].concat(tree.children);
+                        scope.activeTree = _.find(childrenAndSelf, function (node) {
+                             return node.metaData.treeAlias === treeAlias;
+                        });
+                        
+                        if (!scope.activeTree) {
+                            throw "Could not find the tree " + treeAlias + ", activeTree has not been set";
+                        }
+
+                        //This is only used for the legacy tree method refreshTree!
+                        if (loadChildren) {
+                            scope.activeTree.expanded = true;
+                            scope.loadChildren(scope.activeTree, false).then(function() {
+                                emitEvent("activeTreeLoaded", { tree: scope.activeTree });
+                            });
+                        }
+                        else {
+                            emitEvent("activeTreeLoaded", { tree: scope.activeTree });
+                        }
+                    }
+
+                    if (scope.tree) {
+                        doLoad(scope.tree.root);
+                    }
+                    else {
+                        scope.eventhandler.one("treeLoaded", function(e, args) {
+                            doLoad(args.tree);
+                        });
+                    }
+                }
+
+
+                /** Method to load in the tree data */
+
+                function loadTree() {
+                    if (!scope.loading && scope.section) {
+                        scope.loading = true;
+
+                        //anytime we want to load the tree we need to disable the delete animations
+                        deleteAnimations = false;
+
+                        //default args
+                        var args = { section: scope.section, tree: scope.treealias, cacheKey: scope.cachekey, isDialog: scope.isdialog ? scope.isdialog : false };
+
+                        //add the extra query string params if specified
+                        if (scope.customtreeparams) {
+                            args["queryString"] = scope.customtreeparams;
+                        }
+
+                        treeService.getTree(args)
+                            .then(function(data) {
+                                //set the data once we have it
+                                scope.tree = data;
+                                
+                                enableDeleteAnimations();
+
+                                scope.loading = false;
+
+                                //set the root as the current active tree
+                                scope.activeTree = scope.tree.root;
+                                emitEvent("treeLoaded", { tree: scope.tree.root });
+
+                            }, function(reason) {
+                                scope.loading = false;
+                                notificationsService.error("Tree Error", reason);
+                            });
+                    }
+                }
+
+                /** syncs the tree, the treeNode can be ANY tree node in the tree that requires syncing */
+                function syncTree(treeNode, path, forceReload, activate) {
+
+                    deleteAnimations = false;
+
+                    treeService.syncTree({
+                        node: treeNode,
+                        path: path,
+                        forceReload: forceReload
+                    }).then(function (data) {
+
+                        if (activate === undefined || activate === true) {
+                            scope.currentNode = data;
+                        }
+                        
+                        emitEvent("treeSynced", { node: data, activate: activate });
+                        
+                        enableDeleteAnimations();
+                    });
+
+                }
+
+                /** method to set the current animation for the node. 
+                 *  This changes dynamically based on if we are changing sections or just loading normal tree data. 
+                 *  When changing sections we don't want all of the tree-ndoes to do their 'leave' animations.
+                 */
+                scope.animation = function() {
+                    if (deleteAnimations && scope.tree && scope.tree.root && scope.tree.root.expanded) {
+                        return { leave: 'tree-node-delete-leave' };
+                    }
+                    else {
+                        return {};
+                    }
+                };
+
+                /* helper to force reloading children of a tree node */
+                scope.loadChildren = function(node, forceReload) {
+                    var deferred = $q.defer();
+
+                    //emit treeNodeExpanding event, if a callback object is set on the tree
+                    emitEvent("treeNodeExpanding", { tree: scope.tree, node: node });
+
+                    //standardising                
+                    if (!node.children) {
+                        node.children = [];
+                    }
+
+                    if (forceReload || (node.hasChildren && node.children.length === 0)) {
+                        //get the children from the tree service
+                        treeService.loadNodeChildren({ node: node, section: scope.section })
+                            .then(function(data) {
+                                //emit expanded event
+                                emitEvent("treeNodeExpanded", { tree: scope.tree, node: node, children: data });
+                                
+                                enableDeleteAnimations();
+
+                                deferred.resolve(data);
+                            });
+                    }
+                    else {
+                        emitEvent("treeNodeExpanded", { tree: scope.tree, node: node, children: node.children });
+                        node.expanded = true;
+                        
+                        enableDeleteAnimations();
+
+                        deferred.resolve(node.children);
+                    }
+
+                    return deferred.promise;
+                };
+
+                /**
+                  Method called when the options button next to the root node is called.
+                  The tree doesnt know about this, so it raises an event to tell the parent controller
+                  about it.
+                */
+                scope.options = function(e, n, ev) {
+                    emitEvent("treeOptionsClick", { element: e, node: n, event: ev });
+                };
+
+                /**
+                  Method called when an item is clicked in the tree, this passes the 
+                  DOM element, the tree node object and the original click
+                  and emits it as a treeNodeSelect element if there is a callback object
+                  defined on the tree
+                */
+                scope.select = function (e, n, ev) {
+                    //on tree select we need to remove the current node - 
+                    // whoever handles this will need to make sure the correct node is selected
+                    //reset current node selection
+                    scope.currentNode = null;
+
+                    emitEvent("treeNodeSelect", { element: e, node: n, event: ev });
+                };
+
+                scope.altSelect = function(e, n, ev) {
+                    emitEvent("treeNodeAltSelect", { element: e, tree: scope.tree, node: n, event: ev });
+                };
+                
+                //watch for section changes
+                scope.$watch("section", function(newVal, oldVal) {
+
+                    if (!scope.tree) {
+                        loadTree();
+                    }
+
+                    if (!newVal) {
+                        //store the last section loaded
+                        lastSection = oldVal;
+                    }
+                    else if (newVal !== oldVal && newVal !== lastSection) {
+                        //only reload the tree data and Dom if the newval is different from the old one
+                        // and if the last section loaded is different from the requested one.
+                        loadTree();
+
+                        //store the new section to be loaded as the last section
+                        //clear any active trees to reset lookups
+                        lastSection = newVal;
                     }
                 });
-            }
-
-            /** method to set the current animation for the node. 
-             *  This changes dynamically based on if we are changing sections or just loading normal tree data. 
-             *  When changing sections we don't want all of the tree-ndoes to do their 'leave' animations.
-             */
-            scope.animation = function () {
-                if (enableDeleteAnimations && scope.tree && scope.tree.root && scope.tree.root.expanded) {
-                    return { leave: 'tree-node-delete-leave' };
-                }
-                else {
-                    return {};
-                }
-            };
-
-            /* helper to force reloading children of a tree node */
-            scope.loadChildren = function(node, forceReload){           
-                var deferred = $q.defer();
-
-                //emit treeNodeExpanding event, if a callback object is set on the tree
-                emitEvent("treeNodeExpanding", {tree: scope.tree, node: node });
                 
-                if (node.hasChildren && (forceReload || !node.children || (angular.isArray(node.children) && node.children.length === 0))) {
-                    //get the children from the tree service
-                    treeService.loadNodeChildren({ node: node, section: scope.section })
-                        .then(function(data) {
-                            //emit expanded event
-                            emitEvent("treeNodeExpanded", { tree: scope.tree, node: node, children: data });
-                            enableDeleteAnimations = true;
-
-                            deferred.resolve(data);
-                        });
-                }
-                else {
-                    emitEvent("treeNodeExpanded", {tree: scope.tree, node: node, children: node.children });
-                    node.expanded = true;
-                    enableDeleteAnimations = true;
-
-                    deferred.resolve(node.children);
-                }
-
-                return deferred.promise;
+                setupExternalEvents();
+                loadTree();
             };
+        }
+    };
+}
 
-            /**
-              Method called when the options button next to the root node is called.
-              The tree doesnt know about this, so it raises an event to tell the parent controller
-              about it.
-            */
-            scope.options = function (e, n, ev) {
-                emitEvent("treeOptionsClick", { element: e, node: n, event: ev });
-            };
-              
-            /**
-              Method called when an item is clicked in the tree, this passes the 
-              DOM element, the tree node object and the original click
-              and emits it as a treeNodeSelect element if there is a callback object
-              defined on the tree
-            */
-            scope.select = function(e,n,ev){
-                emitEvent("treeNodeSelect", { element: e, node: n, event: ev });
-            };
-            
-            scope.altSelect = function(e,n,ev){
-                emitEvent("treeNodeAltSelect", { element: e, tree: scope.tree, node: n, event: ev });
-            };
-            
-            //watch for section changes
-            scope.$watch("section", function (newVal, oldVal) {
-                  
-                  if(!scope.tree){
-                    loadTree();  
-                  }
-
-                  if (!newVal) {
-                      //store the last section loaded
-                      lastSection = oldVal;
-                  }else if (newVal !== oldVal && newVal !== lastSection) {
-                      //only reload the tree data and Dom if the newval is different from the old one
-                      // and if the last section loaded is different from the requested one.
-                      loadTree();
-                      
-                      //store the new section to be loaded as the last section
-                      //clear any active trees to reset lookups
-                      lastSection = newVal;
-                      activeTree = undefined;
-                  } 
-            });
-
-            //When the user logs in
-            scope.$on("authenticated", function (evt, data) {
-                //populate the tree if the user has changed
-                if (data.lastUserId !== data.user.id) {
-                    treeService.clearCache();
-                    scope.tree = null;
-
-                    setupExternalEvents();
-                    loadTree();
-                }
-            });
-            
-         };
-       }
-      };
-    });
+angular.module("umbraco.directives").directive('umbTree', umbTreeDirective);
 /**
  * @ngdoc directive
  * @name umbraco.directives.directive:umbTreeItem
@@ -1625,7 +1826,7 @@ angular.module("umbraco.directives")
    </example>
  */
 angular.module("umbraco.directives")
-.directive('umbTreeItem', function ($compile, $http, $templateCache, $interpolate, $log, $location, $rootScope, $window, treeService, notificationsService) {
+.directive('umbTreeItem', function ($compile, $http, $templateCache, $interpolate, $log, $location, $rootScope, $window, treeService, $timeout) {
   return {
     restrict: 'E',
     replace: true,
@@ -1639,11 +1840,11 @@ angular.module("umbraco.directives")
       tree:'='
     },
 
-    template: '<li ng-class="{\'current\': (node == currentNode)}"><div ng-style="setTreePadding(node)" class="{{node.stateCssClass}}" ng-class="{\'loading\': node.loading}" ng-swipe-right="options(this, node, $event)" >' +
-        '<ins ng-hide="node.hasChildren" style="background:none;width:18px;"></ins>' +        
+    template: '<li ng-class="{\'current\': (node == currentNode)}" on-right-click="altSelect(this, node, $event)"><div ng-style="setTreePadding(node)" ng-class="node.stateCssClass" ng-class="{\'loading\': node.loading}" ng-swipe-right="options(this, node, $event)" >' +
+        '<ins ng-hide="node.hasChildren" style="width:18px;"></ins>' +        
         '<ins ng-show="node.hasChildren" ng-class="{\'icon-navigation-right\': !node.expanded, \'icon-navigation-down\': node.expanded}" ng-click="load(node)"></ins>' +
-        '<i title="#{{node.routePath}}" class="{{node.cssClass}}" style="{{node.style}}"></i>' +
-        '<a href ng-click="select(this, node, $event)" on-right-click="altSelect(this, node, $event)" >{{node.name}}</a>' +
+        '<i title="#{{node.routePath}}" class="{{node.cssClass}}"></i>' +
+        '<a href ng-click="select(this, node, $event)" on-right-click="altSelect(this, node, $event)">{{node.name}}</a>' +
         '<a href class="umb-options" ng-hide="!node.menuUrl" ng-click="options(this, node, $event)"><i></i><i></i><i></i></a>' +
         '<div ng-show="node.loading" class="l"><div></div></div>' +
         '</div>' +
@@ -1652,7 +1853,7 @@ angular.module("umbraco.directives")
     link: function (scope, element, attrs) {
         
         //flag to enable/disable delete animations, default for an item is tru
-        var enableDeleteAnimations = true;
+        var deleteAnimations = true;
 
         /** Helper function to emit tree events */
         function emitEvent(eventName, args) {
@@ -1660,6 +1861,33 @@ angular.module("umbraco.directives")
             $(scope.eventhandler).trigger(eventName,args);
           }
         }
+
+        /** updates the node's styles */
+        function styleNode(node) {
+            node.stateCssClass = (node.cssClasses || []).join(" ");
+
+            if (node.style) {
+                $(element).find("i").attr("style", node.style);
+            }
+        }
+
+        /** This will deleteAnimations to true after the current digest */
+        function enableDeleteAnimations() {
+            //do timeout so that it re-enables them after this digest
+            $timeout(function () {
+                //enable delete animations
+                deleteAnimations = true;
+            }, 0, false);
+        }
+
+        //add a method to the node which we can use to call to update the node data if we need to ,
+        // this is done by sync tree, we don't want to add a $watch for each node as that would be crazy insane slow
+        // so we have to do this
+        scope.node.updateNodeData = function (newNode) {            
+            _.extend(scope.node, newNode);
+            //now update the styles
+            styleNode(scope.node);
+        };
 
         /**
           Method called when the options button next to a node is called
@@ -1696,12 +1924,12 @@ angular.module("umbraco.directives")
         *  When changing sections we don't want all of the tree-ndoes to do their 'leave' animations.
         */
         scope.animation = function () {
-            if (enableDeleteAnimations && scope.node.expanded) {
+            if (deleteAnimations && scope.node.expanded) {
                 return { leave: 'tree-node-delete-leave' };
             }
             else {
                 return {};
-            }
+            }            
         };
 
         /**
@@ -1711,7 +1939,7 @@ angular.module("umbraco.directives")
         */
         scope.load = function(node) {
             if (node.expanded) {
-                enableDeleteAnimations = false;
+                deleteAnimations = false;
                 emitEvent("treeNodeCollapsing", {tree: scope.tree, node: node });
                 node.expanded = false;
             }
@@ -1731,13 +1959,13 @@ angular.module("umbraco.directives")
                     .then(function(data) {
                         //emit expanded event
                         emitEvent("treeNodeExpanded", {tree: scope.tree, node: node, children: data });
-                        enableDeleteAnimations = true;
+                        enableDeleteAnimations();
                     });
             }
             else {
                 emitEvent("treeNodeExpanded", { tree: scope.tree, node: node, children: node.children });
                 node.expanded = true;
-                enableDeleteAnimations = true;
+                enableDeleteAnimations();
             }
         };
 
@@ -1749,23 +1977,12 @@ angular.module("umbraco.directives")
         scope.setTreePadding = function(node) {
           return { 'padding-left': (node.level * 20) + "px" };
         };
-        
-        scope.expandActivePath = function(node, activeTree, activePath) {
-            if(activePath || activeTree){
-              if(node.metaData.treeAlias && activeTree === node.metaData.treeAlias){
-                  scope.loadChildren(null, scope.node, true);
-              }else if( !node.metaData.treeAlias && activePath.indexOf(node.id) >= 0){
-                  scope.loadChildren(null, scope.node, true);
-              }
-            }
-        };
 
         //if the current path contains the node id, we will auto-expand the tree item children
-        
-        scope.expandActivePath(scope.node, scope.activetree, scope.path);
-        scope.node.stateCssClass = scope.node.cssClasses.join(" ");
 
-        var template = '<ul ng-class="{collapsed: !node.expanded}"><umb-tree-item  ng-repeat="child in node.children" eventhandler="eventhandler" activetree="{{activetree}}"  tree="tree" current-node="currentNode" node="child" section="{{section}}" ng-animate="animation()"></umb-tree-item></ul>';
+        styleNode(scope.node);
+        
+        var template = '<ul ng-class="{collapsed: !node.expanded}"><umb-tree-item  ng-repeat="child in node.children" eventhandler="eventhandler" tree="tree" current-node="currentNode" node="child" section="{{section}}" ng-animate="animation()"></umb-tree-item></ul>';
         var newElement = angular.element(template);
         $compile(newElement)(scope);
         element.append(newElement);
@@ -1811,15 +2028,22 @@ angular.module('umbraco.directives')
 })
 
 .directive('onRightClick',function(){
+    
     document.oncontextmenu = function (e) {
        if(e.target.hasAttribute('on-right-click')) {
+           e.preventDefault();
+           e.stopPropagation(); 
            return false;
        }
     };  
+
     return function(scope,el,attrs){
         el.bind('contextmenu',function(e){
+            e.preventDefault();
+            e.stopPropagation();
             scope.$apply(attrs.onRightClick);
-        }) ;
+            return false;
+        });
     };
 });
 /**
@@ -2302,17 +2526,20 @@ function valServer(serverValidationManager) {
                 }
             }            
 
-            //subscribe to the changed event of the view model. This is required because when we
+            //Need to watch the value model for it to change, previously we had  subscribed to 
+            //ctrl.$viewChangeListeners but this is not good enough if you have an editor that
+            // doesn't specifically have a 2 way ng binding. This is required because when we
             // have a server error we actually invalidate the form which means it cannot be 
             // resubmitted. So once a field is changed that has a server error assigned to it
             // we need to re-validate it for the server side validator so the user can resubmit
             // the form. Of course normal client-side validators will continue to execute.
-            //TODO: Should we be using $render here instead?
-            ctrl.$viewChangeListeners.push(function () {
+            scope.$watch(function() {
+                return ctrl.$modelValue;
+            }, function (newValue) {
                 if (ctrl.$invalid) {
                     ctrl.$setValidity('valServer', true);
                 }
-            });
+            });            
             
             //subscribe to the server validation changes
             serverValidationManager.subscribe(currentProperty.alias, fieldName, function (isValid, propertyErrors, allErrors) {

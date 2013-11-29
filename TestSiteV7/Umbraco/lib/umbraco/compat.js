@@ -28,19 +28,6 @@
 
             UmbClientMgr.closeModalWindow(undefined);
         });
-
-        $.ctrl("S", function(){
-            var link = $(".umb-panel-header .btn-primary");
-            var b = link.click();
-
-            //this is made of bad, to work around webforms horrible wiring
-            if(!link.hasClass("client-side") && link.attr("href").indexOf("javascript:") == 0){
-                eval(link.attr('href').replace('javascript:',''));
-            }else{
-                link.click();
-            }
-        });
-
     });     
 
     function scaleScrollables(selector) {
@@ -56,26 +43,5 @@
         });
     }
     
-    $.ctrl = function(key, callback, args) {
-        var isMac = navigator.platform.toUpperCase().indexOf('MAC')>=0;
-        var isCtrl = false;
-        $(document).keydown(function(e) {
-            if(!args) args=[]; // IE barks when args is null
-            var modKey = isMac ? e.metaKey : e.ctrlKey;
-            if(modKey){
-              isCtrl = true;  
-            } 
-
-            if(isCtrl && e.keyCode == key.charCodeAt(0)) {
-                callback.apply(this, args);
-                return false;
-            }
-
-        }).keyup(function(e) {
-            var modKey = isMac ? e.metaKey : e.ctrlKey;
-            if(modKey){
-                isCtrl = false;
-            }
-        });        
-    };
+   
 })(jQuery);

@@ -87,18 +87,33 @@ Umbraco.Application.Actions = function () {
         },
 
         submitDefaultWindow: function () {
+
             if (!this._isSaving) {
                 this._isSaving = true;
-                jQuery(".editorIcon[id*=save]:first, .editorIcon:input:image[id*=Save]:first").click();
+
+                //v6 way
+                var link = jQuery(".btn[id*=save]:first, .editorIcon[id*=save]:first, .editorIcon:input:image[id*=Save]:first");
+
+                //this is made of bad, to work around webforms horrible wiring
+                if(!link.hasClass("client-side") && link.attr("href").indexOf("javascript:") == 0){
+                    eval(link.attr('href').replace('javascript:',''));
+                }else{
+                    link.click();
+                }
             }
             this._isSaving = false;
             return false;
         },
 
         bindSaveShortCut: function () {
-            jQuery(document).bind('keydown', 'ctrl+s', function (evt) { UmbClientMgr.appActions().submitDefaultWindow(); return false; });
-            jQuery(":input").bind('keydown', 'ctrl+s', function (evt) { UmbClientMgr.appActions().submitDefaultWindow(); return false; });
-            jQuery(document).bind('UMBRACO_TINYMCE_SAVE', function (evt, orgEvent) { UmbClientMgr.appActions().submitDefaultWindow(); return false; });
+            
+            var keys = "ctrl+s";
+            if (navigator.platform.toUpperCase().indexOf('MAC') >= 0) {
+                keys = "meta+s";
+            }
+
+            jQuery(document).bind('keydown', keys, function (evt) { UmbClientMgr.appActions().submitDefaultWindow(); return false; });
+            jQuery(":input").bind('keydown', keys, function (evt) { UmbClientMgr.appActions().submitDefaultWindow(); return false; });
         },
 
         shiftApp: function (whichApp, appName) {

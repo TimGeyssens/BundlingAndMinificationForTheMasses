@@ -71,6 +71,7 @@
   
   <area alias="buttons">
     <key alias="select">Select</key>
+    <key alias="selectCurrentFolder">Select current folder</key>
     <key alias="somethingElse">Do something else</key>
     
     <key alias="bold">Bold</key>
@@ -126,7 +127,7 @@
     <key alias="alternativeUrls">Alternative Links</key>
     <key alias="clickToEdit">Click to edit this item</key>
     <key alias="createBy">Created by</key>
-    <key alias="createByDesc" version="7.0">Original autho</key>
+    <key alias="createByDesc" version="7.0">Original author</key>
     <key alias="updatedBy" version="7.0">Updated by</key>
     <key alias="createDate">Created</key>
     <key alias="createDateDesc" version="7.0">Date/time this document was created</key>
@@ -149,6 +150,7 @@
     <key alias="publish">Publish</key>
     <key alias="publishStatus">Publication Status</key>
     <key alias="releaseDate">Publish at</key>
+    <key alias="unpublishDate">Unpublish at</key>
     <key alias="removeDate">Clear Date</key>
     <key alias="sortDone">Sortorder is updated</key>
     <key alias="sortHelp">To sort the nodes, simply drag the nodes or click one of the column headers. You can select multiple nodes by holding the "shift" or "control" key while selecting</key>
@@ -157,7 +159,7 @@
     <key alias="type">Type</key>
     <key alias="unPublish">Unpublish</key>
     <key alias="updateDate">Last edited</key>
-    <key alias="updateDateDesc" version="7.0">Date/time this document was created</key>
+    <key alias="updateDateDesc" version="7.0">Date/time this document was edited</key>
     <key alias="uploadClear">Remove file</key>
     <key alias="urls">Link to document</key>
     <key alias="memberof">Member of group(s)</key>
@@ -167,7 +169,7 @@
   </area>
   <area alias="create">
     <key alias="chooseNode">Where do you want to create the new %0%</key>
-    <key alias="createUnder">Create a page under</key>
+    <key alias="createUnder">Create an item under</key>
     <key alias="updateData">Choose a type and a title</key>
 
     <key alias="noDocumentTypes" version="7.0"><![CDATA[There are no allowed document types available. You must enable these in the settings section under <strong>"document types"</strong>.]]></key>
@@ -240,8 +242,8 @@
   <area alias="placeholders">
     <key alias="username">Enter your username</key>
     <key alias="password">Enter your password</key>
-
-    <key alias="name">Enter a name...</key>
+    <key alias="nameentity">Name the %0%...</key>
+    <key alias="entername">Enter a name...</key>
     <key alias="search">Type to search...</key>
     <key alias="filter">Type to filter...</key>
   </area>
@@ -254,7 +256,7 @@
     <key alias="newtab">New tab</key>
     <key alias="tab">Tab</key>
     <key alias="thumbnail">Thumbnail</key>
-    <key alias="iscontainercontenttype">Use as container content type</key>
+    <key alias="hasListView">Enable list view</key>
   </area>
   <area alias="editdatatype">
     <key alias="addPrevalue">Add prevalue</key>
@@ -303,11 +305,12 @@
   <area alias="general">
     <key alias="about">About</key>
     <key alias="action">Action</key>
+    <key alias="actions">Actions</key>
     <key alias="add">Add</key>
     <key alias="alias">Alias</key>
     <key alias="areyousure">Are you sure?</key>
     <key alias="border">Border</key>
-    <key alias="by">or</key>
+    <key alias="by">by</key>
     <key alias="cancel">Cancel</key>
     <key alias="cellMargin">Cell margin</key>
     <key alias="choose">Choose</key>
@@ -352,6 +355,7 @@
     <key alias="logout">Logout</key>
     <key alias="macro">Macro</key>
     <key alias="move">Move</key>
+    <key alias="more">More</key>
     <key alias="name">Name</key>
     <key alias="new">New</key>
     <key alias="next">Next</key>
@@ -673,6 +677,11 @@ To manage your website, simply open the umbraco back office and start adding con
     <key alias="paSimpleHelp">If you just want to setup simple protection using a single login and password</key>
   </area>
   <area alias="publish">
+    <key alias="contentPublishedFailedAwaitingRelease">
+      <![CDATA[
+      %0% could not be published because the item is scheduled for release.
+    ]]>
+    </key>
     <key alias="contentPublishedFailedInvalid"><![CDATA[
       %0% could not be published because these properties:  %1%  did not pass validation rules.
     ]]></key>
@@ -691,6 +700,9 @@ To manage your website, simply open the umbraco back office and start adding con
     <key alias="publishHelp"><![CDATA[Click <em>ok</em> to publish <strong>%0%</strong> and thereby making it's content publicly available.<br/><br />
       You can publish this page and all it's sub-pages by checking <em>publish all children</em> below.
       ]]></key>
+  </area>
+  <area alias="colorpicker">
+    <key alias="noColors">You have not configured any approved colors</key>
   </area>
   <area alias="relatedlinks">
     <key alias="addExternal">Add external link</key>
