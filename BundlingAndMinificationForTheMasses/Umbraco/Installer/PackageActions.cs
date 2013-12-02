@@ -2431,4 +2431,64 @@ namespace Optimus.Umbraco.Installer
 
         #endregion
     }
+
+    public class AddUmbracoReservedPath : IPackageAction
+    {
+        public string Alias()
+        {
+            return "Umbundle.AddUmbracoReservedPath";
+        }
+
+        public bool Execute(string packageName, XmlNode xmlData)
+        {
+            bool result;
+            try
+            {
+                var config =
+                    WebConfigurationManager.OpenWebConfiguration(HttpContext.Current.Request.ApplicationPath);
+
+                // TODO, make this reusable and get these values from package action xmldata
+                const string appendString = "~/bundles/";
+                const string keyName = "umbracoReservedPaths";
+
+                var currentValue = config.AppSettings.Settings[keyName].Value;
+                if (!currentValue.Split(',').Contains(appendString))
+                {
+                    var newValue = currentValue.EndsWith(",")
+                        ? currentValue + appendString
+                        : currentValue + "," + appendString;
+
+                    config.AppSettings.Settings[keyName].Value = newValue;
+                    config.Save(ConfigurationSaveMode.Modified);
+                }
+                result = true;
+            }
+            catch (Exception e)
+            {
+                // Log error message
+                string message = "Error at execute AddUmbracoReservedPath package action: " + e.Message;
+                LogHelper.Error(typeof(AddUmbracoReservedPath), message, e);
+
+                result = false;
+            }
+            return result;
+        }
+
+        public XmlNode SampleXml()
+        {
+            var sample = "<Action runat=\"install\" undo=\"false\" alias=\"Umbundle.AddUmbracoReservedPath\"/>";
+            return helper.parseStringToXmlNode(sample);
+        }
+
+        /// <summary>
+        /// User AppendAppSettingValue action to uninstall.
+        /// </summary>
+        /// <param name="packageName">Name of the package.</param>
+        /// <param name="xmlData">The XML data.</param>
+        /// <returns></returns>
+        public bool Undo(string packageName, XmlNode xmlData)
+        {
+            return false;
+        }
+    }
 }

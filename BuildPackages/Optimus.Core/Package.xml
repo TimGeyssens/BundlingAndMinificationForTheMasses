@@ -73,7 +73,6 @@ Also possible to install providers for dynamic stylesheet and script support (le
         </nodeType>
         <!-- End Optimus  Stuff -->
       </Action>
-      <Action runat="install" undo="false" alias="Umbundle.SetAttributeValue" file="~/web.config" xpath="//add [@key = 'umbracoReservedPaths']" attributeName="value" attributeValue="~/umbraco,~/install/,~/bundles/" />
       <Action runat="install" undo="false" alias="Umbundle.AddNamespace" file="~/views/web.config" xpath="//configuration/system.web.webPages.razor/pages" position="end" namespace="System.Web.Optimization" />
       <Action runat="install" undo="false" alias="Umbundle.AddNamespace" file="~/web.config" xpath="//system.web/pages" position="end" namespace="System.Web.Optimization" />
       
@@ -92,7 +91,7 @@ Also possible to install providers for dynamic stylesheet and script support (le
       <Action runat="install" undo="false" alias="Umbundle.AddJSEngineSwitcher" />
       <Action runat="install" undo="false" alias="Umbundle.AddJSEngineSwitcherProvider" name="MsieJsEngine" type="JavaScriptEngineSwitcher.Msie.MsieJsEngine, JavaScriptEngineSwitcher.Msie" />
 
-      <Action runat="install" undo="false" alias="Umbundle.SetAttributeValue" file="~/config/appSettings.config" xpath="//add [@key = 'umbracoReservedPaths']" attributeName="value" attributeValue="~/umbraco,~/install/,~/bundles/" />
+      <Action runat="install" undo="false" alias="Umbundle.AddUmbracoReservedPath" />
     </Actions>
 
   <control>/App_Plugins/Optimus/Dialogs/ProviderInstaller.ascx</control>
