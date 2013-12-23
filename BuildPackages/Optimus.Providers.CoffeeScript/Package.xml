@@ -30,13 +30,13 @@
 	<DataTypes />
 
     <Actions>
-      <Action runat="install" undo="false" alias="Umbundle.AddConfigSection" name="coffeeScript" type="BundleTransformer.CoffeeScript.Configuration.CoffeeScriptSettings, BundleTransformer.CoffeeScript" sectionGroup="bundleTransformer" />
-      <Action runat="install" undo="false" alias="Umbundle.AddBundleTransformerProvider" name="CoffeeScriptTranslator" type="BundleTransformer.CoffeeScript.Translators.CoffeeScriptTranslator, BundleTransformer.CoffeeScript" addType="js-translator" />
+      <Action runat="install" undo="true" alias="Umbundle.AddConfigSection" name="coffeeScript" type="BundleTransformer.CoffeeScript.Configuration.CoffeeScriptSettings, BundleTransformer.CoffeeScript" sectionGroup="bundleTransformer" />
+      <Action runat="install" undo="true" alias="Umbundle.AddBundleTransformerProvider" name="CoffeeScriptTranslator" type="BundleTransformer.CoffeeScript.Translators.CoffeeScriptTranslator, BundleTransformer.CoffeeScript" addType="js-translator" />
 
-      <Action runat="install" undo="false" alias="Umbundle.AddHttpHandler" name="CoffeeScriptAssetHandler" position="end" path="*.coffee" verb="GET" type="BundleTransformer.CoffeeScript.HttpHandlers.CoffeeScriptAssetHandler, BundleTransformer.CoffeeScript" validate="true" />
-      <Action runat="install" undo="false" alias="Umbundle.AddHttpHandler" name="LiterateCoffeeScriptAssetHandler" position="end" path="*.litcoffee" verb="GET" type="BundleTransformer.CoffeeScript.HttpHandlers.CoffeeScriptAssetHandler, BundleTransformer.CoffeeScript" validate="true" />
-      <Action runat="install" undo="false" alias="Umbundle.AddHttpHandler" name="CoffeeScriptMarkdownAssetHandler" position="end" path="*.coffee.md" verb="GET" type="BundleTransformer.CoffeeScript.HttpHandlers.CoffeeScriptAssetHandler, BundleTransformer.CoffeeScript" validate="true" />
-      <Action runat="install" undo="false" alias="Umbundle.AddBundleTransformerJSEngine" name="coffeeScript" engine="MsieJsEngine"  />
+      <Action runat="install" undo="true" alias="Umbundle.AddHttpHandler" name="CoffeeScriptAssetHandler" position="end" path="*.coffee" verb="GET" type="BundleTransformer.CoffeeScript.HttpHandlers.CoffeeScriptAssetHandler, BundleTransformer.CoffeeScript" validate="true" />
+      <Action runat="install" undo="true" alias="Umbundle.AddHttpHandler" name="LiterateCoffeeScriptAssetHandler" position="end" path="*.litcoffee" verb="GET" type="BundleTransformer.CoffeeScript.HttpHandlers.CoffeeScriptAssetHandler, BundleTransformer.CoffeeScript" validate="true" />
+      <Action runat="install" undo="true" alias="Umbundle.AddHttpHandler" name="CoffeeScriptMarkdownAssetHandler" position="end" path="*.coffee.md" verb="GET" type="BundleTransformer.CoffeeScript.HttpHandlers.CoffeeScriptAssetHandler, BundleTransformer.CoffeeScript" validate="true" />
+      <Action runat="install" undo="true" alias="Umbundle.AddBundleTransformerJSEngine" name="coffeeScript" engine="MsieJsEngine"  />
     </Actions>
 	
 	<control />

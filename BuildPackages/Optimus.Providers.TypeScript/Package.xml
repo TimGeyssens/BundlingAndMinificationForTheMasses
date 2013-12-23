@@ -31,10 +31,10 @@
 
     <Actions>
 
-      <Action runat="install" undo="false" alias="Umbundle.AddConfigSection" name="typeScript" type="BundleTransformer.TypeScript.Configuration.TypeScriptSettings, BundleTransformer.TypeScript" sectionGroup="bundleTransformer" />
-      <Action runat="install" undo="false" alias="Umbundle.AddBundleTransformerProvider" name="TypeScriptTranslator" type="BundleTransformer.TypeScript.Translators.TypeScriptTranslator, BundleTransformer.TypeScript" addType="js-translator" />
-      <Action runat="install" undo="false" alias="Umbundle.AddHttpHandler" name="TypeScriptAssetHandler" position="end" path="*.ts" verb="GET" type="BundleTransformer.TypeScript.HttpHandlers.TypeScriptAssetHandler, BundleTransformer.TypeScript" validate="true" />
-      <Action runat="install" undo="false" alias="Umbundle.AddBundleTransformerJSEngine" name="typeScript" engine="MsieJsEngine"  />
+      <Action runat="install" undo="true" alias="Umbundle.AddConfigSection" name="typeScript" type="BundleTransformer.TypeScript.Configuration.TypeScriptSettings, BundleTransformer.TypeScript" sectionGroup="bundleTransformer" />
+      <Action runat="install" undo="true" alias="Umbundle.AddBundleTransformerProvider" name="TypeScriptTranslator" type="BundleTransformer.TypeScript.Translators.TypeScriptTranslator, BundleTransformer.TypeScript" addType="js-translator" />
+      <Action runat="install" undo="true" alias="Umbundle.AddHttpHandler" name="TypeScriptAssetHandler" position="end" path="*.ts" verb="GET" type="BundleTransformer.TypeScript.HttpHandlers.TypeScriptAssetHandler, BundleTransformer.TypeScript" validate="true" />
+      <Action runat="install" undo="true" alias="Umbundle.AddBundleTransformerJSEngine" name="typeScript" engine="MsieJsEngine"  />
       
     </Actions>
 	
