@@ -1899,7 +1899,101 @@ namespace Optimus.Umbraco.Installer
         /// <returns>True when succeeded</returns>
         public bool Undo(string packageName, System.Xml.XmlNode xmlData)
         {
-            return false;
+            // Set result default to false
+            bool result = false;
+
+            // Set insert node default true
+            bool insertNode = true;
+
+            // Set modified document default to false
+            bool modified = false;
+
+
+            string filename = HttpContext.Current.Server.MapPath("/web.config");
+
+            //Get attribute values of xmlData
+            string addType, name, type, enabled;
+            if (!this.GetAttribute(xmlData, "addType", out addType) || !this.GetAttribute(xmlData, "name", out name) || !this.GetAttribute(xmlData, "type", out type))
+            {
+                return result;
+            }
+
+            if (!this.GetAttribute(xmlData, "enabled", out enabled))
+            {
+                enabled = string.Empty;
+            }
+
+            XmlDocument document = new XmlDocument();
+            try
+            {
+                document.Load(filename);
+            }
+            catch (FileNotFoundException)
+            {
+            }
+
+            XmlNamespaceManager nsmgr = new XmlNamespaceManager(document.NameTable);
+            nsmgr.AddNamespace("transformer", "http://tempuri.org/BundleTransformer.Configuration.xsd");
+
+            var xpath = string.Empty;
+
+            switch (addType)
+            {
+                case "css-minifier":
+                    xpath = "//transformer:bundleTransformer/transformer:core/transformer:css/transformer:minifiers";
+                    break;
+                case "css-translator":
+                    xpath = "//transformer:bundleTransformer/transformer:core/transformer:css/transformer:translators";
+                    break;
+                case "js-minifier":
+                    xpath = "//transformer:bundleTransformer/transformer:core/transformer:js/transformer:minifiers";
+                    break;
+                case "js-translator":
+                    xpath = "//transformer:bundleTransformer/transformer:core/transformer:js/transformer:translators";
+                    break;
+            }
+
+            XPathNavigator nav = document.CreateNavigator().SelectSingleNode(xpath, nsmgr);
+            if (nav == null)
+            {
+                throw new Exception("Invalid Configuration File");
+            }
+
+            // Look for existing nodes with same path like the new node
+            if (nav.HasChildren)
+            {
+                // Look for existing nodeType nodes
+                var node =
+                    nav.SelectSingleNode(
+                        string.Format("./transformer:add[@type = '{0}' and @name='{1}']", type, name),
+                        nsmgr);
+
+                // If path already exists 
+                if (node != null)
+                {
+
+                    node.DeleteSelf();
+                    modified = true;
+                }
+            }
+
+            if (modified)
+            {
+                try
+                {
+                    document.Save(filename);
+
+                    // No errors so the result is true
+                    result = true;
+                }
+                catch (Exception e)
+                {
+                    // Log error message
+                    string message = "Error at execute AddBundleTransformerProvider package action: " + e.Message;
+                    LogHelper.Error(typeof(AddBundleTransformerProvider), message, e);
+                }
+            }
+            return result;
         }
 
         /// <summary>
@@ -2378,7 +2472,66 @@ namespace Optimus.Umbraco.Installer
         /// <returns>True when succeeded</returns>
         public bool Undo(string packageName, System.Xml.XmlNode xmlData)
         {
-            return false;
+            // Set result default to false
+            bool result = false;
+
+            // Set insert node default true
+            bool insertNode = true;
+
+            // Set modified document default to false
+            bool modified = false;
+
+
+            string filename = HttpContext.Current.Server.MapPath("/web.config");
+
+            //Get attribute values of xmlData
+            string engine, name, updateOnlyString;
+            bool updateOnly = false;
+
+            if (!this.GetAttribute(xmlData, "engine", out engine) || !this.GetAttribute(xmlData, "name", out name))
+            {
+                return result;
+            }
+
+            this.GetAttribute(xmlData, "updateOnly", out updateOnlyString);
+            bool.TryParse(updateOnlyString, out updateOnly);
+
+            XmlDocument document = new XmlDocument();
+            try
+            {
+                document.Load(filename);
+            }
+            catch (FileNotFoundException)
+            {
+            }
+
+            XmlNamespaceManager nsmgr = new XmlNamespaceManager(document.NameTable);
+            nsmgr.AddNamespace("transformer", "http://tempuri.org/BundleTransformer.Configuration.xsd");
+
+            XPathNavigator nav = document.CreateNavigator().SelectSingleNode(string.Format("//transformer:bundleTransformer/transformer:{0}", name), nsmgr);
+            if (nav != null && !updateOnly)
+            {
+                nav.DeleteSelf();
+                modified = true;
+            }
+
+            if (modified)
+            {
+                try
+                {
+                    document.Save(filename);
+
+                    // No errors so the result is true
+                    result = true;
+                }
+                catch (Exception e)
+                {
+                    // Log error message
+                    string message = "Error at execute AddBundleTransformerJSEngine package action: " + e.Message;
+                    LogHelper.Error(typeof(AddBundleTransformerJSEngine), message, e);
+                }
+            }
+            return result;
         }
 
         /// <summary>
