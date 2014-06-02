@@ -87,6 +87,8 @@ Also possible to install providers for dynamic stylesheet and script support (le
 
       <Action runat="install" undo="false" alias="Umbundle.AddConfigSectionGroup" name="jsEngineSwitcher" />
       <Action runat="install" undo="false" alias="Umbundle.AddConfigSection" name="core" type="JavaScriptEngineSwitcher.Core.Configuration.CoreConfiguration, JavaScriptEngineSwitcher.Core" sectionGroup="jsEngineSwitcher" />
+      <Action runat="install" undo="false" alias="Umbundle.AddConfigSection" name="msie" type="JavaScriptEngineSwitcher.Msie.Configuration.MsieConfiguration, JavaScriptEngineSwitcher.Msie" sectionGroup="jsEngineSwitcher" />
+
 
       <Action runat="install" undo="false" alias="Umbundle.AddJSEngineSwitcher" />
       <Action runat="install" undo="false" alias="Umbundle.AddJSEngineSwitcherProvider" name="MsieJsEngine" type="JavaScriptEngineSwitcher.Msie.MsieJsEngine, JavaScriptEngineSwitcher.Msie" />
