@@ -1,12 +1,13 @@
-/*! umbraco - v7.0.0-Beta - 2013-11-21
- * https://github.com/umbraco/umbraco-cms/tree/7.0.0
- * Copyright (c) 2013 Umbraco HQ;
+/*! umbraco - v7.1.4 - 2014-05-28
+ * https://github.com/umbraco/umbraco-cms/
+ * Copyright (c) 2014 Umbraco HQ;
  * Licensed MIT
  */
 
 (function() { 
 
 angular.module("umbraco.mocks", ['ngCookies']);
+angular.module("umbraco.mocks.services", []);
 angular.module('umbraco.mocks').
   factory('prevaluesMocks', ['$httpBackend', 'mocksUtils', function ($httpBackend, mocksUtils) {
       'use strict';
@@ -89,8 +90,7 @@ angular.module('umbraco.mocks').
                         id: 1, 
                         active: true,
                         properties: [                            
-                            { alias: "list", label: "List", view: "listview", value: "", hideLabel: true },
-                            { alias: "media", label: "Media picker", view: "mediapicker", value: "" }
+                            { alias: "list", label: "List", view: "listview", value: "", hideLabel: true, config:{entityType: "content"} },
                         ]
                     },
                     {
@@ -100,9 +100,7 @@ angular.module('umbraco.mocks').
                             { alias: "valTest", label: "Validation test", view: "validationtest", value: "asdfasdf" },
                             { alias: "bodyText", label: "Body Text", description: "Here you enter the primary article contents", view: "rte", value: "<p>askjdkasj lasjd</p>", config: {} },
                             { alias: "textarea", label: "textarea", view: "textarea", value: "ajsdka sdjkds", config: { rows: 4 } },
-                            { alias: "map", label: "Map", view: "googlemaps", value: "37.4419,-122.1419", config: { mapType: "ROADMAP", zoom: 4 } },
-                            
-                            { alias: "content", label: "Content picker", view: "contentpicker", value: "1234,23242,23232,23231" }
+                            { alias: "media", label: "Media picker", view: "mediapicker", value: "1234,23242,23232,23231", config: {multiPicker: 1} }
                         ]
                     },
                     {
@@ -120,8 +118,6 @@ angular.module('umbraco.mocks').
                             { alias: "valTest4", label: "Validation test", view: "validationtest", value: "asdfasdf" },
                             { alias: "bodyText4", label: "Body Text", description: "Here you enter the primary article contents", view: "rte", value: "<p>askjdkasj lasjd</p>", config: {} },
                             { alias: "textarea4", label: "textarea", view: "textarea", value: "ajsdka sdjkds", config: { rows: 4 } },
-                            { alias: "map4", label: "Map", view: "googlemaps", value: "37.4419,-122.1419", config: { mapType: "ROADMAP", zoom: 4 } },
-                            
                             { alias: "content4", label: "Content picker", view: "contentpicker", value: "1234,23242,23232,23231" }
                         ]
                     },
@@ -132,8 +128,6 @@ angular.module('umbraco.mocks').
                             { alias: "valTest5", label: "Validation test", view: "validationtest", value: "asdfasdf" },
                             { alias: "bodyText5", label: "Body Text", description: "Here you enter the primary article contents", view: "rte", value: "<p>askjdkasj lasjd</p>", config: {} },
                             { alias: "textarea5", label: "textarea", view: "textarea", value: "ajsdka sdjkds", config: { rows: 4 } },
-                            { alias: "map5", label: "Map", view: "googlemaps", value: "37.4419,-122.1419", config: { mapType: "ROADMAP", zoom: 4 } },
-                            
                             { alias: "content5", label: "Content picker", view: "contentpicker", value: "1234,23242,23232,23231" }
                         ]
                     },
@@ -144,8 +138,6 @@ angular.module('umbraco.mocks').
                             { alias: "valTest6", label: "Validation test", view: "validationtest", value: "asdfasdf" },
                             { alias: "bodyText6", label: "Body Text", description: "Here you enter the primary article contents", view: "rte", value: "<p>askjdkasj lasjd</p>", config: {} },
                             { alias: "textarea6", label: "textarea", view: "textarea", value: "ajsdka sdjkds", config: { rows: 4 } },
-                            { alias: "map6", label: "Map", view: "googlemaps", value: "37.4419,-122.1419", config: { mapType: "ROADMAP", zoom: 4 } },
-                            
                             { alias: "content6", label: "Content picker", view: "contentpicker", value: "1234,23242,23232,23231" }
                         ]
                     },
@@ -156,8 +148,6 @@ angular.module('umbraco.mocks').
                             { alias: "valTest7", label: "Validation test", view: "validationtest", value: "asdfasdf" },
                             { alias: "bodyText7", label: "Body Text", description: "Here you enter the primary article contents", view: "rte", value: "<p>askjdkasj lasjd</p>", config: {} },
                             { alias: "textarea7", label: "textarea", view: "textarea", value: "ajsdka sdjkds", config: { rows: 4 } },
-                            { alias: "map7", label: "Map", view: "googlemaps", value: "37.4419,-122.1419", config: { mapType: "ROADMAP", zoom: 4 } },
-                            
                             { alias: "content7", label: "Content picker", view: "contentpicker", value: "1234,23242,23232,23231" }
                         ]
                     },
@@ -670,7 +660,7 @@ angular.module('umbraco.mocks').
 angular.module('umbraco.mocks').
   factory('entityMocks', ['$httpBackend', 'mocksUtils', function ($httpBackend, mocksUtils) {
       'use strict';
-      
+
       function returnEntitybyId(status, data, headers) {
 
           if (!mocksUtils.checkAuth()) {
@@ -684,21 +674,21 @@ angular.module('umbraco.mocks').
 
           return [200, node, null];
       }
-      
+
       function returnEntitybyIds(status, data, headers) {
 
           if (!mocksUtils.checkAuth()) {
               return [401, null, null];
           }
 
-          var ids = mocksUtils.getParametersByName(data, "ids") || [1234,23324,2323,23424];
+          var ids = mocksUtils.getParametersByName(data, "ids") || [1234, 23324, 2323, 23424];
           var nodes = [];
 
-          $(ids).each(function(i, id){
-            var _id = parseInt(id, 10);
-            nodes.push(mocksUtils.getMockEntity(_id));
+          $(ids).each(function (i, id) {
+              var _id = parseInt(id, 10);
+              nodes.push(mocksUtils.getMockEntity(_id));
           });
-          
+
           return [200, nodes, null];
       }
 
@@ -711,8 +701,12 @@ angular.module('umbraco.mocks').
                   .respond(returnEntitybyIds);
 
               $httpBackend
+                  .whenGET(mocksUtils.urlRegex('/umbraco/UmbracoApi/Entity/GetAncestors'))
+                  .respond(returnEntitybyIds);
+
+              $httpBackend
                   .whenGET(mocksUtils.urlRegex('/umbraco/UmbracoApi/Entity/GetById?'))
-                  .respond(returnEntitybyId);   
+                  .respond(returnEntitybyId);
           }
       };
   }]);
@@ -757,6 +751,17 @@ angular.module('umbraco.mocks').
         return [200, nodes, null];
       }
 
+      function returnNodebyIds(status, data, headers) {
+        var ids = mocksUtils.getParameterByName(data, "ids") || "1234,1234,4234";
+        var items = [];
+        
+        _.each(ids, function(id){
+          items.push(_getNode( parseInt( id, 10 )) );
+        });
+
+        return [200, items, null];
+      }
+
       function returnNodebyId(status, data, headers) {
 
           if (!mocksUtils.checkAuth()) {
@@ -766,86 +771,47 @@ angular.module('umbraco.mocks').
           var id = mocksUtils.getParameterByName(data, "id") || 1234;
           id = parseInt(id, 10);
 
-          var node = {
-              name: "My content with id: " + id,
-              updateDate: new Date(),
-              publishDate: new Date(),
-              id: id,
-              parentId: 1234,
-              icon: "icon-file-alt",
-              owner: {name: "Administrator", id: 0},
-              updater: {name: "Per Ploug Krogslund", id: 1},
-              path: "-1,1234,2455", 
-              tabs: [
-              {
-                  label: "Child documents",
-                  alias: "tab00",
-                  id: 0,
-                  active: true,
-                  properties: [
-                  { 
-                    alias: "list", label: "List", view: "listview", value: "", hideLabel: true }
-                  ]
-              },
-              {
-                  label: "Content",
-                  alias: "tab01",
-                  id: 1,
-                  properties: [
-                      { alias: "bodyText", label: "Body Text", description:"Here you enter the primary article contents", view: "rte", value: "<p>askjdkasj lasjd</p>" },
-                      { alias: "textarea", label: "textarea", view: "textarea", value: "ajsdka sdjkds", config: { rows: 4 } },
-                      { alias: "map", label: "Map", view: "googlemaps", value: "37.4419,-122.1419", config: { mapType: "ROADMAP", zoom: 4 } },
-                      { alias: "media", label: "Media picker", view: "mediapicker", value: "" },
-                      { alias: "content", label: "Content picker", view: "contentpicker", value: "" }
-                  ]
-              },
-              {
-                  label: "Sample Editor",
-                  alias: "tab02",
-                  id: 2,
-                  properties: [
-                      { alias: "datepicker", label: "Datepicker", view: "datepicker", config: { rows: 7 } },
-                      { alias: "tags", label: "Tags", view: "tags", value: ""}
-                  ]
-              },
-              {
-                  label: "Grid",
-                  alias: "tab03",
-                  id: 3,
-                  properties: [
-                  { alias: "grid", label: "Grid", view: "grid", value: "test", hideLabel: true }
-                  ]
-              },{
-                  label: "WIP",
-                  alias: "tab04",
-                  id: 4,
-                  properties: [
-                      { alias: "tes", label: "Stuff", view: "test", value: "",
-                            
-                          config: {
-                              fields: [
-                                          { alias: "embedded", label: "Embbeded", view: "textstring", value: ""},
-                                          { alias: "embedded2", label: "Embbeded 2", view: "contentpicker", value: ""},
-                                          { alias: "embedded3", label: "Embbeded 3", view: "textarea", value: ""},
-                                          { alias: "embedded4", label: "Embbeded 4", view: "datepicker", value: ""}
-                              ] 
-                          }
-                      }
-                  ]
-              }
-              ]
-          };
-          return [200, node, null];
+
+          
+          return [200, _getNode(id), null];
       }
       
+      function _getNode(id){
+        var node = {
+            name: "My media with id: " + id,
+            updateDate: new Date(),
+            publishDate: new Date(),
+            id: id,
+            parentId: 1234,
+            icon: "icon-file-alt",
+            owner: {name: "Administrator", id: 0},
+            updater: {name: "Per Ploug Krogslund", id: 1},
+            path: "-1,1234,2455", 
+            tabs: [
+            {
+                label: "Media",
+                alias: "tab0",
+                id: 0,
+                properties: [
+                    { alias: "umbracoFile", label: "File", description:"Some file", view: "rte", value: "/media/1234/random.jpg" }
+                ]
+            }
+            ]
+        };
 
+        return node;
+      }
 
       return {
           register: function() {
             $httpBackend
-	            .whenGET(mocksUtils.urlRegex('/umbraco/UmbracoApi/Media/GetById'))
-		          .respond(returnNodebyId);
+              .whenGET(mocksUtils.urlRegex('/umbraco/UmbracoApi/Media/GetById?'))
+              .respond(returnNodebyId);
 
+            $httpBackend
+              .whenGET(mocksUtils.urlRegex('/umbraco/UmbracoApi/Media/GetByIds?'))
+              .respond(returnNodebyIds);
+                            
             $httpBackend
               .whenGET(mocksUtils.urlRegex('/umbraco/UmbracoApi/Media/GetChildren'))
               .respond(returnNodeCollection);
@@ -1227,6 +1193,30 @@ angular.module('umbraco.mocks').
           }
       };
   }]);
+angular.module('umbraco.mocks.services')
+.factory('assetsService', function ($q) {
+
+    return {
+        loadCss : function(path, scope, attributes, timeout){
+            var deferred = $q.defer();
+            deferred.resolve();
+            return deferred.promise;
+        },
+        loadJs : function(path, scope, attributes, timeout){
+            var deferred = $q.defer();
+            
+            if(path[0] !== "/"){
+                path = "/" + path;
+            }   
+
+            $.getScript( "base" + path, function( data, textStatus, jqxhr ) {
+                deferred.resolve();
+            });
+
+            return deferred.promise;
+        }
+    };
+});
 angular.module('umbraco.mocks').
   factory('localizationMocks', ['$httpBackend', 'mocksUtils', function ($httpBackend, mocksUtils) {
       'use strict';
@@ -1993,6 +1983,147 @@ angular.module('umbraco.mocks').
           }
       };
   }]);
+/**
+* @ngdoc service
+* @name umbraco.mocks.mediaHelperService
+* @description A helper object used for dealing with media items
+**/
+function mediaHelper(umbRequestHelper) {
+    return {
+        /**
+         * @ngdoc function
+         * @name umbraco.services.mediaHelper#getImagePropertyValue
+         * @methodOf umbraco.services.mediaHelper
+         * @function    
+         *
+         * @description
+         * Returns the file path associated with the media property if there is one
+         * 
+         * @param {object} options Options object
+         * @param {object} options.mediaModel The media object to retrieve the image path from
+         * @param {object} options.imageOnly Optional, if true then will only return a path if the media item is an image
+         */
+        getMediaPropertyValue: function (options) {
+            return "assets/img/mocks/big-image.jpg";
+        },
+        
+        /**
+         * @ngdoc function
+         * @name umbraco.services.mediaHelper#getImagePropertyValue
+         * @methodOf umbraco.services.mediaHelper
+         * @function    
+         *
+         * @description
+         * Returns the actual image path associated with the image property if there is one
+         * 
+         * @param {object} options Options object
+         * @param {object} options.imageModel The media object to retrieve the image path from
+         */
+        getImagePropertyValue: function (options) {
+            return "assets/img/mocks/big-image.jpg";
+        },
+        /**
+         * @ngdoc function
+         * @name umbraco.services.mediaHelper#getThumbnail
+         * @methodOf umbraco.services.mediaHelper
+         * @function    
+         *
+         * @description
+         * formats the display model used to display the content to the model used to save the content
+         * 
+         * @param {object} options Options object
+         * @param {object} options.imageModel The media object to retrieve the image path from
+         */
+        getThumbnail: function (options) {
+
+            if (!options || !options.imageModel) {
+                throw "The options objet does not contain the required parameters: imageModel";
+            }
+
+            var imagePropVal = this.getImagePropertyValue(options);
+            if (imagePropVal !== "") {
+                return this.getThumbnailFromPath(imagePropVal);
+            }
+            return "";
+        },
+
+        /**
+         * @ngdoc function
+         * @name umbraco.services.mediaHelper#scaleToMaxSize
+         * @methodOf umbraco.services.mediaHelper
+         * @function    
+         *
+         * @description
+         * Finds the corrct max width and max height, given maximum dimensions and keeping aspect ratios
+         * 
+         * @param {number} maxSize Maximum width & height
+         * @param {number} width Current width
+         * @param {number} height Current height
+         */
+        scaleToMaxSize: function (maxSize, width, height) {
+            var retval = { width: width, height: height };
+
+            var maxWidth = maxSize; // Max width for the image
+            var maxHeight = maxSize;    // Max height for the image
+            var ratio = 0;  // Used for aspect ratio
+
+            // Check if the current width is larger than the max
+            if (width > maxWidth) {
+                ratio = maxWidth / width;   // get ratio for scaling image
+
+                retval.width = maxWidth;
+                retval.height = height * ratio;
+
+                height = height * ratio;    // Reset height to match scaled image
+                width = width * ratio;    // Reset width to match scaled image
+            }
+
+            // Check if current height is larger than max
+            if (height > maxHeight) {
+                ratio = maxHeight / height; // get ratio for scaling image
+
+                retval.height = maxHeight;
+                retval.width = width * ratio;
+                width = width * ratio;    // Reset width to match scaled image
+            }
+
+            return retval;
+        },
+
+        /**
+         * @ngdoc function
+         * @name umbraco.services.mediaHelper#getThumbnailFromPath
+         * @methodOf umbraco.services.mediaHelper
+         * @function    
+         *
+         * @description
+         * Returns the path to the thumbnail version of a given media library image path
+         * 
+         * @param {string} imagePath Image path, ex: /media/1234/my-image.jpg
+         */
+        getThumbnailFromPath: function (imagePath) {
+            return "assets/img/mocks/big-thumb.jpg";
+        },
+
+        /**
+         * @ngdoc function
+         * @name umbraco.services.mediaHelper#detectIfImageByExtension
+         * @methodOf umbraco.services.mediaHelper
+         * @function    
+         *
+         * @description
+         * Returns true/false, indicating if the given path has an allowed image extension
+         * 
+         * @param {string} imagePath Image path, ex: /media/1234/my-image.jpg
+         */
+        detectIfImageByExtension: function (imagePath) {
+            var lowered = imagePath.toLowerCase();
+            var ext = lowered.substr(lowered.lastIndexOf(".") + 1);
+            return ("," + Umbraco.Sys.ServerVariables.umbracoSettings.imageFileTypes + ",").indexOf("," + ext + ",") !== -1;
+        }
+    };
+}
+angular.module('umbraco.mocks').factory('mediaHelper', mediaHelper);
 angular.module('umbraco.mocks').
   factory('utilMocks', ['$httpBackend', 'mocksUtils', function ($httpBackend, mocksUtils) {
       'use strict';

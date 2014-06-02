@@ -1,6 +1,6 @@
-/*! umbraco - v7.0.0-Beta - 2013-11-21
- * https://github.com/umbraco/umbraco-cms/tree/7.0.0
- * Copyright (c) 2013 Umbraco HQ;
+/*! umbraco - v7.1.4 - 2014-05-28
+ * https://github.com/umbraco/umbraco-cms/
+ * Copyright (c) 2014 Umbraco HQ;
  * Licensed MIT
  */
 
@@ -179,7 +179,7 @@ angular.module('umbraco.services').factory('angularHelper', angularHelper);
  * <pre>
   *    scope.showTree = appState.getGlobalState("showNavigation");
   *
-  *    scope.$on("appState.globalState.changed", function (e, args) {
+  *    eventsService.on("appState.globalState.changed", function (e, args) {
   *               if (args.key === "showNavigation") {
   *                   scope.showTree = args.value;
   *               }
@@ -191,14 +191,14 @@ angular.module('umbraco.services').factory('angularHelper', angularHelper);
  * <pre>
  *    scope.currentSection = appState.getSectionState("currentSection");
  *
- *    scope.$on("appState.sectionState.changed", function (e, args) {
+ *    eventsService.on("appState.sectionState.changed", function (e, args) {
  *               if (args.key === "currentSection") {
  *                   scope.currentSection = args.value;
  *               }
  *           });  
  * </pre>
  */
-function appState($rootScope) {
+function appState(eventsService) {
     
     //Define all variables here - we are never returning this objects so they cannot be publicly mutable
     // changed, we only expose methods to interact with the values.
@@ -208,7 +208,8 @@ function appState($rootScope) {
         touchDevice: null,
         showTray: null,
         stickyNavigation: null,
-        navMode: null
+        navMode: null,
+        isReady: null
     };
     
     var sectionState = {
@@ -246,7 +247,7 @@ function appState($rootScope) {
         var changed = stateObj[key] !== value;
         stateObj[key] = value;
         if (changed) {
-            $rootScope.$broadcast("appState." + stateObjName + ".changed", { key: key, value: value });
+            eventsService.emit("appState." + stateObjName + ".changed", { key: key, value: value });
         }
     }
     
@@ -498,9 +499,57 @@ angular.module('umbraco.services').factory("editorState", function() {
  * </pre>  
  */
 angular.module('umbraco.services')
-.factory('assetsService', function ($q, $log, angularHelper) {
+.factory('assetsService', function ($q, $log, angularHelper, umbRequestHelper, $rootScope, $http) {
 
-    return {
+    var initAssetsLoaded = false;
+    var appendRnd = function(url){
+        //if we don't have a global umbraco obj yet, the app is bootstrapping
+        if(!Umbraco.Sys.ServerVariables.application){
+            return url;
+        }
+
+        var rnd = Umbraco.Sys.ServerVariables.application.version +"."+Umbraco.Sys.ServerVariables.application.cdf;
+        var _op = (url.indexOf("?")>0) ? "&" : "?";
+        url = url + _op + "umb__rnd=" + rnd;
+        return url;
+    };
+
+    var service = {
+        loadedAssets:{},
+        
+        _getAssetPromise : function(path){
+            if(this.loadedAssets[path]){
+                return this.loadedAssets[path];
+            }else{
+                var deferred = $q.defer();
+                this.loadedAssets[path] = {deferred: deferred, state: "new", path: path};
+                return this.loadedAssets[path];
+            }
+        },
+        /** 
+            Internal method. This is called when the application is loading and the user is already authenticated, or once the user is authenticated.
+            There's a few assets the need to be loaded for the application to function but these assets require authentication to load.
+        */
+        _loadInitAssets: function () {
+            var deferred = $q.defer();
+            //here we need to ensure the required application assets are loaded
+            if (initAssetsLoaded === false) {
+                var self = this;
+                self.loadJs(umbRequestHelper.getApiUrl("serverVarsJs", "", ""), $rootScope).then(function() {
+                    initAssetsLoaded = true;
+
+                    //now we need to go get the legacyTreeJs - but this can be done async without waiting.
+                    self.loadJs(umbRequestHelper.getApiUrl("legacyTreeJs", "", ""), $rootScope);
+
+                    deferred.resolve();
+                });
+            }
+            else {
+                deferred.resolve();
+            }
+            return deferred.promise;
+        },
+
         /**
          * @ngdoc method
          * @name umbraco.services.assetsService#loadCss
@@ -515,25 +564,29 @@ angular.module('umbraco.services')
          * @param {Number} timeout in milliseconds
          * @returns {Promise} Promise object which resolves when the file has loaded
          */
-        loadCss : function(path, scope, attributes, timeout){
-            var deferred = $q.defer();
-            var t = timeout || 5000;
-            var a = attributes || undefined;
-
-            yepnope.injectCss(path, function () {
-
-             if (!scope) {
-                 deferred.resolve(true);
-             }else{
-                 angularHelper.safeApply(scope, function () {
-                     deferred.resolve(true);
-                 });
+         loadCss : function(path, scope, attributes, timeout){
+             var asset = this._getAssetPromise(path); // $q.defer();
+             var t = timeout || 5000;
+             var a = attributes || undefined;
+             
+             if(asset.state === "new"){
+                 asset.state = "loading";
+                 LazyLoad.css(appendRnd(path), function () {
+                   if (!scope) {
+                       asset.state = "loaded";  
+                       asset.deferred.resolve(true);
+                   }else{
+                       asset.state = "loaded";    
+                       angularHelper.safeApply(scope, function () {
+                           asset.deferred.resolve(true);
+                       });
+                   }
+                 });    
+             }else if(asset.state === "loaded"){
+                 asset.deferred.resolve(true);
              }
-
-            },a,t);
-
-            return deferred.promise;
-        },
+             return asset.deferred.promise;
+         },
         
         /**
          * @ngdoc method
@@ -550,23 +603,31 @@ angular.module('umbraco.services')
          * @returns {Promise} Promise object which resolves when the file has loaded
          */
         loadJs : function(path, scope, attributes, timeout){
-            var deferred = $q.defer();
+            
+            var asset = this._getAssetPromise(path); // $q.defer();
             var t = timeout || 5000;
             var a = attributes || undefined;
+            
+            if(asset.state === "new"){
+                asset.state = "loading";
 
-            yepnope.injectJs(path, function () {
+                LazyLoad.js(appendRnd(path), function () {
+                  if (!scope) {
+                      asset.state = "loaded";  
+                      asset.deferred.resolve(true);
+                  }else{
+                      asset.state = "loaded";  
+                      angularHelper.safeApply(scope, function () {
+                          asset.deferred.resolve(true);
+                      });
+                  }
+                });
 
-              if (!scope) {
-                  deferred.resolve(true);
-              }else{
-                  angularHelper.safeApply(scope, function () {
-                      deferred.resolve(true);
-                  });
-              }
+            }else if(asset.state === "loaded"){
+                asset.deferred.resolve(true);
+            }
 
-            },a,t);
-
-            return deferred.promise;
+            return asset.deferred.promise;
         },
 
         /**
@@ -575,56 +636,78 @@ angular.module('umbraco.services')
          * @methodOf umbraco.services.assetsService
          *
          * @description
-         * Injects a collection of files, this can be a mixed collection of css and js files, the loader will determine how to load them
+         * Injects a collection of files, this can be ONLY js files
          * 
-         * **Warning:** if the collection of files contains a .css file, you will in some cases not receive a resolved promise, it is therefore prefered to use the individual loadCss and loadJs methods
          *
          * @param {Array} pathArray string array of paths to the files to load
          * @param {Scope} scope optional scope to pass into the loader
          * @returns {Promise} Promise object which resolves when all the files has loaded
          */
         load: function (pathArray, scope) {
-            var deferred = $q.defer();
-           
+            var promise;
+
+            if (!angular.isArray(pathArray)) {
+                throw "pathArray must be an array";
+            }
+
             var nonEmpty = _.reject(pathArray, function(item) {
                 return item === undefined || item === "";
             });
 
+
             //don't load anything if there's nothing to load
             if (nonEmpty.length > 0) {
+                var promises = [];
+                var assets = [];
 
-                yepnope({
-                    load: pathArray,
-                    complete: function() {
+                //compile a list of promises
+                //blocking
+                _.each(nonEmpty, function(path){
+                    var asset = service._getAssetPromise(path);
+                    //if not previously loaded, add to list of promises
+                    if(asset.state !== "loaded")
+                    {
+                        if(asset.state === "new"){
+                            asset.state = "loading";
+                            assets.push(asset);
+                        }
 
-                        //if a scope is supplied then we need to make a digest here because
-                        // deferred only executes in a digest. This might be required if we 
-                        // are doing a load script after an http request or some other async call.
-                        if (!scope) {
-                            deferred.resolve(true);
-                        }
-                        else {
-                            angularHelper.safeApply(scope, function () {
-                                deferred.resolve(true);
-                            });
-                        }
+                        //we need to always push to the promises collection to monitor correct 
+                        //execution                        
+                        promises.push(asset.deferred.promise);
                     }
                 });
-            }
-            else {
-                if (!scope) {
-                    deferred.resolve(true);
-                }
-                else {
-                    angularHelper.safeApply(scope, function () {
-                        deferred.resolve(true);
-                    });
-                }
+
+
+                //gives a central monitoring of all assets to load
+                promise = $q.all(promises);
+                
+                _.each(assets, function(asset){
+                    LazyLoad.js(appendRnd(asset.path), function () {
+                      if (!scope) {
+                          asset.state = "loaded";  
+                          asset.deferred.resolve(true);
+                      }else{
+                          asset.state = "loaded";    
+                          angularHelper.safeApply(scope, function () {
+                              asset.deferred.resolve(true);
+                          });
+                      }
+                    });    
+                });
+            }else{
+                //return and resolve
+                var deferred = $q.defer();
+                promise = deferred.promise;
+                deferred.resolve(true);
             }
 
-            return deferred.promise;
+
+            return promise;
         }
     };
+
+    return service;
 });
 
 /**
@@ -659,6 +742,111 @@ function contentEditingHelper($location, $routeParams, notificationsService, ser
             return allProps;
         },
 
+
+        /**
+         * @ngdoc method
+         * @name umbraco.services.contentEditingHelper#configureButtons
+         * @methodOf umbraco.services.contentEditingHelper
+         * @function
+         *
+         * @description
+         * Returns a letter array for buttons, with the primary one first based on content model, permissions and editor state
+         */
+         getAllowedActions : function(content, creating){
+
+                //This is the ideal button order but depends on circumstance, we'll use this array to create the button list
+                // Publish, SendToPublish, Save
+                var actionOrder = ["U", "H", "A"];
+                var defaultActions;
+                var actions = [];
+
+                //Create the first button (primary button)
+                //We cannot have the Save or SaveAndPublish buttons if they don't have create permissions when we are creating a new item.
+                if (!creating || _.contains(content.allowedActions, "C")) {
+                    for (var b in actionOrder) {
+                        if (_.contains(content.allowedActions, actionOrder[b])) {
+                            defaultAction = actionOrder[b];
+                            break;
+                        }
+                    }
+                }
+                
+                actions.push(defaultAction);
+
+                //Now we need to make the drop down button list, this is also slightly tricky because:
+                //We cannot have any buttons if there's no default button above.
+                //We cannot have the unpublish button (Z) when there's no publish permission.    
+                //We cannot have the unpublish button (Z) when the item is not published.           
+                if (defaultAction) {
+                    //get the last index of the button order
+                    var lastIndex = _.indexOf(actionOrder, defaultAction);
+
+                    //add the remaining
+                    for (var i = lastIndex + 1; i < actionOrder.length; i++) {
+                        if (_.contains(content.allowedActions, actionOrder[i])) {
+                            actions.push(actionOrder[i]);
+                        }
+                    }
+
+                    //if we are not creating, then we should add unpublish too, 
+                    // so long as it's already published and if the user has access to publish
+                    if (!creating) {
+                        if (content.publishDate && _.contains(content.allowedActions,"U")) {
+                            actions.push("Z");
+                        }
+                    }
+                }
+
+                return actions;
+         },
+
+         /**
+          * @ngdoc method
+          * @name umbraco.services.contentEditingHelper#getButtonFromAction
+          * @methodOf umbraco.services.contentEditingHelper
+          * @function
+          *
+          * @description
+          * Returns a button object to render a button for the tabbed editor
+          * currently only returns built in system buttons for content and media actions
+          * returns label, alias, action char and hot-key
+          */
+          getButtonFromAction : function(ch){
+            switch (ch) {
+                case "U":
+                    return {
+                        letter: ch,
+                        labelKey: "buttons_saveAndPublish",
+                        handler: "saveAndPublish",
+                        hotKey: "ctrl+p"
+                    };
+                case "H":
+                    //send to publish
+                    return {
+                        letter: ch,
+                        labelKey: "buttons_saveToPublish",
+                        handler: "sendToPublish",
+                        hotKey: "ctrl+p"
+                    };
+                case "A":
+                    return {
+                        letter: ch,
+                        labelKey: "buttons_save",
+                        handler: "save",
+                        hotKey: "ctrl+s"
+                    };
+                case "Z":
+                    return {
+                        letter: ch,
+                        labelKey: "content_unPublish",
+                        handler: "unPublish"
+                    };
+
+                default:
+                    return null;
+            }
+
+          },
         /**
          * @ngdoc method
          * @name umbraco.services.contentEditingHelper#reBindChangedProperties
@@ -847,6 +1035,178 @@ function contentEditingHelper($location, $routeParams, notificationsService, ser
 }
 angular.module('umbraco.services').factory('contentEditingHelper', contentEditingHelper);
 /**
+* @ngdoc service
+* @name umbraco.services.cropperHelper
+* @description A helper object used for dealing with image cropper data
+**/
+function cropperHelper(umbRequestHelper, $http) {
+	var service = {
+
+		/**
+		* @ngdoc method
+		* @name umbraco.services.cropperHelper#configuration
+		* @methodOf umbraco.services.cropperHelper
+		*
+		* @description
+		* Returns a collection of plugins available to the tinyMCE editor
+		*
+		*/
+		configuration: function (mediaTypeAlias) {
+			return umbRequestHelper.resourcePromise(
+				$http.get(
+					umbRequestHelper.getApiUrl(
+						"imageCropperApiBaseUrl",
+						"GetConfiguration",
+						[{ mediaTypeAlias: mediaTypeAlias}])),
+				'Failed to retrieve tinymce configuration');
+		},
+
+
+		//utill for getting either min/max aspect ratio to scale image after
+		calculateAspectRatioFit : function(srcWidth, srcHeight, maxWidth, maxHeight, maximize) {
+			var ratio = [maxWidth / srcWidth, maxHeight / srcHeight ];
+
+			if(maximize){
+				ratio = Math.max(ratio[0], ratio[1]);
+			}else{
+				ratio = Math.min(ratio[0], ratio[1]);
+			}
+
+			return { width:srcWidth*ratio, height:srcHeight*ratio, ratio: ratio};
+		},
+
+		//utill for scaling width / height given a ratio
+		calculateSizeToRatio : function(srcWidth, srcHeight, ratio) {
+			return { width:srcWidth*ratio, height:srcHeight*ratio, ratio: ratio};
+		},
+
+		scaleToMaxSize : function(srcWidth, srcHeight, maxSize) {
+			
+			var retVal = {height: srcHeight, width: srcWidth};
+
+			if(srcWidth > maxSize ||srcHeight > maxSize){
+				var ratio = [maxSize / srcWidth, maxSize / srcHeight ];
+				ratio = Math.min(ratio[0], ratio[1]);
+				
+				retVal.height = srcHeight * ratio;
+				retVal.width = srcWidth * ratio;
+			}
+			
+			return retVal;			
+		},
+
+		//returns a ng-style object with top,left,width,height pixel measurements
+		//expects {left,right,top,bottom} - {width,height}, {width,height}, int
+		//offset is just to push the image position a number of pixels from top,left    
+		convertToStyle : function(coordinates, originalSize, viewPort, offset){
+
+			var coordinates_px = service.coordinatesToPixels(coordinates, originalSize, offset);
+			var _offset = offset || 0;
+
+			var x = 1 - (coordinates.x1 + Math.abs(coordinates.x2));
+			var left_of_x =  originalSize.width * x;
+			var ratio = viewPort.width / left_of_x;
+
+			var style = {
+				position: "absolute",
+				top:  -(coordinates_px.y1*ratio)+ _offset,
+				left:  -(coordinates_px.x1* ratio)+ _offset,
+				width: Math.floor(originalSize.width * ratio),
+				height: Math.floor(originalSize.height * ratio),
+				originalWidth: originalSize.width,
+				originalHeight: originalSize.height,
+				ratio: ratio
+			};
+
+			return style;
+		},
+
+		 
+		coordinatesToPixels : function(coordinates, originalSize, offset){
+
+			var coordinates_px = {
+				x1: Math.floor(coordinates.x1 * originalSize.width),
+				y1: Math.floor(coordinates.y1 * originalSize.height),
+				x2: Math.floor(coordinates.x2 * originalSize.width),
+				y2: Math.floor(coordinates.y2 * originalSize.height)								 
+			};
+
+			return coordinates_px;
+		},
+
+		pixelsToCoordinates : function(image, width, height, offset){
+
+			var x1_px = Math.abs(image.left-offset);
+			var y1_px = Math.abs(image.top-offset);
+
+			var x2_px = image.width - (x1_px + width);
+			var y2_px = image.height - (y1_px + height);
+
+
+			//crop coordinates in %
+			var crop = {};
+			crop.x1 = x1_px / image.width;
+			crop.y1 = y1_px / image.height;
+			crop.x2 = x2_px / image.width;
+			crop.y2 = y2_px / image.height;
+
+			for(var coord in crop){
+				if(crop[coord] < 0){
+				    crop[coord] = 0;
+				}
+			} 
+
+			return crop;
+		},
+
+		centerInsideViewPort : function(img, viewport){
+			var left = viewport.width/ 2 - img.width / 2,
+				top = viewport.height / 2 - img.height / 2;
+			
+			return {left: left, top: top};
+		},
+
+		alignToCoordinates : function(image, center, viewport){
+			
+			var min_left = (image.width) - (viewport.width);
+			var min_top =  (image.height) - (viewport.height);
+
+			var c_top = -(center.top * image.height) + (viewport.height / 2);
+			var c_left = -(center.left * image.width) + (viewport.width / 2);
+
+			if(c_top < -min_top){
+				c_top = -min_top;
+			}
+			if(c_top > 0){
+				c_top = 0;
+			}
+			if(c_left < -min_left){
+				c_left = -min_left;
+			}
+			if(c_left > 0){
+				c_left = 0;
+			}
+			return {left: c_left, top: c_top};
+		},
+
+
+		syncElements : function(source, target){
+				target.height(source.height());
+				target.width(source.width());
+
+				target.css({
+					"top": source[0].offsetTop,
+					"left": source[0].offsetLeft
+				});
+		}
+	};
+
+	return service;
+}
+
+angular.module('umbraco.services').factory('cropperHelper', cropperHelper);
+
+/**
  * @ngdoc service
  * @name umbraco.services.dialogService
  *
@@ -877,502 +1237,539 @@ angular.module('umbraco.services').factory('contentEditingHelper', contentEditin
  */
 
 angular.module('umbraco.services')
-.factory('dialogService', function ($rootScope, $compile, $http, $timeout, $q, $templateCache, appState) {
+.factory('dialogService', function ($rootScope, $compile, $http, $timeout, $q, $templateCache, appState, eventsService) {
 
-       var dialogs = [];
-       
-       /** Internal method that removes all dialogs */
-       function removeAllDialogs(args) {
-           for (var i = 0; i < dialogs.length; i++) {
-               var dialog = dialogs[i];
-               dialog.close(args);
-               dialogs.splice(i, 1);
-           }
-       }
+    var dialogs = [];
 
-       /** Internal method that handles opening all dialogs */
-       function openDialog(options) {
-           var defaults = {
-              container: $("body"),
-              animation: "fade",
-              modalClass: "umb-modal",
-              width: "100%",
-              inline: false,
-              iframe: false,
-              show: true,
-              template: "views/common/notfound.html",
-              callback: undefined,
-              closeCallback: undefined,
-              element: undefined,
-              //this allows us to pass in data to the dialog if required which can be used to configure the dialog
-              //and re-use it for different purposes. It will set on to the $scope.dialogData if it is defined.
-              dialogData: undefined
-           };
-           
-           var dialog = angular.extend(defaults, options);
-           var scope = options.scope || $rootScope.$new();
-           
-           //Modal dom obj and unique id
-           dialog.element = $('<div ng-swipe-right="swipeHide($event)"  data-backdrop="false"></div>');
-           var id = dialog.template.replace('.html', '').replace('.aspx', '').replace(/[\/|\.|:\&\?\=]/g, "-") + '-' + scope.$id;
+    /** Internal method that removes all dialogs */
+    function removeAllDialogs(args) {
+        for (var i = 0; i < dialogs.length; i++) {
+            var dialog = dialogs[i];
+            dialog.close(args);
+        }
+    }
 
-           if (options.inline) {
-               dialog.animation = "";
-           }
-           else {
-               dialog.element.addClass("modal");
-               dialog.element.addClass("hide");
-           }
+    /** Internal method that closes the dialog properly and cleans up resources */
+    function closeDialog(dialog) {
 
-           //set the id and add classes
-           dialog.element
-               .attr('id', id)
-               .addClass(dialog.animation)
-               .addClass(dialog.modalClass);
+        if (dialog.element) {
+            dialog.element.modal('hide');
 
-           //push the modal into the global modal collection
-           //we halt the .push because a link click will trigger a closeAll right away
-           $timeout(function () {
-               dialogs.push(dialog);
-           }, 500);
-           
-
-           dialog.close = function(data) {
-              if (dialog.closeCallback) {
-                   dialog.closeCallback(data);
-              }
-
-              if(dialog.element){
-                 dialog.element.modal('hide');
-
-                 //this is not entirely enough since the damn
-                 //webforms scriploader still complains
-                 if(dialog.iframe){
-                    dialog.element.find("iframe").attr("src", "about:blank");
-                    $timeout(function(){
-                      dialog.element.remove();
-                    }, 1000); 
-                 }else{
+            //this is not entirely enough since the damn webforms scriploader still complains
+            if (dialog.iframe) {
+                dialog.element.find("iframe").attr("src", "about:blank");
+                $timeout(function () {
+                    //we need to do more than just remove the element, this will not destroy the 
+                    // scope in angular 1.1x, in angular 1.2x this is taken care of but if we dont
+                    // take care of this ourselves we have memory leaks.
                     dialog.element.remove();
-                 }
-               }
-           };
+                    //SD: No idea why this is required but was there before - pretty sure it's not required
+                    $("#" + dialog.element.attr("id")).remove();
+                    dialog.scope.$destroy();
+                }, 1000);
+            } else {
+                //we need to do more than just remove the element, this will not destroy the 
+                // scope in angular 1.1x, in angular 1.2x this is taken care of but if we dont
+                // take care of this ourselves we have memory leaks.
+                dialog.element.remove();
+                //SD: No idea why this is required but was there before - pretty sure it's not required
+                $("#" + dialog.element.attr("id")).remove();
+                dialog.scope.$destroy();
+            }
+        }
 
-           //if iframe is enabled, inject that instead of a template
-           if (dialog.iframe) {
-               var html = $("<iframe src='" + dialog.template + "' class='auto-expand' style='border: none; width: 100%; height: 100%;'></iframe>");
-               dialog.element.html(html);
-  
-               //append to body or whatever element is passed in as options.containerElement
-               dialog.container.append(dialog.element);
+        //remove 'this' dialog from the dialogs array
+        dialogs = _.reject(dialogs, function (i) { return i === dialog; });
+    }
 
-               // Compile modal content
-               $timeout(function () {
-                   $compile(dialog.element)(dialog.scope);
-               });
+    /** Internal method that handles opening all dialogs */
+    function openDialog(options) {
+        var defaults = {
+            container: $("body"),
+            animation: "fade",
+            modalClass: "umb-modal",
+            width: "100%",
+            inline: false,
+            iframe: false,
+            show: true,
+            template: "views/common/notfound.html",
+            callback: undefined,
+            closeCallback: undefined,
+            element: undefined,          
+            // It will set this value as a property on the dialog controller's scope as dialogData,
+            // used to pass in custom data to the dialog controller's $scope. Though this is near identical to 
+            // the dialogOptions property that is also set the the dialog controller's $scope object. 
+            // So there's basically 2 ways of doing the same thing which we're now stuck with and in fact
+            // dialogData has another specially attached property called .selection which gets used.
+            dialogData: undefined
+        };
 
-               dialog.element.css("width", dialog.width);
+        var dialog = angular.extend(defaults, options);
+        
+        //NOTE: People should NOT pass in a scope object that is legacy functoinality and causes problems. We will ALWAYS
+        // destroy the scope when the dialog is closed regardless if it is in use elsewhere which is why it shouldn't be done.
+        var scope = options.scope || $rootScope.$new();
 
-               //Autoshow 
-               if (dialog.show) {
-                   dialog.element.modal('show');
-               }
+        //Modal dom obj and unique id
+        dialog.element = $('<div ng-swipe-right="swipeHide($event)"  data-backdrop="false"></div>');
+        var id = dialog.template.replace('.html', '').replace('.aspx', '').replace(/[\/|\.|:\&\?\=]/g, "-") + '-' + scope.$id;
 
-               dialog.scope = scope;
-               return dialog;
-           }
-           else {
-               
-             //We need to load the template with an httpget and once it's loaded we'll compile and assign the result to the container
-             // object. However since the result could be a promise or just data we need to use a $q.when. We still need to return the 
-             // $modal object so we'll actually return the modal object synchronously without waiting for the promise. Otherwise this openDialog
-             // method will always need to return a promise which gets nasty because of promises in promises plus the result just needs a reference
-             // to the $modal object which will not change (only it's contents will change).
-             $q.when($templateCache.get(dialog.template) || $http.get(dialog.template, { cache: true }).then(function(res) { return res.data; }))
-                 .then(function onSuccess(template) {
+        if (options.inline) {
+            dialog.animation = "";
+        }
+        else {
+            dialog.element.addClass("modal");
+            dialog.element.addClass("hide");
+        }
 
-                     // Build modal object
-                     dialog.element.html(template);
+        //set the id and add classes
+        dialog.element
+            .attr('id', id)
+            .addClass(dialog.animation)
+            .addClass(dialog.modalClass);
 
-                     //append to body or other container element  
-                     dialog.container.append(dialog.element);
-                     
-                     // Compile modal content
-                     $timeout(function() {
-                         $compile(dialog.element)(scope);
-                     });
+        //push the modal into the global modal collection
+        //we halt the .push because a link click will trigger a closeAll right away
+        $timeout(function () {
+            dialogs.push(dialog);
+        }, 500);
 
-                     scope.dialogOptions = dialog;
-                     
-                     //Scope to handle data from the modal form
-                     scope.dialogData = dialog.dialogData ? dialog.dialogData : {};
-                     scope.dialogData.selection = [];
 
-                     // Provide scope display functions
-                     //this passes the modal to the current scope
-                     scope.$modal = function(name) {
-                         dialog.element.modal(name);
-                     };
+        dialog.close = function (data) {
+            if (dialog.closeCallback) {
+                dialog.closeCallback(data);
+            }
 
-                     scope.swipeHide = function(e){
-                       if(appState.getGlobalState("touchDevice")){
+            closeDialog(dialog);
+        };
+
+        //if iframe is enabled, inject that instead of a template
+        if (dialog.iframe) {
+            var html = $("<iframe src='" + dialog.template + "' class='auto-expand' style='border: none; width: 100%; height: 100%;'></iframe>");
+            dialog.element.html(html);
+
+            //append to body or whatever element is passed in as options.containerElement
+            dialog.container.append(dialog.element);
+
+            // Compile modal content
+            $timeout(function () {
+                $compile(dialog.element)(dialog.scope);
+            });
+
+            dialog.element.css("width", dialog.width);
+
+            //Autoshow 
+            if (dialog.show) {
+                dialog.element.modal('show');
+            }
+
+            dialog.scope = scope;
+            return dialog;
+        }
+        else {
+
+            //We need to load the template with an httpget and once it's loaded we'll compile and assign the result to the container
+            // object. However since the result could be a promise or just data we need to use a $q.when. We still need to return the 
+            // $modal object so we'll actually return the modal object synchronously without waiting for the promise. Otherwise this openDialog
+            // method will always need to return a promise which gets nasty because of promises in promises plus the result just needs a reference
+            // to the $modal object which will not change (only it's contents will change).
+            $q.when($templateCache.get(dialog.template) || $http.get(dialog.template, { cache: true }).then(function (res) { return res.data; }))
+                .then(function onSuccess(template) {
+
+                    // Build modal object
+                    dialog.element.html(template);
+
+                    //append to body or other container element  
+                    dialog.container.append(dialog.element);
+
+                    // Compile modal content
+                    $timeout(function () {
+                        $compile(dialog.element)(scope);
+                    });
+
+                    scope.dialogOptions = dialog;
+
+                    //Scope to handle data from the modal form
+                    scope.dialogData = dialog.dialogData ? dialog.dialogData : {};
+                    scope.dialogData.selection = [];
+
+                    // Provide scope display functions
+                    //this passes the modal to the current scope
+                    scope.$modal = function (name) {
+                        dialog.element.modal(name);
+                    };
+
+                    scope.swipeHide = function (e) {
+                        if (appState.getGlobalState("touchDevice")) {
                             var selection = window.getSelection();
-                            if(selection.type !== "Range"){
-                              scope.hide();  
+                            if (selection.type !== "Range") {
+                                scope.hide();
                             }
                         }
-                     };
+                    };
 
-                     scope.hide = function() {
-                         dialog.element.modal('hide');
+                    //NOTE: Same as 'close' without the callbacks
+                    scope.hide = function () {
+                        closeDialog(dialog);
+                    };
 
-                         dialog.element.remove();
-                         $("#" + dialog.element.attr("id")).remove();
-                     };
+                    //basic events for submitting and closing
+                    scope.submit = function (data) {
+                        if (dialog.callback) {
+                            dialog.callback(data);
+                        }
 
-                     //basic events for submitting and closing
-                     scope.submit = function(data) {
-                         if (dialog.callback) {
-                             dialog.callback(data);
-                         }
+                        closeDialog(dialog);
+                    };
 
-                         dialog.element.modal('hide');
-                         dialog.element.remove();
-                         $("#" + dialog.element.attr("id")).remove();
-                     };
-
-                     scope.close = function(data) {
+                    scope.close = function (data) {
                         dialog.close(data);
-                     };
+                    };
+                    
+                    //NOTE: This can ONLY ever be used to show the dialog if dialog.show is false (autoshow). 
+                    // You CANNOT call show() after you call hide(). hide = close, they are the same thing and once
+                    // a dialog is closed it's resources are disposed of.
+                    scope.show = function () {
+                        dialog.element.modal('show');
+                    };
 
-                     scope.show = function() {
-                         dialog.element.modal('show');
-                     };
-
-                     scope.select = function(item) {
+                    scope.select = function (item) {
                         var i = scope.dialogData.selection.indexOf(item);
-                         if (i < 0) {
-                             scope.dialogData.selection.push(item);
-                         }else{
+                        if (i < 0) {
+                            scope.dialogData.selection.push(item);
+                        } else {
                             scope.dialogData.selection.splice(i, 1);
-                         }
-                     };
+                        }
+                    };
 
-                     scope.dismiss = scope.hide;
+                    //NOTE: Same as 'close' without the callbacks
+                    scope.dismiss = scope.hide;
 
-                     // Emit modal events
-                     angular.forEach(['show', 'shown', 'hide', 'hidden'], function(name) {
-                         dialog.element.on(name, function(ev) {
-                             scope.$emit('modal-' + name, ev);
-                         });
-                     });
+                    // Emit modal events
+                    angular.forEach(['show', 'shown', 'hide', 'hidden'], function (name) {
+                        dialog.element.on(name, function (ev) {
+                            scope.$emit('modal-' + name, ev);
+                        });
+                    });
 
-                     // Support autofocus attribute
-                     dialog.element.on('shown', function(event) {
-                         $('input[autofocus]', dialog.element).first().trigger('focus');
-                     });
+                    // Support autofocus attribute
+                    dialog.element.on('shown', function (event) {
+                        $('input[autofocus]', dialog.element).first().trigger('focus');
+                    });
 
-                     //Autoshow 
-                     if (dialog.show) {
-                         dialog.element.modal('show');
-                     }
+                    //Autoshow 
+                    if (dialog.show) {
+                        dialog.element.modal('show');
+                    }
 
-                     dialog.scope = scope;
-               });
-               
-               //Return the modal object outside of the promise!
-               return dialog;
-           }
-       }
+                    dialog.scope = scope;
+                });
 
-       /** Handles the closeDialogs event */
-       $rootScope.$on("closeDialogs", function (evt, args) {
-           removeAllDialogs(args);
-       });
+            //Return the modal object outside of the promise!
+            return dialog;
+        }
+    }
 
-       return {
-           /**
-            * @ngdoc method
-            * @name umbraco.services.dialogService#open
-            * @methodOf umbraco.services.dialogService
-            *
-            * @description
-            * Opens a modal rendering a given template url.
-            *
-            * @param {Object} options rendering options
-            * @param {DomElement} options.container the DOM element to inject the modal into, by default set to body
-            * @param {Function} options.callback function called when the modal is submitted
-            * @param {String} options.template the url of the template
-            * @param {String} options.animation animation csss class, by default set to "fade"
-            * @param {String} options.modalClass modal css class, by default "umb-modal"
-            * @param {Bool} options.show show the modal instantly
-            * @param {Object} options.scope scope to attach the modal to, by default rootScope.new()
-            * @param {Bool} options.iframe load template in an iframe, only needed for serverside templates
-            * @param {Int} options.width set a width on the modal, only needed for iframes
-            * @param {Bool} options.inline strips the modal from any animation and wrappers, used when you want to inject a dialog into an existing container
-            * @returns {Object} modal object
-            */
-           open: function (options) {               
-               return openDialog(options);
-           },
-           
-           /**
-            * @ngdoc method
-            * @name umbraco.services.dialogService#close
-            * @methodOf umbraco.services.dialogService
-            *
-            * @description
-            * Closes a specific dialog
-            * @param {Object} dialog the dialog object to close
-            * @param {Object} args if specified this object will be sent to any callbacks registered on the dialogs.
-            */
-           close: function (dialog, args) {
-              if(dialog){
-                  dialog.close(args);
-              }              
-           },
-           
-           /**
-            * @ngdoc method
-            * @name umbraco.services.dialogService#closeAll
-            * @methodOf umbraco.services.dialogService
-            *
-            * @description
-            * Closes all dialogs
-            * @param {Object} args if specified this object will be sent to any callbacks registered on the dialogs.
-            */
-           closeAll: function(args) {
-               removeAllDialogs(args);
-           },
+    /** Handles the closeDialogs event */
+    eventsService.on("app.closeDialogs", function (evt, args) {
+        removeAllDialogs(args);
+    });
 
-           /**
-            * @ngdoc method
-            * @name umbraco.services.dialogService#mediaPicker
-            * @methodOf umbraco.services.dialogService
-            *
-            * @description
-            * Opens a media picker in a modal, the callback returns an array of selected media items
-            * @param {Object} options mediapicker dialog options object
-            * @param {$scope} options.scope dialog scope
-            * @param {Function} options.callback callback function
-            * @returns {Object} modal object
-            */
-           mediaPicker: function (options) {
+    return {
+        /**
+         * @ngdoc method
+         * @name umbraco.services.dialogService#open
+         * @methodOf umbraco.services.dialogService
+         *
+         * @description
+         * Opens a modal rendering a given template url.
+         *
+         * @param {Object} options rendering options
+         * @param {DomElement} options.container the DOM element to inject the modal into, by default set to body
+         * @param {Function} options.callback function called when the modal is submitted
+         * @param {String} options.template the url of the template
+         * @param {String} options.animation animation csss class, by default set to "fade"
+         * @param {String} options.modalClass modal css class, by default "umb-modal"
+         * @param {Bool} options.show show the modal instantly
+         * @param {Bool} options.iframe load template in an iframe, only needed for serverside templates
+         * @param {Int} options.width set a width on the modal, only needed for iframes
+         * @param {Bool} options.inline strips the modal from any animation and wrappers, used when you want to inject a dialog into an existing container
+         * @returns {Object} modal object
+         */
+        open: function (options) {
+            return openDialog(options);
+        },
+
+        /**
+         * @ngdoc method
+         * @name umbraco.services.dialogService#close
+         * @methodOf umbraco.services.dialogService
+         *
+         * @description
+         * Closes a specific dialog
+         * @param {Object} dialog the dialog object to close
+         * @param {Object} args if specified this object will be sent to any callbacks registered on the dialogs.
+         */
+        close: function (dialog, args) {
+            if (dialog) {
+                dialog.close(args);
+            }
+        },
+
+        /**
+         * @ngdoc method
+         * @name umbraco.services.dialogService#closeAll
+         * @methodOf umbraco.services.dialogService
+         *
+         * @description
+         * Closes all dialogs
+         * @param {Object} args if specified this object will be sent to any callbacks registered on the dialogs.
+         */
+        closeAll: function (args) {
+            removeAllDialogs(args);
+        },
+
+        /**
+         * @ngdoc method
+         * @name umbraco.services.dialogService#mediaPicker
+         * @methodOf umbraco.services.dialogService
+         *
+         * @description
+         * Opens a media picker in a modal, the callback returns an array of selected media items
+         * @param {Object} options mediapicker dialog options object
+         * @param {Boolean} options.onlyImages Only display files that have an image file-extension
+         * @param {Function} options.callback callback function
+         * @returns {Object} modal object
+         */
+        mediaPicker: function (options) {
             options.template = 'views/common/dialogs/mediaPicker.html';
             options.show = true;
             return openDialog(options);
-           },
+        },
 
 
-           /**
-            * @ngdoc method
-            * @name umbraco.services.dialogService#contentPicker
-            * @methodOf umbraco.services.dialogService
-            *
-            * @description
-            * Opens a content picker tree in a modal, the callback returns an array of selected documents
-            * @param {Object} options content picker dialog options object
-            * @param {$scope} options.scope dialog scope
-            * @param {$scope} options.multipicker should the picker return one or multiple items
-            * @param {Function} options.callback callback function
-            * @returns {Object} modal object
-            */
-           contentPicker: function (options) {
-               options.template = 'views/common/dialogs/contentPicker.html';
-               options.show = true;
-              return openDialog(options);
-           },
+        /**
+         * @ngdoc method
+         * @name umbraco.services.dialogService#contentPicker
+         * @methodOf umbraco.services.dialogService
+         *
+         * @description
+         * Opens a content picker tree in a modal, the callback returns an array of selected documents
+         * @param {Object} options content picker dialog options object
+         * @param {Boolean} options.multipicker should the picker return one or multiple items
+         * @param {Function} options.callback callback function
+         * @returns {Object} modal object
+         */
+        contentPicker: function (options) {
+            options.template = 'views/common/dialogs/contentPicker.html';
+            options.show = true;
+            return openDialog(options);
+        },
 
-           /**
-            * @ngdoc method
-            * @name umbraco.services.dialogService#linkPicker
-            * @methodOf umbraco.services.dialogService
-            *
-            * @description
-            * Opens a link picker tree in a modal, the callback returns a single link
-            * @param {Object} options content picker dialog options object
-            * @param {$scope} options.scope dialog scope
-            * @param {Function} options.callback callback function
-            * @returns {Object} modal object
-            */
-           linkPicker: function (options) {
-               options.template = 'views/common/dialogs/linkPicker.html';
-               options.show = true;
-              return openDialog(options);
-           },
+        /**
+         * @ngdoc method
+         * @name umbraco.services.dialogService#linkPicker
+         * @methodOf umbraco.services.dialogService
+         *
+         * @description
+         * Opens a link picker tree in a modal, the callback returns a single link
+         * @param {Object} options content picker dialog options object
+         * @param {Function} options.callback callback function
+         * @returns {Object} modal object
+         */
+        linkPicker: function (options) {
+            options.template = 'views/common/dialogs/linkPicker.html';
+            options.show = true;
+            return openDialog(options);
+        },
 
-           /**
-            * @ngdoc method
-            * @name umbraco.services.dialogService#macroPicker
-            * @methodOf umbraco.services.dialogService
-            *
-            * @description
-            * Opens a mcaro picker in a modal, the callback returns a object representing the macro and it's parameters
-            * @param {Object} options macropicker dialog options object
-            * @param {$scope} options.scope dialog scope
-            * @param {Function} options.callback callback function
-            * @returns {Object} modal object
-            */
-           macroPicker: function (options) {
-                options.template = 'views/common/dialogs/insertmacro.html';
-                options.show = true;
-                options.modalClass = "span7 umb-modal";
-                return openDialog(options);
-           },
+        /**
+         * @ngdoc method
+         * @name umbraco.services.dialogService#macroPicker
+         * @methodOf umbraco.services.dialogService
+         *
+         * @description
+         * Opens a mcaro picker in a modal, the callback returns a object representing the macro and it's parameters
+         * @param {Object} options macropicker dialog options object
+         * @param {Function} options.callback callback function
+         * @returns {Object} modal object
+         */
+        macroPicker: function (options) {
+            options.template = 'views/common/dialogs/insertmacro.html';
+            options.show = true;
+            options.modalClass = "span7 umb-modal";
+            return openDialog(options);
+        },
 
-           /**
-            * @ngdoc method
-            * @name umbraco.services.dialogService#memberPicker
-            * @methodOf umbraco.services.dialogService
-            *
-            * @description
-            * Opens a member picker in a modal, the callback returns a object representing the selected member
-            * @param {Object} options member picker dialog options object
-            * @param {$scope} options.scope dialog scope
-            * @param {$scope} options.multiPicker should the tree pick one or multiple members before returning
-            * @param {Function} options.callback callback function
-            * @returns {Object} modal object
-            */
-           memberPicker: function (options) {
-               options.template = 'views/common/dialogs/memberPicker.html';
-               options.show = true;
-              return openDialog(options);
-           },
-           
-           /**
-            * @ngdoc method
-            * @name umbraco.services.dialogService#memberGroupPicker
-            * @methodOf umbraco.services.dialogService
-            *
-            * @description
-            * Opens a member group picker in a modal, the callback returns a object representing the selected member
-            * @param {Object} options member group picker dialog options object
-            * @param {$scope} options.scope dialog scope
-            * @param {$scope} options.multiPicker should the tree pick one or multiple members before returning
-            * @param {Function} options.callback callback function
-            * @returns {Object} modal object
-            */
-           memberGroupPicker: function (options) {
-               options.template = 'views/common/dialogs/memberGroupPicker.html';
-               options.show = true;
-               return openDialog(options);
-           },
+        /**
+         * @ngdoc method
+         * @name umbraco.services.dialogService#memberPicker
+         * @methodOf umbraco.services.dialogService
+         *
+         * @description
+         * Opens a member picker in a modal, the callback returns a object representing the selected member
+         * @param {Object} options member picker dialog options object
+         * @param {Boolean} options.multiPicker should the tree pick one or multiple members before returning
+         * @param {Function} options.callback callback function
+         * @returns {Object} modal object
+         */
+        memberPicker: function (options) {
+            options.template = 'views/common/dialogs/memberPicker.html';
+            options.show = true;
+            return openDialog(options);
+        },
 
-           /**
-            * @ngdoc method
-            * @name umbraco.services.dialogService#iconPicker
-            * @methodOf umbraco.services.dialogService
-            *
-            * @description
-            * Opens a icon picker in a modal, the callback returns a object representing the selected icon
-            * @param {Object} options iconpicker dialog options object
-            * @param {$scope} options.scope dialog scope
-            * @param {Function} options.callback callback function
-            * @returns {Object} modal object
-            */
-           iconPicker: function (options) {
-                options.template = 'views/common/dialogs/iconPicker.html';
-                options.show = true;
-                return openDialog(options);
-           },
+        /**
+         * @ngdoc method
+         * @name umbraco.services.dialogService#memberGroupPicker
+         * @methodOf umbraco.services.dialogService
+         *
+         * @description
+         * Opens a member group picker in a modal, the callback returns a object representing the selected member
+         * @param {Object} options member group picker dialog options object
+         * @param {Boolean} options.multiPicker should the tree pick one or multiple members before returning
+         * @param {Function} options.callback callback function
+         * @returns {Object} modal object
+         */
+        memberGroupPicker: function (options) {
+            options.template = 'views/common/dialogs/memberGroupPicker.html';
+            options.show = true;
+            return openDialog(options);
+        },
 
-           /**
-            * @ngdoc method
-            * @name umbraco.services.dialogService#treePicker
-            * @methodOf umbraco.services.dialogService
-            *
-            * @description
-            * Opens a tree picker in a modal, the callback returns a object representing the selected tree item
-            * @param {Object} options iconpicker dialog options object
-            * @param {$scope} options.scope dialog scope
-            * @param {$scope} options.section tree section to display
-            * @param {$scope} options.treeAlias specific tree to display
-            * @param {$scope} options.multiPicker should the tree pick one or multiple items before returning
-            * @param {Function} options.callback callback function
-            * @returns {Object} modal object
-            */
-           treePicker: function (options) {
-                options.template = 'views/common/dialogs/treePicker.html';
-                options.show = true;
-                return openDialog(options);
-           },
+        /**
+         * @ngdoc method
+         * @name umbraco.services.dialogService#iconPicker
+         * @methodOf umbraco.services.dialogService
+         *
+         * @description
+         * Opens a icon picker in a modal, the callback returns a object representing the selected icon
+         * @param {Object} options iconpicker dialog options object
+         * @param {Function} options.callback callback function
+         * @returns {Object} modal object
+         */
+        iconPicker: function (options) {
+            options.template = 'views/common/dialogs/iconPicker.html';
+            options.show = true;
+            return openDialog(options);
+        },
 
-           /**
-            * @ngdoc method
-            * @name umbraco.services.dialogService#propertyDialog
-            * @methodOf umbraco.services.dialogService
-            *
-            * @description
-            * Opens a dialog with a chosen property editor in, a value can be passed to the modal, and this value is returned in the callback
-            * @param {Object} options mediapicker dialog options object
-            * @param {$scope} options.scope dialog scope
-            * @param {Function} options.callback callback function
-            * @param {String} editor editor to use to edit a given value and return on callback
-            * @param {Object} value value sent to the property editor
-            * @returns {Object} modal object
-            */
-          propertyDialog: function (options) {
-              options.template = 'views/common/dialogs/property.html';
-              options.show = true;
-              return openDialog(options);
-          },
-           
-           /**
-           * @ngdoc method
-           * @name umbraco.services.dialogService#ysodDialog
-           * @methodOf umbraco.services.dialogService
-           *
-           * @description
-           * Opens a dialog to an embed dialog 
-           */
-          embedDialog: function (options) {
-              options.template = 'views/common/dialogs/rteembed.html';
-              options.show = true;
-              return openDialog(options);
-          },
-           /**
-           * @ngdoc method
-           * @name umbraco.services.dialogService#ysodDialog
-           * @methodOf umbraco.services.dialogService
-           *
-           * @description
-           * Opens a dialog to show a custom YSOD
-           */
-           ysodDialog: function (ysodError) {
+        /**
+         * @ngdoc method
+         * @name umbraco.services.dialogService#treePicker
+         * @methodOf umbraco.services.dialogService
+         *
+         * @description
+         * Opens a tree picker in a modal, the callback returns a object representing the selected tree item
+         * @param {Object} options iconpicker dialog options object
+         * @param {String} options.section tree section to display
+         * @param {String} options.treeAlias specific tree to display
+         * @param {Boolean} options.multiPicker should the tree pick one or multiple items before returning
+         * @param {Function} options.callback callback function
+         * @returns {Object} modal object
+         */
+        treePicker: function (options) {
+            options.template = 'views/common/dialogs/treePicker.html';
+            options.show = true;
+            return openDialog(options);
+        },
 
-               var newScope = $rootScope.$new();
-               newScope.error = ysodError;
-               return openDialog({
-                   modalClass: "umb-modal wide",
-                   scope: newScope,
-                   //callback: options.callback,
-                   template: 'views/common/dialogs/ysod.html',
-                   show: true
-               });
-           }
-       };
-   });
+        /**
+         * @ngdoc method
+         * @name umbraco.services.dialogService#propertyDialog
+         * @methodOf umbraco.services.dialogService
+         *
+         * @description
+         * Opens a dialog with a chosen property editor in, a value can be passed to the modal, and this value is returned in the callback
+         * @param {Object} options mediapicker dialog options object
+         * @param {Function} options.callback callback function
+         * @param {String} editor editor to use to edit a given value and return on callback
+         * @param {Object} value value sent to the property editor
+         * @returns {Object} modal object
+         */
+        propertyDialog: function (options) {
+            options.template = 'views/common/dialogs/property.html';
+            options.show = true;
+            return openDialog(options);
+        },
+
+        /**
+        * @ngdoc method
+        * @name umbraco.services.dialogService#ysodDialog
+        * @methodOf umbraco.services.dialogService
+        * @description
+        * Opens a dialog to an embed dialog 
+        */
+        embedDialog: function (options) {
+            options.template = 'views/common/dialogs/rteembed.html';
+            options.show = true;
+            return openDialog(options);
+        },
+        /**
+        * @ngdoc method
+        * @name umbraco.services.dialogService#ysodDialog
+        * @methodOf umbraco.services.dialogService
+        *
+        * @description
+        * Opens a dialog to show a custom YSOD
+        */
+        ysodDialog: function (ysodError) {
+
+            var newScope = $rootScope.$new();
+            newScope.error = ysodError;
+            return openDialog({
+                modalClass: "umb-modal wide",
+                scope: newScope,
+                //callback: options.callback,
+                template: 'views/common/dialogs/ysod.html',
+                show: true
+            });
+        }
+    };
+});
 /** Used to broadcast and listen for global events and allow the ability to add async listeners to the callbacks */
+
+/*
+    Core app events: 
+
+    app.ready
+    app.authenticated
+    app.notAuthenticated
+    app.closeDialogs
+*/
+
 function eventsService($q, $rootScope) {
 	
     return {
         
         /** raise an event with a given name, returns an array of promises for each listener */
-        publish: function (name, args) {            
+        emit: function (name, args) {            
 
             //there are no listeners
             if (!$rootScope.$$listeners[name]) {
-                return [];
+                return;
+                //return [];
             }
 
+            //send the event
+            $rootScope.$emit(name, args);
+
+
+            //PP: I've commented out the below, since we currently dont
+            // expose the eventsService as a documented api
+            // and think we need to figure out our usecases for this
+            // since the below modifies the return value of the then on() method
+            /*
             //setup a deferred promise for each listener
             var deferred = [];
             for (var i = 0; i < $rootScope.$$listeners[name].length; i++) {
                 deferred.push($q.defer());
-            }
+            }*/
+
             //create a new event args object to pass to the 
-            // $broadcast containing methods that will allow listeners
+            // $emit containing methods that will allow listeners
             // to return data in an async if required
+            /*
             var eventArgs = {
                 args: args,
                 reject: function (a) {
@@ -1381,30 +1778,29 @@ function eventsService($q, $rootScope) {
                 resolve: function (a) {
                     deferred.pop().resolve(a);
                 }
-            };
+            };*/
             
-            //send the event
-            $rootScope.$broadcast(name, eventArgs);
             
+            
+            /*
             //return an array of promises
             var promises = _.map(deferred, function(p) {
                 return p.promise;
             });
-            return promises;
+            return promises;*/
         },
 
         /** subscribe to a method, or use scope.$on = same thing */
-		subscribe: function(name, callback) {
+		on: function(name, callback) {
 		    return $rootScope.$on(name, callback);
 		},
 		
-        /** pass in the result of subscribe to this method, or just call the method returned from subscribe to unsubscribe */
+        /** pass in the result of 'on' to this method, or just call the method returned from 'on' to unsubscribe */
 		unsubscribe: function(handle) {
 		    if (angular.isFunction(handle)) {
 		        handle();
 		    }		    
 		}
-
 	};
 }
 
@@ -1419,16 +1815,9 @@ angular.module('umbraco.services').factory('eventsService', eventsService);
  * that need to attach files.
  * When a route changes successfully, we ensure that the collection is cleared.
  */
-function fileManager($rootScope) {
+function fileManager() {
 
     var fileCollection = [];
-
-    //Whenever a route changes - clear the curent file collection, the file collection is only relavent
-    // when working in an editor and submitting data to the server.
-    //This ensures that memory remains clear of any files and that the editors don't have to manually clear the files.
-    $rootScope.$on('$routeChangeSuccess', function (event, current, previous) {
-        fileCollection = [];
-    });
 
     return {
         /**
@@ -1441,14 +1830,14 @@ function fileManager($rootScope) {
          *  Attaches files to the current manager for the current editor for a particular property, if an empty array is set
          *   for the files collection that effectively clears the files for the specified editor.
          */
-        setFiles: function(propertyId, files) {
+        setFiles: function(propertyAlias, files) {
             //this will clear the files for the current property and then add the new ones for the current property
             fileCollection = _.reject(fileCollection, function (item) {
-                return item.id === propertyId;
+                return item.alias === propertyAlias;
             });
             for (var i = 0; i < files.length; i++) {
                 //save the file object to the files collection
-                fileCollection.push({ id: propertyId, file: files[i] });
+                fileCollection.push({ alias: propertyAlias, file: files[i] });
             }
         },
         
@@ -1776,18 +2165,25 @@ angular.module('umbraco.services')
  * </pre> 
  */
 angular.module('umbraco.services')
-.factory('historyService', function ($rootScope, $timeout, angularHelper) {
+.factory('historyService', function ($rootScope, $timeout, angularHelper, eventsService) {
 
 	var nArray = [];
 
 	function add(item) {
 
-		var any = _.where(nArray, {link: item.link});
+	    if (!item) {
+	        return null;
+	    }
 
-		if(any.length === 0){
-			nArray.splice(0,0,item);
-			return nArray[0];
-		}
+	    var listWithoutThisItem = _.reject(nArray, function(i) {
+	        return i.link === item.link;
+	    });
+
+        //put it at the top and reassign
+	    listWithoutThisItem.splice(0, 0, item);
+	    nArray = listWithoutThisItem;
+	    return nArray[0];
+
 	}
 
 	return {
@@ -1808,7 +2204,9 @@ angular.module('umbraco.services')
 		add: function (item) {
 			var icon = item.icon || "icon-file";
 			angularHelper.safeApply($rootScope, function () {
-				return add({name: item.name, icon: icon, link: item.link, time: new Date() });
+			    var result = add({ name: item.name, icon: icon, link: item.link, time: new Date() });
+			    eventsService.emit("historyService.add", {added: result, all: nArray});
+			    return result;
 			});
 		},
 		/**
@@ -1823,7 +2221,8 @@ angular.module('umbraco.services')
 		 */
 		remove: function (index) {
 			angularHelper.safeApply($rootScope, function() {
-				nArray.splice(index, 1);
+			    var result = nArray.splice(index, 1);
+			    eventsService.emit("historyService.remove", { removed: result, all: nArray });
 			});
 		},
 
@@ -1837,20 +2236,10 @@ angular.module('umbraco.services')
 		 */
 		removeAll: function () {
 			angularHelper.safeApply($rootScope, function() {
-				nArray = [];
+			    nArray = [];
+			    eventsService.emit("historyService.removeAll");
 			});
 		},
-
-		/**
-		 * @ngdoc property
-		 * @name umbraco.services.historyService#current
-		 * @propertyOf umbraco.services.historyService
-		 *
-		 * @description
-		 * 
-		 * @returns {Array} Array of history entries for the current user, newest items first
-		 */
-		current: nArray,
 
 		/**
 		 * @ngdoc method
@@ -1866,6 +2255,292 @@ angular.module('umbraco.services')
 		}
 	};
 });
+/**
+* @ngdoc service
+* @name umbraco.services.iconHelper
+* @description A helper service for dealing with icons, mostly dealing with legacy tree icons
+**/
+function iconHelper($q, $timeout) {
+
+    var converter = [
+        { oldIcon: ".sprNew", newIcon: "add" },
+        { oldIcon: ".sprDelete", newIcon: "remove" },
+        { oldIcon: ".sprMove", newIcon: "enter" },
+        { oldIcon: ".sprCopy", newIcon: "documents" },
+        { oldIcon: ".sprSort", newIcon: "navigation-vertical" },
+        { oldIcon: ".sprPublish", newIcon: "globe" },
+        { oldIcon: ".sprRollback", newIcon: "undo" },
+        { oldIcon: ".sprProtect", newIcon: "lock" },
+        { oldIcon: ".sprAudit", newIcon: "time" },
+        { oldIcon: ".sprNotify", newIcon: "envelope" },
+        { oldIcon: ".sprDomain", newIcon: "home" },
+        { oldIcon: ".sprPermission", newIcon: "lock" },
+        { oldIcon: ".sprRefresh", newIcon: "refresh" },
+        { oldIcon: ".sprBinEmpty", newIcon: "trash" },
+        { oldIcon: ".sprExportDocumentType", newIcon: "download-alt" },
+        { oldIcon: ".sprImportDocumentType", newIcon: "page-up" },
+        { oldIcon: ".sprLiveEdit", newIcon: "edit" },
+        { oldIcon: ".sprCreateFolder", newIcon: "add" },
+        { oldIcon: ".sprPackage2", newIcon: "box" },
+        { oldIcon: ".sprLogout", newIcon: "logout" },
+        { oldIcon: ".sprSave", newIcon: "save" },
+        { oldIcon: ".sprSendToTranslate", newIcon: "envelope-alt" },
+        { oldIcon: ".sprToPublish", newIcon: "mail-forward" },
+        { oldIcon: ".sprTranslate", newIcon: "comments" },
+        { oldIcon: ".sprUpdate", newIcon: "save" },
+        
+        { oldIcon: ".sprTreeSettingDomain", newIcon: "icon-home" },
+        { oldIcon: ".sprTreeDoc", newIcon: "icon-document" },
+        { oldIcon: ".sprTreeDoc2", newIcon: "icon-diploma-alt" },
+        { oldIcon: ".sprTreeDoc3", newIcon: "icon-notepad" },
+        { oldIcon: ".sprTreeDoc4", newIcon: "icon-newspaper-alt" },
+        { oldIcon: ".sprTreeDoc5", newIcon: "icon-notepad-alt" },
+
+        { oldIcon: ".sprTreeDocPic", newIcon: "icon-picture" },        
+        { oldIcon: ".sprTreeFolder", newIcon: "icon-folder" },
+        { oldIcon: ".sprTreeFolder_o", newIcon: "icon-folder" },
+        { oldIcon: ".sprTreeMediaFile", newIcon: "icon-music" },
+        { oldIcon: ".sprTreeMediaMovie", newIcon: "icon-movie" },
+        { oldIcon: ".sprTreeMediaPhoto", newIcon: "icon-picture" },
+        
+        { oldIcon: ".sprTreeMember", newIcon: "icon-user" },
+        { oldIcon: ".sprTreeMemberGroup", newIcon: "icon-users" },
+        { oldIcon: ".sprTreeMemberType", newIcon: "icon-users" },
+        
+        { oldIcon: ".sprTreeNewsletter", newIcon: "icon-file-text-alt" },
+        { oldIcon: ".sprTreePackage", newIcon: "icon-box" },
+        { oldIcon: ".sprTreeRepository", newIcon: "icon-server-alt" },
+        
+        { oldIcon: ".sprTreeSettingDataType", newIcon: "icon-autofill" },
+
+        //TODO:
+        /*
+        { oldIcon: ".sprTreeSettingAgent", newIcon: "" },
+        { oldIcon: ".sprTreeSettingCss", newIcon: "" },
+        { oldIcon: ".sprTreeSettingCssItem", newIcon: "" },
+        
+        { oldIcon: ".sprTreeSettingDataTypeChild", newIcon: "" },
+        { oldIcon: ".sprTreeSettingDomain", newIcon: "" },
+        { oldIcon: ".sprTreeSettingLanguage", newIcon: "" },
+        { oldIcon: ".sprTreeSettingScript", newIcon: "" },
+        { oldIcon: ".sprTreeSettingTemplate", newIcon: "" },
+        { oldIcon: ".sprTreeSettingXml", newIcon: "" },
+        { oldIcon: ".sprTreeStatistik", newIcon: "" },
+        { oldIcon: ".sprTreeUser", newIcon: "" },
+        { oldIcon: ".sprTreeUserGroup", newIcon: "" },
+        { oldIcon: ".sprTreeUserType", newIcon: "" },
+        */
+
+        { oldIcon: "folder.png", newIcon: "icon-folder" },
+        { oldIcon: "mediaphoto.gif", newIcon: "icon-picture" },
+        { oldIcon: "mediafile.gif", newIcon: "icon-document" },
+
+        { oldIcon: ".sprTreeDeveloperCacheItem", newIcon: "icon-box" },
+        { oldIcon: ".sprTreeDeveloperCacheTypes", newIcon: "icon-box" },
+        { oldIcon: ".sprTreeDeveloperMacro", newIcon: "icon-cogs" },
+        { oldIcon: ".sprTreeDeveloperRegistry", newIcon: "icon-windows" },
+        { oldIcon: ".sprTreeDeveloperPython", newIcon: "icon-linux" }
+    ];
+
+    var imageConverter = [
+            {oldImage: "contour.png", newIcon: "icon-umb-contour"}
+            ];
+
+    var collectedIcons;
+            
+    return {
+        
+        /** Used by the create dialogs for content/media types to format the data so that the thumbnails are styled properly */
+        formatContentTypeThumbnails: function (contentTypes) {
+            for (var i = 0; i < contentTypes.length; i++) {
+
+                if (contentTypes[i].thumbnailIsClass === undefined || contentTypes[i].thumbnailIsClass) {
+                    contentTypes[i].cssClass = this.convertFromLegacyIcon(contentTypes[i].thumbnail);
+                }else {
+                    contentTypes[i].style = "background-image: url('" + contentTypes[i].thumbnailFilePath + "');height:36px; background-position:4px 0px; background-repeat: no-repeat;background-size: 35px 35px;";
+                    //we need an 'icon-' class in there for certain styles to work so if it is image based we'll add this
+                    contentTypes[i].cssClass = "custom-file";
+                }
+            }
+            return contentTypes;
+        },
+        formatContentTypeIcons: function (contentTypes) {
+            for (var i = 0; i < contentTypes.length; i++) {
+                contentTypes[i].icon = this.convertFromLegacyIcon(contentTypes[i].icon);
+
+                //couldnt find replacement
+                if(contentTypes[i].icon.indexOf(".") > 0){
+                     contentTypes[i].icon = "icon-document-dashed-line";   
+                }
+            }
+            return contentTypes;
+        },
+        /** If the icon is file based (i.e. it has a file path) */
+        isFileBasedIcon: function (icon) {
+            //if it doesn't start with a '.' but contains one then we'll assume it's file based
+            if (icon.startsWith('..') || (!icon.startsWith('.') && icon.indexOf('.') > 1)) {
+                return true;
+            }
+            return false;
+        },
+        /** If the icon is legacy */
+        isLegacyIcon: function (icon) {
+            if(icon.startsWith('..')){
+                return false;
+            }
+
+            if (icon.startsWith('.')) {
+                return true;
+            }
+            return false;
+        },
+        /** If the tree node has a legacy icon */
+        isLegacyTreeNodeIcon: function(treeNode){
+            if (treeNode.iconIsClass) {
+                return this.isLegacyIcon(treeNode.icon);
+            }
+            return false;
+        },
+
+        /** Return a list of icons, optionally filter them */
+        /** It fetches them directly from the active stylesheets in the browser */
+        getIcons: function(){
+            var deferred = $q.defer();
+            $timeout(function(){
+                if(collectedIcons){
+                    deferred.resolve(collectedIcons);
+                }else{
+                    collectedIcons = [];
+                    var c = ".icon-";
+
+                    for (var i = document.styleSheets.length - 1; i >= 0; i--) {
+                        var classes = document.styleSheets[i].rules || document.styleSheets[i].cssRules;
+                        
+                        if (classes !== null) {
+                            for(var x=0;x<classes.length;x++) {
+                                var cur = classes[x];
+                                if(cur.selectorText && cur.selectorText.indexOf(c) === 0) {
+                                    var s = cur.selectorText.substring(1);
+                                    var hasSpace = s.indexOf(" ");
+                                    if(hasSpace>0){
+                                        s = s.substring(0, hasSpace);
+                                    }
+                                    var hasPseudo = s.indexOf(":");
+                                    if(hasPseudo>0){
+                                        s = s.substring(0, hasPseudo);
+                                    }
+
+                                    if(collectedIcons.indexOf(s) < 0){
+                                        collectedIcons.push(s);
+                                    }
+                                }
+                            }
+                        }
+                    }
+                    deferred.resolve(collectedIcons);
+                }
+            }, 100);
+            
+            return deferred.promise;
+        },
+
+        /** Converts the icon from legacy to a new one if an old one is detected */
+        convertFromLegacyIcon: function (icon) {
+            if (this.isLegacyIcon(icon)) {
+                //its legacy so convert it if we can
+                var found = _.find(converter, function (item) {
+                    return item.oldIcon.toLowerCase() === icon.toLowerCase();
+                });
+                return (found ? found.newIcon : icon);
+            }
+            return icon;
+        },
+
+        convertFromLegacyImage: function (icon) {
+                var found = _.find(imageConverter, function (item) {
+                    return item.oldImage.toLowerCase() === icon.toLowerCase();
+                });
+                return (found ? found.newIcon : undefined);
+        },
+
+        /** If we detect that the tree node has legacy icons that can be converted, this will convert them */
+        convertFromLegacyTreeNodeIcon: function (treeNode) {
+            if (this.isLegacyTreeNodeIcon(treeNode)) {
+                return this.convertFromLegacyIcon(treeNode.icon);
+            }
+            return treeNode.icon;
+        }
+    };
+}
+angular.module('umbraco.services').factory('iconHelper', iconHelper);
+/**
+* @ngdoc service
+* @name umbraco.services.imageHelper
+* @deprecated
+**/
+function imageHelper(umbRequestHelper, mediaHelper) {
+    return {
+        /**
+         * @ngdoc function
+         * @name umbraco.services.imageHelper#getImagePropertyValue
+         * @methodOf umbraco.services.imageHelper
+         * @function    
+         *
+         * @deprecated
+         */
+        getImagePropertyValue: function (options) {
+            return mediaHelper.getImagePropertyValue(options);
+        },
+        /**
+         * @ngdoc function
+         * @name umbraco.services.imageHelper#getThumbnail
+         * @methodOf umbraco.services.imageHelper
+         * @function    
+         *
+         * @deprecated
+         */
+        getThumbnail: function (options) {
+            return mediaHelper.getThumbnail(options);
+        },
+
+        /**
+         * @ngdoc function
+         * @name umbraco.services.imageHelper#scaleToMaxSize
+         * @methodOf umbraco.services.imageHelper
+         * @function    
+         *
+         * @deprecated
+         */
+        scaleToMaxSize: function (maxSize, width, height) {
+            return mediaHelper.scaleToMaxSize(maxSize, width, height);
+        },
+
+        /**
+         * @ngdoc function
+         * @name umbraco.services.imageHelper#getThumbnailFromPath
+         * @methodOf umbraco.services.imageHelper
+         * @function    
+         *
+         * @deprecated
+         */
+        getThumbnailFromPath: function (imagePath) {
+            return mediaHelper.getThumbnailFromPath(imagePath);
+        },
+
+        /**
+         * @ngdoc function
+         * @name umbraco.services.imageHelper#detectIfImageByExtension
+         * @methodOf umbraco.services.imageHelper
+         * @function    
+         *
+         * @deprecated
+         */
+        detectIfImageByExtension: function (imagePath) {
+            return mediaHelper.detectIfImageByExtension(imagePath);
+        }
+    };
+}
+angular.module('umbraco.services').factory('imageHelper', imageHelper);
 // This service was based on OpenJS library available in BSD License
 // http://www.openjs.com/scripts/events/keyboard_shortcuts/index.php
 angular.module('umbraco.services')
@@ -1889,7 +2564,7 @@ angular.module('umbraco.services')
 	keyboardManagerService.bind = function (label, callback, opt) {
 
 		//replace ctrl key with meta key
-		if(isMac){
+		if(isMac && label !== "ctrl+space"){
 		  label = label.replace("ctrl","meta");
 		}
 
@@ -2140,7 +2815,7 @@ angular.module('umbraco.services')
 	return keyboardManagerService;
 }]);
 angular.module('umbraco.services')
-.factory('localizationService', function ($http, $q, $rootScope, $window, $filter, userService) {
+.factory('localizationService', function ($http, $q, eventsService, $window, $filter, userService) {
         var service = {
             // array to hold the localized resource string entries
             dictionary:[],
@@ -2156,7 +2831,7 @@ angular.module('umbraco.services')
                 // set the flag that the resource are loaded
                 service.resourceFileLoaded = true;
                 // broadcast that the file has been loaded
-                $rootScope.$broadcast('localizeResourcesUpdates');
+                eventsService.emit("localizationService.updated", data);
             },
 
             // allows setting of language on the fly
@@ -2179,7 +2854,7 @@ angular.module('umbraco.services')
                         service.resourceFileLoaded = true;
                         service.dictionary = response.data;
 
-                        $rootScope.$broadcast('localizeResourcesUpdates');
+                        eventsService.emit("localizationService.updated", service.dictionary);
 
                         return deferred.resolve(service.dictionary);
                     }, function(err){
@@ -2243,12 +2918,15 @@ angular.module('umbraco.services')
                 }
                 return "[" + value + "]";
             }
-
-
         };
 
         // force the load of the resource file
         service.initLocalizedResources();
+
+        //This happens after login / auth and assets loading
+        eventsService.on("app.authenticated", function(){
+            service.resourceFileLoaded = false;
+        });
 
         // return the local instance when called
         return service;
@@ -2264,11 +2942,11 @@ angular.module('umbraco.services')
 function macroService() {
 
     return {
-        
+       
         /** parses the special macro syntax like <?UMBRACO_MACRO macroAlias="Map" /> and returns an object with the macro alias and it's parameters */
         parseMacroSyntax: function (syntax) {
 
-            var expression = /(<\?UMBRACO_MACRO macroAlias=["'](\w+?)["'].+?)(\/>|>.*?<\/\?UMBRACO_MACRO>)/im;
+            var expression = /(<\?UMBRACO_MACRO macroAlias=["']([\w\.]+?)["'][\s\S]+?)(\/>|>.*?<\/\?UMBRACO_MACRO>)/i;
             var match = expression.exec(syntax);
             if (!match || match.length < 3) {
                 return null;
@@ -2278,14 +2956,15 @@ function macroService() {
             //this will leave us with just the parameters
             var paramsChunk = match[1].trim().replace(new RegExp("UMBRACO_MACRO macroAlias=[\"']" + alias + "[\"']"), "").trim();
             
-            var paramExpression = new RegExp("(\\w+?)=['\"](.*?)['\"]", "g");
+            var paramExpression = /(\w+?)=['\"]([\s\S]*?)['\"]/g;
+            
             var paramMatch;
             var returnVal = {
                 macroAlias: alias,
-                marcoParamsDictionary: {}
+                macroParamsDictionary: {}
             };
             while (paramMatch = paramExpression.exec(paramsChunk)) {
-                returnVal.marcoParamsDictionary[paramMatch[1]] = paramMatch[2];
+                returnVal.macroParamsDictionary[paramMatch[1]] = paramMatch[2];
             }
             return returnVal;
         },
@@ -2307,10 +2986,24 @@ function macroService() {
 
             var macroString = '<?UMBRACO_MACRO macroAlias=\"' + args.macroAlias + "\" ";
 
-            if (args.marcoParamsDictionary) {
+            if (args.macroParamsDictionary) {
 
-                _.each(args.marcoParamsDictionary, function (val, key) {
-                    var keyVal = key + "=\"" + (val ? val : "") + "\" ";
+                _.each(args.macroParamsDictionary, function (val, key) {
+                    //check for null
+                    val = val ? val : "";
+                    //need to detect if the val is a string or an object
+                    var keyVal;
+                    if (angular.isString(val)) {
+                        keyVal = key + "=\"" + (val ? val : "") + "\" ";
+                    }
+                    else {
+                        //if it's not a string we'll send it through the json serializer
+                        var json = angular.toJson(val);
+                        //then we need to url encode it so that it's safe
+                        var encoded = encodeURIComponent(json);
+                        keyVal = key + "=\"" + encoded + "\" ";
+                    }
+                    
                     macroString += keyVal;
                 });
 
@@ -2336,9 +3029,9 @@ function macroService() {
             
             var macroString = '<umbraco:Macro ';
 
-            if (args.marcoParamsDictionary) {
+            if (args.macroParamsDictionary) {
                 
-                _.each(args.marcoParamsDictionary, function (val, key) {
+                _.each(args.macroParamsDictionary, function (val, key) {
                     var keyVal = key + "=\"" + (val ? val : "") + "\" ";
                     macroString += keyVal;
                 });
@@ -2367,11 +3060,11 @@ function macroService() {
 
             var hasParams = false;
             var paramString;
-            if (args.marcoParamsDictionary) {
+            if (args.macroParamsDictionary) {
                 
                 paramString = ", new {";
 
-                _.each(args.marcoParamsDictionary, function(val, key) {
+                _.each(args.macroParamsDictionary, function(val, key) {
 
                     hasParams = true;
                     
@@ -2398,6 +3091,343 @@ function macroService() {
 }
 
 angular.module('umbraco.services').factory('macroService', macroService);
+/**
+* @ngdoc service
+* @name umbraco.services.mediaHelper
+* @description A helper object used for dealing with media items
+**/
+function mediaHelper(umbRequestHelper) {
+    
+    //container of fileresolvers
+    var _mediaFileResolvers = {};
+
+    return {
+        /**
+         * @ngdoc function
+         * @name umbraco.services.mediaHelper#getImagePropertyValue
+         * @methodOf umbraco.services.mediaHelper
+         * @function    
+         *
+         * @description
+         * Returns the file path associated with the media property if there is one
+         * 
+         * @param {object} options Options object
+         * @param {object} options.mediaModel The media object to retrieve the image path from
+         * @param {object} options.imageOnly Optional, if true then will only return a path if the media item is an image
+         */
+        getMediaPropertyValue: function (options) {
+            if (!options || !options.mediaModel) {
+                throw "The options objet does not contain the required parameters: mediaModel";
+            }
+
+            //combine all props, TODO: we really need a better way then this
+            var props = [];
+            if (options.mediaModel.properties) {
+                props = options.mediaModel.properties;
+            } else {
+                $(options.mediaModel.tabs).each(function (i, tab) {
+                    props = props.concat(tab.properties);
+                });
+            }
+
+            var mediaRoot = Umbraco.Sys.ServerVariables.umbracoSettings.mediaPath;
+            var imageProp = _.find(props, function (item) {
+                if (item.alias === "umbracoFile") {
+                    return true;
+                }
+
+                //this performs a simple check to see if we have a media file as value
+                //it doesnt catch everything, but better then nothing
+                if (angular.isString(item.value) &&  item.value.indexOf(mediaRoot) === 0) {
+                    return true;
+                }
+
+                return false;
+            });
+
+            if (!imageProp) {
+                return "";
+            }
+
+            var mediaVal;
+
+            //our default images might store one or many images (as csv)
+            var split = imageProp.value.split(',');
+            var self = this;
+            mediaVal = _.map(split, function (item) {
+                return { file: item, isImage: self.detectIfImageByExtension(item) };
+            });
+
+            //for now we'll just return the first image in the collection.
+            //TODO: we should enable returning many to be displayed in the picker if the uploader supports many.
+            if (mediaVal.length && mediaVal.length > 0) {
+                if (!options.imageOnly || (options.imageOnly === true && mediaVal[0].isImage)) {
+                    return mediaVal[0].file;
+                }
+            }
+
+            return "";
+        },
+        
+        /**
+         * @ngdoc function
+         * @name umbraco.services.mediaHelper#getImagePropertyValue
+         * @methodOf umbraco.services.mediaHelper
+         * @function    
+         *
+         * @description
+         * Returns the actual image path associated with the image property if there is one
+         * 
+         * @param {object} options Options object
+         * @param {object} options.imageModel The media object to retrieve the image path from
+         */
+        getImagePropertyValue: function (options) {
+            if (!options || (!options.imageModel && !options.mediaModel)) {
+                throw "The options objet does not contain the required parameters: imageModel";
+            }
+
+            //required to support backwards compatibility.
+            options.mediaModel = options.imageModel ? options.imageModel : options.mediaModel;
+
+            options.imageOnly = true;
+
+            return this.getMediaPropertyValue(options);
+        },
+        /**
+         * @ngdoc function
+         * @name umbraco.services.mediaHelper#getThumbnail
+         * @methodOf umbraco.services.mediaHelper
+         * @function    
+         *
+         * @description
+         * formats the display model used to display the content to the model used to save the content
+         * 
+         * @param {object} options Options object
+         * @param {object} options.imageModel The media object to retrieve the image path from
+         */
+        getThumbnail: function (options) {
+
+            if (!options || !options.imageModel) {
+                throw "The options objet does not contain the required parameters: imageModel";
+            }
+
+            var imagePropVal = this.getImagePropertyValue(options);
+            if (imagePropVal !== "") {
+                return this.getThumbnailFromPath(imagePropVal);
+            }
+            return "";
+        },
+
+        registerFileResolver: function(propertyEditorAlias, func){
+            _mediaFileResolvers[propertyEditorAlias] = func;
+        },
+
+        /**
+         * @ngdoc function
+         * @name umbraco.services.mediaHelper#resolveFileFromEntity
+         * @methodOf umbraco.services.mediaHelper
+         * @function    
+         *
+         * @description
+         * Gets the media file url for a media entity returned with the entityResource
+         * 
+         * @param {object} mediaEntity A media Entity returned from the entityResource
+         * @param {boolean} thumbnail Whether to return the thumbnail url or normal url
+         */
+        resolveFileFromEntity : function(mediaEntity, thumbnail) {
+            
+            if (!angular.isObject(mediaEntity.metaData)) {
+                throw "Cannot resolve the file url from the mediaEntity, it does not contain the required metaData";
+            }
+
+            var values = _.values(mediaEntity.metaData);
+            for (var i = 0; i < values.length; i++) {
+                var val = values[i];
+                if (angular.isObject(val) && val.PropertyEditorAlias) {
+                    for (var resolver in _mediaFileResolvers) {
+                        if (val.PropertyEditorAlias === resolver) {
+                            //we need to format a property variable that coincides with how the property would be structured
+                            // if it came from the mediaResource just to keep things slightly easier for the file resolvers.
+                            var property = { value: val.Value };
+
+                            return _mediaFileResolvers[resolver](property, mediaEntity, thumbnail);
+                        }
+                    }
+                }
+            }
+
+            return "";
+        },
+
+        /**
+         * @ngdoc function
+         * @name umbraco.services.mediaHelper#resolveFile
+         * @methodOf umbraco.services.mediaHelper
+         * @function    
+         *
+         * @description
+         * Gets the media file url for a media object returned with the mediaResource
+         * 
+         * @param {object} mediaEntity A media Entity returned from the entityResource
+         * @param {boolean} thumbnail Whether to return the thumbnail url or normal url
+         */
+        /*jshint loopfunc: true */
+        resolveFile : function(mediaItem, thumbnail){
+            
+            function iterateProps(props){
+                var res = null;
+                for(var resolver in _mediaFileResolvers) {
+                    var property = _.find(props, function(prop){ return prop.editor === resolver; });
+                    if(property){
+                        res = _mediaFileResolvers[resolver](property, mediaItem, thumbnail);
+                        break;
+                    }
+                }
+
+                return res;    
+            }
+
+            //we either have properties raw on the object, or spread out on tabs
+            var result = "";
+            if(mediaItem.properties){
+                result = iterateProps(mediaItem.properties);
+            }else if(mediaItem.tabs){
+                for(var tab in mediaItem.tabs) {
+                    if(mediaItem.tabs[tab].properties){
+                        result = iterateProps(mediaItem.tabs[tab].properties);
+                        if(result){
+                            break;
+                        }
+                    }
+                }
+            }
+            return result;            
+        },
+
+        /*jshint loopfunc: true */
+        hasFilePropertyType : function(mediaItem){
+           function iterateProps(props){
+               var res = false;
+               for(var resolver in _mediaFileResolvers) {
+                   var property = _.find(props, function(prop){ return prop.editor === resolver; });
+                   if(property){
+                       res = true;
+                       break;
+                   }
+               }
+               return res;
+           }
+
+           //we either have properties raw on the object, or spread out on tabs
+           var result = false;
+           if(mediaItem.properties){
+               result = iterateProps(mediaItem.properties);
+           }else if(mediaItem.tabs){
+               for(var tab in mediaItem.tabs) {
+                   if(mediaItem.tabs[tab].properties){
+                       result = iterateProps(mediaItem.tabs[tab].properties);
+                       if(result){
+                           break;
+                       }
+                   }
+               }
+           }
+           return result;
+        },
+
+        /**
+         * @ngdoc function
+         * @name umbraco.services.mediaHelper#scaleToMaxSize
+         * @methodOf umbraco.services.mediaHelper
+         * @function    
+         *
+         * @description
+         * Finds the corrct max width and max height, given maximum dimensions and keeping aspect ratios
+         * 
+         * @param {number} maxSize Maximum width & height
+         * @param {number} width Current width
+         * @param {number} height Current height
+         */
+        scaleToMaxSize: function (maxSize, width, height) {
+            var retval = { width: width, height: height };
+
+            var maxWidth = maxSize; // Max width for the image
+            var maxHeight = maxSize;    // Max height for the image
+            var ratio = 0;  // Used for aspect ratio
+
+            // Check if the current width is larger than the max
+            if (width > maxWidth) {
+                ratio = maxWidth / width;   // get ratio for scaling image
+
+                retval.width = maxWidth;
+                retval.height = height * ratio;
+
+                height = height * ratio;    // Reset height to match scaled image
+                width = width * ratio;    // Reset width to match scaled image
+            }
+
+            // Check if current height is larger than max
+            if (height > maxHeight) {
+                ratio = maxHeight / height; // get ratio for scaling image
+
+                retval.height = maxHeight;
+                retval.width = width * ratio;
+                width = width * ratio;    // Reset width to match scaled image
+            }
+
+            return retval;
+        },
+
+        /**
+         * @ngdoc function
+         * @name umbraco.services.mediaHelper#getThumbnailFromPath
+         * @methodOf umbraco.services.mediaHelper
+         * @function    
+         *
+         * @description
+         * Returns the path to the thumbnail version of a given media library image path
+         * 
+         * @param {string} imagePath Image path, ex: /media/1234/my-image.jpg
+         */
+        getThumbnailFromPath: function (imagePath) {
+
+            //If the path is not an image we cannot get a thumb
+            if (!this.detectIfImageByExtension(imagePath)) {
+                return null;
+            }
+
+            //get the proxy url for big thumbnails (this ensures one is always generated)
+            var thumbnailUrl = umbRequestHelper.getApiUrl(
+                "imagesApiBaseUrl",
+                "GetBigThumbnail",
+                [{ originalImagePath: imagePath }]);
+
+            //var ext = imagePath.substr(imagePath.lastIndexOf('.'));
+            //return imagePath.substr(0, imagePath.lastIndexOf('.')) + "_big-thumb" + ".jpg";
+
+            return thumbnailUrl;
+        },
+
+        /**
+         * @ngdoc function
+         * @name umbraco.services.mediaHelper#detectIfImageByExtension
+         * @methodOf umbraco.services.mediaHelper
+         * @function    
+         *
+         * @description
+         * Returns true/false, indicating if the given path has an allowed image extension
+         * 
+         * @param {string} imagePath Image path, ex: /media/1234/my-image.jpg
+         */
+        detectIfImageByExtension: function (imagePath) {
+            var lowered = imagePath.toLowerCase();
+            var ext = lowered.substr(lowered.lastIndexOf(".") + 1);
+            return ("," + Umbraco.Sys.ServerVariables.umbracoSettings.imageFileTypes + ",").indexOf("," + ext + ",") !== -1;
+        }
+        
+    };
+}
+angular.module('umbraco.services').factory('mediaHelper', mediaHelper);
 /**
  * @ngdoc service
  * @name umbraco.services.umbracoMenuActions
@@ -2439,8 +3469,8 @@ function umbracoMenuActions($q, treeService, $location, navigationService, appSt
             
             //to find a visible tree node, we'll go get the currently loaded root node from appState
             var treeRoot = appState.getTreeState("currentRootNode");
-            if (treeRoot) {
-                var treeNode = treeService.getDescendantNode(treeRoot, args.entity.id, args.treeAlias);
+            if (treeRoot && treeRoot.root) {
+                var treeNode = treeService.getDescendantNode(treeRoot.root, args.entity.id, args.treeAlias);
                 if (treeNode) {
                     treeService.loadNodeChildren({ node: treeNode, section: args.section });
                 }                
@@ -2877,7 +3907,6 @@ function navigationService($rootScope, $routeParams, $log, $location, $q, $timeo
                             }
 
                             var dialog = self.showDialog({
-                                scope: args.scope,
                                 node: args.node,
                                 action: found,
                                 section: appState.getSectionState("currentSection")
@@ -3046,12 +4075,11 @@ function navigationService($rootScope, $routeParams, $log, $location, $q, $timeo
          * into #dialog div.umb-panel-body
          * the path to the dialog view is determined by: 
          * "views/" + current tree + "/" + action alias + ".html"
-         * The dialog controller will get passed a scope object that is created here. This scope
-         * object may be injected as part of the args object, if one is not found then a new scope
-         * is created. Regardless of whether a scope is created or re-used, a few properties and methods 
-         * will be added to it so that they can be used in any dialog controller:
+         * The dialog controller will get passed a scope object that is created here with the properties:
          *  scope.currentNode = the selected tree node
          *  scope.currentAction = the selected menu item
+         *  so that the dialog controllers can use these properties
+         * 
          * @param {Object} args arguments passed to the function
          * @param {Scope} args.scope current scope passed to the dialog
          * @param {Object} args.action the clicked action containing `name` and `alias`
@@ -3075,8 +4103,11 @@ function navigationService($rootScope, $routeParams, $log, $location, $q, $timeo
 
             setMode("dialog");
 
-            //set up the scope object and assign properties
-            var dialogScope = args.scope || $rootScope.$new();
+            //NOTE: Set up the scope object and assign properties, this is legacy functionality but we have to live with it now.
+            // we should be passing in currentNode and currentAction using 'dialogData' for the dialog, not attaching it to a scope.
+            // This scope instance will be destroyed by the dialog so it cannot be a scope that exists outside of the dialog.
+            // If a scope instance has been passed in, we'll have to create a child scope of it, otherwise a new root scope.
+            var dialogScope = args.scope ? args.scope.$new() : $rootScope.$new();
             dialogScope.currentNode = args.node;
             dialogScope.currentAction = args.action;
 
@@ -3105,7 +4136,7 @@ function navigationService($rootScope, $routeParams, $log, $location, $q, $timeo
                 // for example: /views/content/create.html
 
                 //we will also check for a 'packageName' for the current tree, if it exists then the convention will be:
-                // for example: /App_Plugins/{mypackage}/umbraco/{treetype}/create.html
+                // for example: /App_Plugins/{mypackage}/backoffice/{treetype}/create.html
 
                 var treeAlias = treeService.getTreeAlias(args.node);
                 var packageTreeFolder = treeService.getTreePackageFolder(treeAlias);
@@ -3117,7 +4148,7 @@ function navigationService($rootScope, $routeParams, $log, $location, $q, $timeo
                 if (packageTreeFolder) {
                     templateUrl = Umbraco.Sys.ServerVariables.umbracoSettings.appPluginsPath +
                         "/" + packageTreeFolder +
-                        "/umbraco/" + treeAlias + "/" + args.action.alias + ".html";
+                        "/backoffice/" + treeAlias + "/" + args.action.alias + ".html";
                 }
                 else {
                     templateUrl = "views/" + treeAlias + "/" + args.action.alias + ".html";
@@ -3134,14 +4165,19 @@ function navigationService($rootScope, $routeParams, $log, $location, $q, $timeo
             var dialog = dialogService.open(
                 {
                     container: $("#dialog div.umb-modalcolumn-body"),
+                    //The ONLY reason we're passing in scope to the dialogService (which is legacy functionality) is 
+                    // for backwards compatibility since many dialogs require $scope.currentNode or $scope.currentAction
+                    // to exist
                     scope: dialogScope,
-                    currentNode: args.node,
-                    currentAction: args.action,
                     inline: true,
                     show: true,
                     iframe: iframe,
                     modalClass: "umb-dialog",
-                    template: templateUrl
+                    template: templateUrl,
+
+                    //These will show up on the dialog controller's $scope under dialogOptions
+                    currentNode: args.node,
+                    currentAction: args.action,
                 });
 
             //save the currently assigned dialog so it can be removed before a new one is created
@@ -3157,8 +4193,13 @@ function navigationService($rootScope, $routeParams, $log, $location, $q, $timeo
 	     * @description
 	     * hides the currently open dialog
 	     */
-        hideDialog: function () {
-            this.showMenu(undefined, { skipDefault: true, node: appState.getMenuState("currentNode") });
+        hideDialog: function (showMenu) {
+            
+            setMode("default");
+          
+            if(showMenu){
+                this.showMenu(undefined, { skipDefault: true, node: appState.getMenuState("currentNode") });
+            }
         },
         /**
           * @ngdoc method
@@ -3228,6 +4269,18 @@ angular.module('umbraco.services')
 .factory('notificationsService', function ($rootScope, $timeout, angularHelper) {
 
 	var nArray = [];
+	function setViewPath(view){
+		if(view.indexOf('/') < 0)
+		{
+			view = "views/common/notifications/" + view;
+		}
+
+		if(view.indexOf('.html') < 0)
+		{
+			view = view + ".html";
+		}
+		return view;
+	}
 
 	var service = {
 
@@ -3243,6 +4296,8 @@ angular.module('umbraco.services')
 		* @param {String} item.message longer text for the notication, trimmed after 200 characters, which can then be exanded
 		* @param {String} item.type Notification type, can be: "success","warning","error" or "info" 
 		* @param {String} item.url url to open when notification is clicked
+		* @param {String} item.view path to custom view to load into the notification box
+		* @param {Array} item.actions Collection of button actions to append (label, func, cssClass)
 		* @param {Boolean} item.sticky if set to true, the notification will not auto-close
 		* @returns {Object} args notification object
 		*/
@@ -3250,14 +4305,22 @@ angular.module('umbraco.services')
 		add: function(item) {
 			angularHelper.safeApply($rootScope, function () {
 
+				if(item.view){
+					item.view = setViewPath(item.view);
+					item.sticky = true;
+					item.type = "form";
+					item.headline = null;
+				}
+
+
 				//add a colon after the headline if there is a message as well
 				if (item.message) {
-					item.headline += ":";
+					item.headline += ": ";
 					if(item.message.length > 200) {
 						item.sticky = true;
 					}
-				}
-
+				}	
+			
 				//we need to ID the item, going by index isn't good enough because people can remove at different indexes 
 				// whenever they want. Plus once we remove one, then the next index will be different. The only way to 
 				// effectively remove an item is by an Id.
@@ -3282,6 +4345,23 @@ angular.module('umbraco.services')
 				return item;
 			});
 
+		},
+
+		hasView : function(view){
+			if(!view){
+				return _.find(nArray, function(notification){ return notification.view;});
+			}else{
+				view = setViewPath(view).toLowerCase();
+				return _.find(nArray, function(notification){ return notification.view.toLowerCase() === view;});
+			}	
+		},
+		addView: function(view, args){
+			var item = {
+				args: args,
+				view: view
+			};
+
+			service.add(item);
 		},
 
 	    /**
@@ -3408,10 +4488,17 @@ angular.module('umbraco.services')
 		 *
 		 * @param {Int} index index where the notication should be removed from
 		 */
-	    remove: function (index) {
-	        angularHelper.safeApply($rootScope, function() {
-	            nArray.splice(index, 1);
-	        });
+		remove: function (index) {
+			if(angular.isObject(index)){
+				var i = nArray.indexOf(index);
+				angularHelper.safeApply($rootScope, function() {
+				    nArray.splice(i, 1);
+				});
+			}else{
+				angularHelper.safeApply($rootScope, function() {
+				    nArray.splice(index, 1);
+				});	
+			}
 		},
 
 		/**
@@ -4018,7 +5105,7 @@ angular.module('umbraco.services').factory('serverValidationManager', serverVali
  * @description
  * A service containing all logic for all of the Umbraco TinyMCE plugins
  */
-function tinyMceService(dialogService, $log, imageHelper, $http, $timeout, macroResource, macroService, $routeParams, umbRequestHelper) {
+function tinyMceService(dialogService, $log, imageHelper, $http, $timeout, macroResource, macroService, $routeParams, umbRequestHelper, angularHelper) {
     return {
 
         /**
@@ -4036,7 +5123,7 @@ function tinyMceService(dialogService, $log, imageHelper, $http, $timeout, macro
                       umbRequestHelper.getApiUrl(
                           "rteApiBaseUrl",
                           "GetConfiguration")),
-                  'Failed to retreive entity data for id '); 
+                  'Failed to retrieve tinymce configuration');
         },
 
         /**
@@ -4050,9 +5137,9 @@ function tinyMceService(dialogService, $log, imageHelper, $http, $timeout, macro
         */
         defaultPrevalues: function () {
                var cfg = {};
-                       cfg.toolbar = ["code", "bold", "italic", "umbracocss","alignleft", "aligncenter", "alignright", "bullist","numlist", "outdent", "indent", "link", "image", "umbmediapicker", "umbembeddialog", "umbmacro"];
+                       cfg.toolbar = ["code", "bold", "italic", "styleselect","alignleft", "aligncenter", "alignright", "bullist","numlist", "outdent", "indent", "link", "image", "umbmediapicker", "umbembeddialog", "umbmacro"];
                        cfg.stylesheets = [];
-                       cfg.dimensions = {height: 400, width: 600};
+                       cfg.dimensions = {height: 500};
                 return cfg;
         },
 
@@ -4073,7 +5160,7 @@ function tinyMceService(dialogService, $log, imageHelper, $http, $timeout, macro
                 tooltip: 'Embed',
                 onclick: function () {
                     dialogService.embedDialog({
-                        scope: $scope, callback: function (data) {
+                        callback: function (data) {
                             editor.insertContent(data);
                         }
                     });
@@ -4092,23 +5179,39 @@ function tinyMceService(dialogService, $log, imageHelper, $http, $timeout, macro
         * @param {Object} editor the TinyMCE editor instance        
         * @param {Object} $scope the current controller scope
         */
-        createMediaPicker: function (editor, $scope) {
+        createMediaPicker: function (editor) {
             editor.addButton('umbmediapicker', {
                 icon: 'custom icon-picture',
                 tooltip: 'Media Picker',
                 onclick: function () {
+
+                    var selectedElm = editor.selection.getNode(),
+                        currentTarget;
+
+
+                    if(selectedElm.nodeName === 'IMG'){
+                        var img = $(selectedElm);
+                        currentTarget = {
+                            name: img.attr("alt"),
+                            url: img.attr("src"),
+                            id: img.attr("rel")
+                        };
+                    }
+
                     dialogService.mediaPicker({
+                        currentTarget: currentTarget,
                         onlyImages: true,
-                        scope: $scope, callback: function (img) {
+                        showDetails: true,
+                        callback: function (img) {
 
                             if (img) {
-                                var imagePropVal = imageHelper.getImagePropertyValue({ imageModel: img, scope: $scope });
+                                
                                 var data = {
-                                    alt: "Some description",
-                                    src: (imagePropVal) ? imagePropVal : "nothing.jpg",
+                                    alt: img.name,
+                                    src: (img.url) ? img.url : "nothing.jpg",
+                                    rel: img.id,
                                     id: '__mcenew'
                                 };
-
 
                                 editor.insertContent(editor.dom.createHTML('img', data));
 
@@ -4117,62 +5220,22 @@ function tinyMceService(dialogService, $log, imageHelper, $http, $timeout, macro
                                     var size = editor.dom.getSize(imgElm);
 
                                     var newSize = imageHelper.scaleToMaxSize(500, size.w, size.h);
+
                                     var s = "width: " + newSize.width + "px; height:" + newSize.height + "px;";
                                     editor.dom.setAttrib(imgElm, 'style', s);
-                                    editor.dom.setAttrib(imgElm, 'rel', newSize.width + "," + newSize.height);
                                     editor.dom.setAttrib(imgElm, 'id', null);
 
+                                    if(img.url){
+                                        var src = img.url + "?width=" + newSize.width + "&height=" + newSize.height;
+                                        editor.dom.setAttrib(imgElm, 'data-mce-src', src);
+                                    }
+                                 
                                 }, 500);
                             }
                         }
                     });
                 }
             });
-        },
-
-        /**
-        * @ngdoc method
-        * @name umbraco.services.tinyMceService#createLinkPicker
-        * @methodOf umbraco.services.tinyMceService
-        *
-        * @description
-        * Creates the umbrco insert link tinymce plugin
-        *
-        * @param {Object} editor the TinyMCE editor instance        
-        * @param {Object} $scope the current controller scope
-        */
-        createLinkPicker: function (editor, $scope) {
-
-            
-            
-            /*
-            editor.addButton('link', {
-                icon: 'custom icon-link',
-                tooltip: 'Link Picker',
-                onclick: function () {
-                    dialogService.linkPicker({
-                        scope: $scope, callback: function (link) {
-                            if (link) {
-                                var data = {
-                                    title: "Some description",
-                                    href: "",
-                                    id: '__mcenew'
-                                };
-
-                                editor.execCommand("mceInsertLink", false, {
-                                                href: "wat",
-                                                title: "muh",
-                                                target: null,
-                                                "class": null
-                                            });
-
-
-                                //editor.insertContent(editor.dom.createHTML('a', data));
-                           }
-                        }
-                    });
-                }
-            });*/
         },
 
         /**
@@ -4247,7 +5310,9 @@ function tinyMceService(dialogService, $log, imageHelper, $http, $timeout, macro
 
                 var contentId = $routeParams.id;
 
-                macroResource.getMacroResultAsHtmlForEditor(macroData.macroAlias, contentId, macroData.marcoParamsDictionary)
+                //need to wrap in safe apply since this might be occuring outside of angular
+                angularHelper.safeApply($scope, function() {
+                    macroResource.getMacroResultAsHtmlForEditor(macroData.macroAlias, contentId, macroData.macroParamsDictionary)
                     .then(function (htmlResult) {
 
                         $macroDiv.removeClass("loading");
@@ -4256,6 +5321,8 @@ function tinyMceService(dialogService, $log, imageHelper, $http, $timeout, macro
                             $ins.html(htmlResult);
                         }
                     });
+                });
+                
             }
             
             /** Adds the button instance */
@@ -4303,6 +5370,7 @@ function tinyMceService(dialogService, $log, imageHelper, $http, $timeout, macro
 
                     /** helper method to select the macro element */
                     function selectMacroElement(macroElement) {
+
                         // move selection to top element to ensure we can't edit this
                         editor.selection.select(macroElement);
 
@@ -4363,7 +5431,7 @@ function tinyMceService(dialogService, $log, imageHelper, $http, $timeout, macro
                         });                        
 
                     });
-
+                    
                     /** This prevents any other commands from executing when the current element is the macro so the content cannot be edited */
                     editor.on('BeforeExecCommand', function (o) {                        
                         if (isOnMacroElement) {
@@ -4484,7 +5552,6 @@ function tinyMceService(dialogService, $log, imageHelper, $http, $timeout, macro
                     }
 
                     dialogService.macroPicker({
-                        scope: $scope,
                         dialogData : dialogData,
                         callback: function(data) {
 
@@ -4516,6 +5583,7 @@ function tinyMceService(dialogService, $log, imageHelper, $http, $timeout, macro
 
 angular.module('umbraco.services').factory('tinyMceService', tinyMceService);
 
+
 /**
  * @ngdoc service
  * @name umbraco.services.treeService
@@ -4524,7 +5592,7 @@ angular.module('umbraco.services').factory('tinyMceService', tinyMceService);
  * @description
  * The tree service factory, used internally by the umbTree and umbTreeItem directives
  */
-function treeService($q, treeResource, iconHelper, notificationsService, $rootScope) {
+function treeService($q, treeResource, iconHelper, notificationsService, eventsService) {
 
     //SD: Have looked at putting this in sessionStorage (not localStorage since that means you wouldn't be able to work
     // in multiple tabs) - however our tree structure is cyclical, meaning a node has a reference to it's parent and it's children
@@ -4769,7 +5837,7 @@ function treeService($q, treeResource, iconHelper, notificationsService, $rootSc
                 }, function(reason) {
 
                     //in case of error, emit event
-                    $rootScope.$broadcast("treeNodeLoadError", {error: reason });
+                    eventsService.emit("treeService.treeNodeLoadError", {error: reason } );
 
                     //stop show the loading indicator  
                     node.loading = false;
@@ -4924,8 +5992,14 @@ function treeService($q, treeResource, iconHelper, notificationsService, $rootSc
                 if (current.metaData && current.metaData["treeAlias"]) {
                     root = current;
                 }
-                else { 
+                else if (angular.isFunction(current.parent)) {
+                    //we can only continue if there is a parent() method which means this
+                    // tree node was loaded in as part of a real tree, not just as a single tree
+                    // node from the server.
                     current = current.parent();
+                }
+                else {
+                    current = null;
                 }
             }
             return root;
@@ -5482,9 +6556,9 @@ function umbRequestHelper($http, $q, umbDataFormatter, angularHelper, dialogServ
                 function (data, formData) {
                     //now add all of the assigned files
                     for (var f in args.files) {
-                        //each item has a property id and the file object, we'll ensure that the id is suffixed to the key
+                        //each item has a property alias and the file object, we'll ensure that the alias is suffixed to the key
                         // so we know which property it belongs to on the server side
-                        formData.append("file_" + args.files[f].id, args.files[f].file);
+                        formData.append("file_" + args.files[f].alias, args.files[f].file);
                     }
 
                 },
@@ -5592,252 +6666,549 @@ function umbRequestHelper($http, $q, umbDataFormatter, angularHelper, dialogServ
 }
 angular.module('umbraco.services').factory('umbRequestHelper', umbRequestHelper);
 angular.module('umbraco.services')
-.factory('userService', function ($rootScope, $q, $location, $log, securityRetryQueue, authResource, dialogService, $timeout, angularHelper) {
+    .factory('userService', function ($rootScope, eventsService, $q, $location, $log, securityRetryQueue, authResource, dialogService, $timeout, angularHelper) {
 
-    var currentUser = null;
-    var lastUserId = null;
-    var loginDialog = null;
-    //this tracks the last date/time that the user's remainingAuthSeconds was updated from the server
-    // this is used so that we know when to go and get the user's remaining seconds directly.
-    var lastServerTimeoutSet = null;
+        var currentUser = null;
+        var lastUserId = null;
+        var loginDialog = null;
+        //this tracks the last date/time that the user's remainingAuthSeconds was updated from the server
+        // this is used so that we know when to go and get the user's remaining seconds directly.
+        var lastServerTimeoutSet = null;
 
-    // Redirect to the given url (defaults to '/')
-    function redirect(url) {
-        url = url || '/';
-        $location.path(url);
-    }
-
-    function openLoginDialog(isTimedOut) {
-        if (!loginDialog) {
-            loginDialog = dialogService.open({
-                template: 'views/common/dialogs/login.html',
-                modalClass: "login-overlay",
-                animation: "slide",
-                show: true,
-                callback: onLoginDialogClose,
-                dialogData: {
-                    isTimedOut: isTimedOut
-                }
-            });
-        }
-    }
-
-    function onLoginDialogClose(success) {
-        loginDialog = null;
-
-        if (success) {
-            securityRetryQueue.retryAll();
-        } else {
-            securityRetryQueue.cancelAll();
-            redirect();
-        }
-    }
-
-    /** 
-    This methods will set the current user when it is resolved and 
-    will then start the counter to count in-memory how many seconds they have 
-    remaining on the auth session
-    */
-    function setCurrentUser(usr) {
-        if (!usr.remainingAuthSeconds) {
-            throw "The user object is invalid, the remainingAuthSeconds is required.";
-        }
-        currentUser = usr;
-        lastServerTimeoutSet = new Date();
-        //start the timer
-        countdownUserTimeout();
-    }
-    
-    /** 
-    Method to count down the current user's timeout seconds, 
-    this will continually count down their current remaining seconds every 2 seconds until
-    there are no more seconds remaining.
-    */
-    function countdownUserTimeout() {
-        $timeout(function() {
-            if (currentUser) {
-                //countdown by 2 seconds since that is how long our timer is for.
-                currentUser.remainingAuthSeconds -= 2;
-
-                //if there are more than 30 remaining seconds, recurse!
-                if (currentUser.remainingAuthSeconds > 30) {
-
-                    //we need to check when the last time the timeout was set from the server, if 
-                    // it has been more than 30 seconds then we'll manually go and retreive it from the 
-                    // server - this helps to keep our local countdown in check with the true timeout.
-                    if (lastServerTimeoutSet != null) {
-                        var now = new Date();
-                        var seconds = (now.getTime() - lastServerTimeoutSet.getTime()) / 1000;
-                        if (seconds > 30) {
-                            //first we'll set the lastServerTimeoutSet to null - this is so we don't get back in to this loop while we 
-                            // wait for a response from the server otherwise we'll be making double/triple/etc... calls while we wait.
-                            lastServerTimeoutSet = null;
-                            //now go get it from the server
-                            authResource.getRemainingTimeoutSeconds().then(function(result) {
-                                setUserTimeoutInternal(result);
-                            });
-                        }
+        function openLoginDialog(isTimedOut) {
+            if (!loginDialog) {
+                loginDialog = dialogService.open({
+                    template: 'views/common/dialogs/login.html',
+                    modalClass: "login-overlay",
+                    animation: "slide",
+                    show: true,
+                    callback: onLoginDialogClose,
+                    dialogData: {
+                        isTimedOut: isTimedOut
                     }
+                });
+            }
+        }
 
-                    //recurse the countdown!
-                    countdownUserTimeout();
-                }
-                else {
+        function onLoginDialogClose(success) {
+            loginDialog = null;
 
-                    //we are either timed out or very close to timing out so we need to show the login dialog.                    
-                    //NOTE: the safeApply because our timeout is set to not run digests (performance reasons)
-                    if (Umbraco.Sys.ServerVariables.umbracoSettings.keepUserLoggedIn !== true) {
-                        angularHelper.safeApply($rootScope, function() {
-                            userAuthExpired();
-                        });
-                    }
-                    else {
-                        //we've got less than 30 seconds remaining so let's check the server
+            if (success) {
+                securityRetryQueue.retryAll();
+            }
+            else {
+                securityRetryQueue.cancelAll();
+                $location.path('/');
+            }
+        }
 
+        /** 
+        This methods will set the current user when it is resolved and 
+        will then start the counter to count in-memory how many seconds they have 
+        remaining on the auth session
+        */
+        function setCurrentUser(usr) {
+            if (!usr.remainingAuthSeconds) {
+                throw "The user object is invalid, the remainingAuthSeconds is required.";
+            }
+            currentUser = usr;
+            lastServerTimeoutSet = new Date();
+            //start the timer
+            countdownUserTimeout();
+        }
+
+        /** 
+        Method to count down the current user's timeout seconds, 
+        this will continually count down their current remaining seconds every 2 seconds until
+        there are no more seconds remaining.
+        */
+        function countdownUserTimeout() {
+
+            $timeout(function () {
+
+                if (currentUser) {
+                    //countdown by 2 seconds since that is how long our timer is for.
+                    currentUser.remainingAuthSeconds -= 2;
+
+                    //if there are more than 30 remaining seconds, recurse!
+                    if (currentUser.remainingAuthSeconds > 30) {
+
+                        //we need to check when the last time the timeout was set from the server, if 
+                        // it has been more than 30 seconds then we'll manually go and retrieve it from the 
+                        // server - this helps to keep our local countdown in check with the true timeout.
                         if (lastServerTimeoutSet != null) {
-                            //first we'll set the lastServerTimeoutSet to null - this is so we don't get back in to this loop while we 
-                            // wait for a response from the server otherwise we'll be making double/triple/etc... calls while we wait.
-                            lastServerTimeoutSet = null;
-                            //now go get it from the server
-                            authResource.getRemainingTimeoutSeconds().then(function (result) {
-                                setUserTimeoutInternal(result);
-                            });
+                            var now = new Date();
+                            var seconds = (now.getTime() - lastServerTimeoutSet.getTime()) / 1000;
+
+                            if (seconds > 30) {
+
+                                //first we'll set the lastServerTimeoutSet to null - this is so we don't get back in to this loop while we 
+                                // wait for a response from the server otherwise we'll be making double/triple/etc... calls while we wait.
+                                lastServerTimeoutSet = null;
+
+                                //now go get it from the server
+                                //NOTE: the safeApply because our timeout is set to not run digests (performance reasons)
+                                angularHelper.safeApply($rootScope, function () {
+                                    authResource.getRemainingTimeoutSeconds().then(function (result) {
+                                        setUserTimeoutInternal(result);
+                                    });
+                                });
+                            }
                         }
-                        
+
                         //recurse the countdown!
                         countdownUserTimeout();
+                    }
+                    else {
 
+                        //we are either timed out or very close to timing out so we need to show the login dialog.                                        
+                        if (Umbraco.Sys.ServerVariables.umbracoSettings.keepUserLoggedIn !== true) {
+                            //NOTE: the safeApply because our timeout is set to not run digests (performance reasons)
+                            angularHelper.safeApply($rootScope, function () {
+                                userAuthExpired();
+                            });
+                        }
+                        else {
+                            //we've got less than 30 seconds remaining so let's check the server
+
+                            if (lastServerTimeoutSet != null) {
+                                //first we'll set the lastServerTimeoutSet to null - this is so we don't get back in to this loop while we 
+                                // wait for a response from the server otherwise we'll be making double/triple/etc... calls while we wait.
+                                lastServerTimeoutSet = null;
+
+                                //now go get it from the server
+                                //NOTE: the safeApply because our timeout is set to not run digests (performance reasons)
+                                angularHelper.safeApply($rootScope, function () {
+                                    authResource.getRemainingTimeoutSeconds().then(function (result) {
+                                        setUserTimeoutInternal(result);
+                                    });
+                                });
+                            }
+
+                            //recurse the countdown!
+                            countdownUserTimeout();
+
+                        }
                     }
                 }
+            }, 2000, //every 2 seconds
+                false); //false = do NOT execute a digest for every iteration
+        }
+
+        /** Called to update the current user's timeout */
+        function setUserTimeoutInternal(newTimeout) {
+
+
+            var asNumber = parseFloat(newTimeout);
+            if (!isNaN(asNumber) && currentUser && angular.isNumber(asNumber)) {
+                currentUser.remainingAuthSeconds = newTimeout;
+                lastServerTimeoutSet = new Date();
             }
-        }, 2000, //every 2 seconds
-            false); //false = do NOT execute a digest for every iteration
-    }
-    
-    /** Called to update the current user's timeout */
-    function setUserTimeoutInternal(newTimeout) {
-
-
-        var asNumber = parseFloat(newTimeout);
-        if (!isNaN(asNumber) && currentUser && angular.isNumber(asNumber)) {
-            currentUser.remainingAuthSeconds = newTimeout;
-            lastServerTimeoutSet = new Date();
-        }
-    }
-    
-    /** resets all user data, broadcasts the notAuthenticated event and shows the login dialog */
-    function userAuthExpired(isLogout) {
-        //store the last user id and clear the user
-        if (currentUser && currentUser.id !== undefined) {
-            lastUserId = currentUser.id;
         }
 
-        if(currentUser){
-            currentUser.remainingAuthSeconds = 0;
-        }
-        
-        lastServerTimeoutSet = null;
-        currentUser = null;
-        
-        //broadcast a global event that the user is no longer logged in
-        $rootScope.$broadcast("notAuthenticated");
+        /** resets all user data, broadcasts the notAuthenticated event and shows the login dialog */
+        function userAuthExpired(isLogout) {
+            //store the last user id and clear the user
+            if (currentUser && currentUser.id !== undefined) {
+                lastUserId = currentUser.id;
+            }
 
-        openLoginDialog(isLogout === undefined ? true : !isLogout);
-    }
-
-    // Register a handler for when an item is added to the retry queue
-    securityRetryQueue.onItemAddedCallbacks.push(function (retryItem) {
-        if (securityRetryQueue.hasMore()) {
-            userAuthExpired();
-        }
-    });
-
-    return {
-
-        /** Internal method to display the login dialog */
-        _showLoginDialog: function () {
-            openLoginDialog();
-        },
-
-        /** Returns a promise, sends a request to the server to check if the current cookie is authorized  */
-        isAuthenticated: function () {
-            //if we've got a current user then just return true
             if (currentUser) {
-                var deferred = $q.defer();
-                deferred.resolve(true);
-                return deferred.promise;
+                currentUser.remainingAuthSeconds = 0;
             }
-            return authResource.isAuthenticated();
-        },
 
-        /** Returns a promise, sends a request to the server to validate the credentials  */
-        authenticate: function (login, password) {
+            lastServerTimeoutSet = null;
+            currentUser = null;
 
-            return authResource.performLogin(login, password)
-                .then(function (data) {
+            //broadcast a global event that the user is no longer logged in
+            eventsService.emit("app.notAuthenticated");
 
-                    //when it's successful, return the user data
-                    setCurrentUser(data);
+            openLoginDialog(isLogout === undefined ? true : !isLogout);
+        }
 
-                    var result = { user: data, authenticated: true, lastUserId: lastUserId };
+        // Register a handler for when an item is added to the retry queue
+        securityRetryQueue.onItemAddedCallbacks.push(function (retryItem) {
+            if (securityRetryQueue.hasMore()) {
+                userAuthExpired();
+            }
+        });
 
-                    //broadcast a global event
-                    $rootScope.$broadcast("authenticated", result);
+        return {
 
-                    return result;
-                });
-        },
+            /** Internal method to display the login dialog */
+            _showLoginDialog: function () {
+                openLoginDialog();
+            },
 
-        /** Logs the user out and redirects to the login page */
-        logout: function () {
-            return authResource.performLogout()
-                .then(function (data) {
+            /** Returns a promise, sends a request to the server to check if the current cookie is authorized  */
+            isAuthenticated: function () {
+                //if we've got a current user then just return true
+                if (currentUser) {
+                    var deferred = $q.defer();
+                    deferred.resolve(true);
+                    return deferred.promise;
+                }
+                return authResource.isAuthenticated();
+            },
 
-                    userAuthExpired();
+            /** Returns a promise, sends a request to the server to validate the credentials  */
+            authenticate: function (login, password) {
 
-                    $location.path("/login").search({check: false});
+                return authResource.performLogin(login, password)
+                    .then(function (data) {
 
-                    return null;
-                });
-        },
-
-        /** Returns the current user object in a promise  */
-        getCurrentUser: function (args) {
-            var deferred = $q.defer();
-            
-            if (!currentUser) {
-                authResource.getCurrentUser()
-                    .then(function(data) {
+                        //when it's successful, return the user data
+                        setCurrentUser(data);
 
                         var result = { user: data, authenticated: true, lastUserId: lastUserId };
 
-                        if (args.broadcastEvent) {
-                            //broadcast a global event, will inform listening controllers to load in the user specific data
-                            $rootScope.$broadcast("authenticated", result);
-                        }
-
-                        setCurrentUser(data);
-                        currentUser.avatar = 'http://www.gravatar.com/avatar/' + data.emailHash + '?s=40&d=404';
-                        deferred.resolve(currentUser);
+                        //broadcast a global event
+                        eventsService.emit("app.authenticated", result);
+                        return result;
                     });
+            },
 
+            /** Logs the user out 
+             */
+            logout: function () {
+
+                return authResource.performLogout()
+                    .then(function(data) {
+                        userAuthExpired();
+                        //done!
+                        return null;
+                    });
+            },
+
+            /** Returns the current user object in a promise  */
+            getCurrentUser: function (args) {
+                var deferred = $q.defer();
+
+                if (!currentUser) {
+                    authResource.getCurrentUser()
+                        .then(function (data) {
+
+                            var result = { user: data, authenticated: true, lastUserId: lastUserId };
+
+                            if (args && args.broadcastEvent) {
+                                //broadcast a global event, will inform listening controllers to load in the user specific data
+                                eventsService.emit("app.authenticated", result);
+                            }
+
+                            setCurrentUser(data);
+                            currentUser.avatar = 'http://www.gravatar.com/avatar/' + data.emailHash + '?s=40&d=404';
+                            deferred.resolve(currentUser);
+                        });
+
+                }
+                else {
+                    deferred.resolve(currentUser);
+                }
+
+                return deferred.promise;
+            },
+
+            /** Called whenever a server request is made that contains a x-umb-user-seconds response header for which we can update the user's remaining timeout seconds */
+            setUserTimeout: function (newTimeout) {
+                setUserTimeoutInternal(newTimeout);
+            }
+        };
+
+    });
+/*Contains multiple services for various helper tasks */
+
+function packageHelper(assetsService, treeService, eventsService, $templateCache) {
+
+    return {
+
+        /** Called when a package is installed, this resets a bunch of data and ensures the new package assets are loaded in */
+        packageInstalled: function () {
+
+            //clears the tree
+            treeService.clearCache();
+
+            //clears the template cache
+            $templateCache.removeAll();
+
+            //emit event to notify anything else
+            eventsService.emit("app.reInitialize");
+        }
+
+    };
+}
+angular.module('umbraco.services').factory('packageHelper', packageHelper);
+
+function umbPhotoFolderHelper($compile, $log, $timeout, $filter, imageHelper, mediaHelper, umbRequestHelper) {
+    return {
+        /** sets the image's url, thumbnail and if its a folder */
+        setImageData: function(img) {
+            
+            img.isFolder = !mediaHelper.hasFilePropertyType(img);
+
+            if(!img.isFolder){
+                img.thumbnail = mediaHelper.resolveFile(img, true);
+                img.image = mediaHelper.resolveFile(img, false);    
+            }
+        },
+
+        /** sets the images original size properties - will check if it is a folder and if so will just make it square */
+        setOriginalSize: function(img, maxHeight) {
+            //set to a square by default
+            img.originalWidth = maxHeight;
+            img.originalHeight = maxHeight;
+
+            var widthProp = _.find(img.properties, function(v) { return (v.alias === "umbracoWidth"); });
+            if (widthProp && widthProp.value) {
+                img.originalWidth = parseInt(widthProp.value, 10);
+                if (isNaN(img.originalWidth)) {
+                    img.originalWidth = maxHeight;
+                }
+            }
+            var heightProp = _.find(img.properties, function(v) { return (v.alias === "umbracoHeight"); });
+            if (heightProp && heightProp.value) {
+                img.originalHeight = parseInt(heightProp.value, 10);
+                if (isNaN(img.originalHeight)) {
+                    img.originalHeight = maxHeight;
+                }
+            }
+        },
+
+        /** sets the image style which get's used in the angular markup */
+        setImageStyle: function(img, width, height, rightMargin, bottomMargin) {
+            img.style = { width: width + "px", height: height + "px", "margin-right": rightMargin + "px", "margin-bottom": bottomMargin + "px" };
+            img.thumbStyle = {
+                "background-image": "url('" + img.thumbnail + "')",
+                "background-repeat": "no-repeat",
+                "background-position": "center",
+                "background-size": Math.min(width, img.originalWidth) + "px " + Math.min(height, img.originalHeight) + "px"
+            };
+        }, 
+
+        /** gets the image's scaled wdith based on the max row height */
+        getScaledWidth: function(img, maxHeight) {
+            var scaled = img.originalWidth * maxHeight / img.originalHeight;
+            return scaled;
+            //round down, we don't want it too big even by half a pixel otherwise it'll drop to the next row
+            //return Math.floor(scaled);
+        },
+
+        /** returns the target row width taking into account how many images will be in the row and removing what the margin is */
+        getTargetWidth: function(imgsPerRow, maxRowWidth, margin) {
+            //take into account the margin, we will have 1 less margin item than we have total images
+            return (maxRowWidth - ((imgsPerRow - 1) * margin));
+        },
+
+        /** 
+            This will determine the row/image height for the next collection of images which takes into account the 
+            ideal image count per row. It will check if a row can be filled with this ideal count and if not - if there
+            are additional images available to fill the row it will keep calculating until they fit.
+
+            It will return the calculated height and the number of images for the row.
+
+            targetHeight = optional;
+        */
+        getRowHeightForImages: function(imgs, maxRowHeight, minDisplayHeight, maxRowWidth, idealImgPerRow, margin, targetHeight) {
+
+            var idealImages = imgs.slice(0, idealImgPerRow);
+            //get the target row width without margin
+            var targetRowWidth = this.getTargetWidth(idealImages.length, maxRowWidth, margin);
+            //this gets the image with the smallest height which equals the maximum we can scale up for this image block
+            var maxScaleableHeight = this.getMaxScaleableHeight(idealImages, maxRowHeight);
+            //if the max scale height is smaller than the min display height, we'll use the min display height
+            targetHeight = targetHeight ? targetHeight : Math.max(maxScaleableHeight, minDisplayHeight);
+            
+            var attemptedRowHeight = this.performGetRowHeight(idealImages, targetRowWidth, minDisplayHeight, targetHeight);
+
+            if (attemptedRowHeight != null) {
+
+                //if this is smaller than the min display then we need to use the min display,
+                // which means we'll need to remove one from the row so we can scale up to fill the row
+                if (attemptedRowHeight < minDisplayHeight) {
+
+                    if (idealImages.length > 1) {
+                        //we'll generate a new targetHeight that is halfway between the max and the current and recurse, passing in a new targetHeight
+                        targetHeight += Math.floor((maxRowHeight - targetHeight) / 2);
+                        return this.getRowHeightForImages(imgs, maxRowHeight, minDisplayHeight, maxRowWidth, idealImgPerRow - 1, margin, targetHeight);
+                    }
+                    else {                        
+                        //this will occur when we only have one image remaining in the row but it's still going to be too wide even when 
+                        // using the minimum display height specified. In this case we're going to have to just crop the image in it's center
+                        // using the minimum display height and the full row width
+                        return { height: minDisplayHeight, imgCount: 1 };
+                    }
+                }
+                else {
+                    //success!
+                    return { height: attemptedRowHeight, imgCount: idealImages.length };
+                }
+            }
+
+            //we know the width will fit in a row, but we now need to figure out if we can fill 
+            // the entire row in the case that we have more images remaining than the idealImgPerRow.
+
+            if (idealImages.length === imgs.length) {
+                //we have no more remaining images to fill the space, so we'll just use the calc height
+                return { height: targetHeight, imgCount: idealImages.length };
+            }
+            else if (idealImages.length === 1) {
+                //this will occur when we only have one image remaining in the row to process but it's not really going to fit ideally
+                // in the row so we'll just return the minDisplayHeight and it will just get centered on the row
+                return { height: minDisplayHeight, imgCount: 1 };
+            }
+            else if (idealImages.length === idealImgPerRow && targetHeight < maxRowHeight) {
+
+                //if we're already dealing with the ideal images per row and it's not quite wide enough, we can scale up a little bit so 
+                // long as the targetHeight is currently less than the maxRowHeight. The scale up will be half-way between our current
+                // target height and the maxRowHeight (we won't loop forever though - if there's a difference of 5 px we'll just quit)
+                
+                while (targetHeight < maxRowHeight && (maxRowHeight - targetHeight) > 5) {
+                    targetHeight += Math.floor((maxRowHeight - targetHeight) / 2);
+                    attemptedRowHeight = this.performGetRowHeight(idealImages, targetRowWidth, minDisplayHeight, targetHeight);
+                    if (attemptedRowHeight != null) {
+                        //success!
+                        return { height: attemptedRowHeight, imgCount: idealImages.length };
+                    }
+                }
+
+                //Ok, we couldn't actually scale it up with the ideal row count we'll just recurse with a lesser image count.
+                return this.getRowHeightForImages(imgs, maxRowHeight, minDisplayHeight, maxRowWidth, idealImgPerRow - 1, margin);
             }
             else {
-                deferred.resolve(currentUser);
+                //we have additional images so we'll recurse and add 1 to the idealImgPerRow until it fits
+                return this.getRowHeightForImages(imgs, maxRowHeight, minDisplayHeight, maxRowWidth, idealImgPerRow + 1, margin);
             }
-            
-            return deferred.promise;
+
         },
-        
-        /** Called whenever a server request is made that contains a x-umb-user-seconds response header for which we can update the user's remaining timeout seconds */
-        setUserTimeout: function(newTimeout) {
-            setUserTimeoutInternal(newTimeout);
+
+        performGetRowHeight: function(idealImages, targetRowWidth, minDisplayHeight, targetHeight) {
+
+            var currRowWidth = 0;
+
+            for (var i = 0; i < idealImages.length; i++) {
+                var scaledW = this.getScaledWidth(idealImages[i], targetHeight);
+                currRowWidth += scaledW;
+            }
+
+            if (currRowWidth > targetRowWidth) {
+                //get the new scaled height to fit
+                var newHeight = targetRowWidth * targetHeight / currRowWidth;
+                
+                return newHeight;
+            }
+
+            //if it's not successful, return false
+            return null;
+        },
+
+        /** builds an image grid row */
+        buildRow: function(imgs, maxRowHeight, minDisplayHeight, maxRowWidth, idealImgPerRow, margin) {
+            var currRowWidth = 0;
+            var row = { images: [] };
+
+            var imageRowHeight = this.getRowHeightForImages(imgs, maxRowHeight, minDisplayHeight, maxRowWidth, idealImgPerRow, margin);
+            var targetWidth = this.getTargetWidth(imageRowHeight.imgCount, maxRowWidth, margin);
+
+            var sizes = [];
+            for (var i = 0; i < imgs.length; i++) {
+                //get the lower width to ensure it always fits
+                var scaledWidth = Math.floor(this.getScaledWidth(imgs[i], imageRowHeight.height));
+
+                //in this case, a single image will not fit into the row so we need to crop/center
+                // width the full width and the min display height
+                if (imageRowHeight.imgCount === 1) {
+                    sizes.push({
+                        width: targetWidth,
+                        //ensure that the height is rounded
+                        height: Math.round(minDisplayHeight)
+                    });
+                    row.images.push(imgs[i]);
+                    break;
+                }
+                
+                if (currRowWidth + scaledWidth <= targetWidth) {
+                    currRowWidth += scaledWidth;                    
+                    sizes.push({
+                        width: scaledWidth,
+                        //ensure that the height is rounded
+                        height: Math.round(imageRowHeight.height)
+                    });
+                    row.images.push(imgs[i]);
+                }                
+                else {
+                    //the max width has been reached
+                    break;
+                }
+            }
+
+            //loop through the images for the row and apply the styles
+            for (var j = 0; j < row.images.length; j++) {
+                var bottomMargin = margin;
+                //make the margin 0 for the last one
+                if (j === (row.images.length - 1)) {
+                    margin = 0;
+                }
+                this.setImageStyle(row.images[j], sizes[j].width, sizes[j].height, margin, bottomMargin);
+            }
+
+            ////set the row style
+            //row.style = { "width": maxRowWidth + "px" };
+
+            return row;
+        },
+
+        /** Returns the maximum image scaling height for the current image collection */
+        getMaxScaleableHeight: function(imgs, maxRowHeight) {
+
+            var smallestHeight = _.min(imgs, function(item) { return item.originalHeight; }).originalHeight;
+
+            //adjust the smallestHeight if it is larger than the static max row height
+            if (smallestHeight > maxRowHeight) {
+                smallestHeight = maxRowHeight;
+            }
+            return smallestHeight;
+        },
+
+        /** Creates the image grid with calculated widths/heights for images to fill the grid nicely */
+        buildGrid: function(images, maxRowWidth, maxRowHeight, startingIndex, minDisplayHeight, idealImgPerRow, margin,imagesOnly) {
+
+            var rows = [];
+            var imagesProcessed = 0;
+
+            //first fill in all of the original image sizes and URLs
+            for (var i = startingIndex; i < images.length; i++) {
+                var item = images[i];
+
+                this.setImageData(item);
+                this.setOriginalSize(item, maxRowHeight);
+
+                if(imagesOnly && !item.isFolder && !item.thumbnail){
+                    images.splice(i, 1);
+                    i--;
+                }
+            }
+
+            while ((imagesProcessed + startingIndex) < images.length) {
+                //get the maxHeight for the current un-processed images
+                var currImgs = images.slice(imagesProcessed);
+
+                //build the row
+                var row = this.buildRow(currImgs, maxRowHeight, minDisplayHeight, maxRowWidth, idealImgPerRow, margin);
+                if (row.images.length > 0) {
+                    rows.push(row);
+                    imagesProcessed += row.images.length;
+                }
+                else {
+                    //if there was nothing processed, exit
+                    break;
+                }
+            }
+
+            return rows;
         }
     };
+}
 
-});
-
-/*Contains multiple services for various helper tasks */
+angular.module("umbraco.services").factory("umbPhotoFolderHelper", umbPhotoFolderHelper);
 
 /**
  * @ngdoc function
@@ -5850,6 +7221,23 @@ angular.module('umbraco.services')
 function umbModelMapper() {
 
     return {
+
+
+        /**
+         * @ngdoc function
+         * @name umbraco.services.umbModelMapper#convertToEntityBasic
+         * @methodOf umbraco.services.umbModelMapper
+         * @function
+         *
+         * @description
+         * Converts the source model to a basic entity model, it will throw an exception if there isn't enough data to create the model.
+         * @param {Object} source The source model
+         * @param {Number} source.id The node id of the model
+         * @param {String} source.name The node name
+         * @param {String} source.icon The models icon as a css class (.icon-doc)
+         * @param {Number} source.parentId The parentID, if no parent, set to -1
+         * @param {path} source.path comma-seperated string of ancestor IDs (-1,1234,1782,1234)
+         */
 
         /** This converts the source model to a basic entity model, it will throw an exception if there isn't enough data to create the model */
         convertToEntityBasic: function (source) {
@@ -5887,8 +7275,6 @@ function umbSessionStorage($window) {
     return {
 
         get: function (key) {
-            console.log(storage);
-            console.log(storage["umb_" + key]);
             return angular.fromJson(storage["umb_" + key]);
         },
         
@@ -5902,26 +7288,6 @@ angular.module('umbraco.services').factory('umbSessionStorage', umbSessionStorag
 
 /**
  * @ngdoc function
- * @name umbraco.services.legacyJsLoader
- * @function
- *
- * @description
- * Used to lazy load in any JS dependencies that need to be manually loaded in
- */
-function legacyJsLoader(assetsService, umbRequestHelper) {
-    return {
-        
-        /** Called to load in the legacy tree js which is required on startup if a user is logged in or 
-         after login, but cannot be called until they are authenticated which is why it needs to be lazy loaded. */
-        loadLegacyTreeJs: function(scope) {
-            return assetsService.loadJs(umbRequestHelper.getApiUrl("legacyTreeJs", "", ""), scope);
-        }  
-    };
-}
-angular.module('umbraco.services').factory('legacyJsLoader', legacyJsLoader);
-
-/**
- * @ngdoc function
  * @name umbraco.services.updateChecker
  * @function
  *
@@ -5931,16 +7297,24 @@ angular.module('umbraco.services').factory('legacyJsLoader', legacyJsLoader);
 function updateChecker($http, umbRequestHelper) {
     return {
         
-        /** Called to load in the legacy tree js which is required on startup if a user is logged in or 
-         after login, but cannot be called until they are authenticated which is why it needs to be lazy loaded. */
-        check: function() {
+         /**
+          * @ngdoc function
+          * @name umbraco.services.updateChecker#check
+          * @methodOf umbraco.services.updateChecker
+          * @function
+          *
+          * @description
+          * Called to load in the legacy tree js which is required on startup if a user is logged in or 
+          * after login, but cannot be called until they are authenticated which is why it needs to be lazy loaded. 
+          */
+         check: function() {
                 
             return umbRequestHelper.resourcePromise(
                $http.get(
                    umbRequestHelper.getApiUrl(
                        "updateCheckApiBaseUrl",
                        "GetCheck")),
-               'Failed to retreive update status');
+               'Failed to retrieve update status');
         }  
     };
 }
@@ -5992,123 +7366,6 @@ function umbPropEditorHelper() {
 }
 angular.module('umbraco.services').factory('umbPropEditorHelper', umbPropEditorHelper);
 
-/**
-* @ngdoc service
-* @name umbraco.services.imageHelper
-* @description A helper object used for parsing image paths
-**/
-function imageHelper() {
-    return {
-        /** Returns the actual image path associated with the image property if there is one */
-        getImagePropertyValue: function(options) {
-            if (!options && !options.imageModel) {
-                throw "The options objet does not contain the required parameters: imageModel";
-            }
-
-            
-            //combine all props, TODO: we really need a better way then this
-            var props = [];
-            if(options.imageModel.properties){
-                props = options.imageModel.properties;
-            }else{
-                $(options.imageModel.tabs).each(function(i, tab){
-                    props = props.concat(tab.properties);
-                });    
-            }
-
-            var mediaRoot = Umbraco.Sys.ServerVariables.umbracoSettings.mediaPath;
-            var imageProp = _.find(props, function (item) {
-                if(item.alias === "umbracoFile")
-                {
-                    return true;
-                }
-
-                //this performs a simple check to see if we have a media file as value
-                //it doesnt catch everything, but better then nothing
-                if(item.value.indexOf(mediaRoot) === 0){
-                    return true;
-                }
-
-                return false;
-            });
-            
-            if (!imageProp) {
-                return "";
-            }
-
-            var imageVal;
-
-            //our default images might store one or many images (as csv)
-            var split = imageProp.value.split(',');
-            var self = this;
-            imageVal = _.map(split, function(item) {
-                return { file: item, isImage: self.detectIfImageByExtension(item) };
-            });
-            
-            //for now we'll just return the first image in the collection.
-            //TODO: we should enable returning many to be displayed in the picker if the uploader supports many.
-            if (imageVal.length && imageVal.length > 0 && imageVal[0].isImage) {
-                return imageVal[0].file;
-            }
-            
-            return "";
-        },
-        /** formats the display model used to display the content to the model used to save the content */
-        getThumbnail: function (options) {
-            
-            if (!options && !options.imageModel) {
-                throw "The options objet does not contain the required parameters: imageModel";
-            }
-
-            var imagePropVal = this.getImagePropertyValue(options);
-            if (imagePropVal !== "") {
-                return this.getThumbnailFromPath(imagePropVal);
-            }
-            return "";
-        },
-
-        scaleToMaxSize: function(maxSize, width, height){
-            var retval = {width: width, height: height};
-
-            var maxWidth = maxSize; // Max width for the image
-            var maxHeight = maxSize;    // Max height for the image
-            var ratio = 0;  // Used for aspect ratio
-           
-            // Check if the current width is larger than the max
-            if(width > maxWidth){
-                ratio = maxWidth / width;   // get ratio for scaling image
-                
-                retval.width = maxWidth;
-                retval.height = height * ratio;
-
-                height = height * ratio;    // Reset height to match scaled image
-                width = width * ratio;    // Reset width to match scaled image
-            }
-
-            // Check if current height is larger than max
-            if(height > maxHeight){
-                ratio = maxHeight / height; // get ratio for scaling image
-
-                retval.height = maxHeight;
-                retval.width = width * ratio;
-                width = width * ratio;    // Reset width to match scaled image
-            }
-
-            return retval;
-        },
-
-        getThumbnailFromPath: function(imagePath) {
-            var ext = imagePath.substr(imagePath.lastIndexOf('.'));
-            return imagePath.substr(0, imagePath.lastIndexOf('.')) + "_big-thumb" + ".jpg";
-        },
-        detectIfImageByExtension: function(imagePath) {
-            var lowered = imagePath.toLowerCase();
-            var ext = lowered.substr(lowered.lastIndexOf(".") + 1);
-            return ("," + Umbraco.Sys.ServerVariables.umbracoSettings.imageFileTypes + ",").indexOf("," + ext + ",") !== -1;
-        }
-    };
-}
-angular.module('umbraco.services').factory('imageHelper', imageHelper);
 
 /**
 * @ngdoc service
@@ -6187,13 +7444,13 @@ function umbDataFormatter() {
                         //we know the current property matches an alias, now we need to determine which membership provider property it was for
                         // by looking at the key
                         switch (foundAlias[0]) {
-                            case "umbracoLockPropertyTypeAlias":
+                            case "umbracoMemberLockedOut":
                                 saveModel.isLockedOut = prop.value.toString() === "1" ? true : false;
                                 break;
-                            case "umbracoApprovePropertyTypeAlias":
+                            case "umbracoMemberApproved":
                                 saveModel.isApproved = prop.value.toString() === "1" ? true : false;
                                 break;
-                            case "umbracoCommentPropertyTypeAlias":
+                            case "umbracoMemberComments":
                                 saveModel.comments = prop.value;
                                 break;
                         }
@@ -6268,224 +7525,6 @@ function umbDataFormatter() {
 }
 angular.module('umbraco.services').factory('umbDataFormatter', umbDataFormatter);
 
-/**
-* @ngdoc service
-* @name umbraco.services.iconHelper
-* @description A helper service for dealing with icons, mostly dealing with legacy tree icons
-**/
-function iconHelper($q, $timeout) {
-
-    var converter = [
-        { oldIcon: ".sprNew", newIcon: "add" },
-        { oldIcon: ".sprDelete", newIcon: "remove" },
-        { oldIcon: ".sprMove", newIcon: "enter" },
-        { oldIcon: ".sprCopy", newIcon: "documents" },
-        { oldIcon: ".sprSort", newIcon: "navigation-vertical" },
-        { oldIcon: ".sprPublish", newIcon: "globe" },
-        { oldIcon: ".sprRollback", newIcon: "undo" },
-        { oldIcon: ".sprProtect", newIcon: "lock" },
-        { oldIcon: ".sprAudit", newIcon: "time" },
-        { oldIcon: ".sprNotify", newIcon: "envelope" },
-        { oldIcon: ".sprDomain", newIcon: "home" },
-        { oldIcon: ".sprPermission", newIcon: "lock" },
-        { oldIcon: ".sprRefresh", newIcon: "refresh" },
-        { oldIcon: ".sprBinEmpty", newIcon: "trash" },
-        { oldIcon: ".sprExportDocumentType", newIcon: "download-alt" },
-        { oldIcon: ".sprImportDocumentType", newIcon: "page-up" },
-        { oldIcon: ".sprLiveEdit", newIcon: "edit" },
-        { oldIcon: ".sprCreateFolder", newIcon: "add" },
-        { oldIcon: ".sprPackage2", newIcon: "box" },
-        { oldIcon: ".sprLogout", newIcon: "logout" },
-        { oldIcon: ".sprSave", newIcon: "save" },
-        { oldIcon: ".sprSendToTranslate", newIcon: "envelope-alt" },
-        { oldIcon: ".sprToPublish", newIcon: "mail-forward" },
-        { oldIcon: ".sprTranslate", newIcon: "comments" },
-        { oldIcon: ".sprUpdate", newIcon: "save" },
-        
-        { oldIcon: ".sprTreeSettingDomain", newIcon: "icon-home" },
-        { oldIcon: ".sprTreeDoc", newIcon: "icon-document" },
-        { oldIcon: ".sprTreeDoc2", newIcon: "icon-diploma-alt" },
-        { oldIcon: ".sprTreeDoc3", newIcon: "icon-notepad" },
-        { oldIcon: ".sprTreeDoc4", newIcon: "icon-newspaper-alt" },
-        { oldIcon: ".sprTreeDoc5", newIcon: "icon-notepad-alt" },
-
-        { oldIcon: ".sprTreeDocPic", newIcon: "icon-picture" },        
-        { oldIcon: ".sprTreeFolder", newIcon: "icon-folder" },
-        { oldIcon: ".sprTreeFolder_o", newIcon: "icon-folder" },
-        { oldIcon: ".sprTreeMediaFile", newIcon: "icon-music" },
-        { oldIcon: ".sprTreeMediaMovie", newIcon: "icon-movie" },
-        { oldIcon: ".sprTreeMediaPhoto", newIcon: "icon-picture" },
-        
-        { oldIcon: ".sprTreeMember", newIcon: "icon-user" },
-        { oldIcon: ".sprTreeMemberGroup", newIcon: "icon-users" },
-        { oldIcon: ".sprTreeMemberType", newIcon: "icon-users" },
-        
-        { oldIcon: ".sprTreeNewsletter", newIcon: "icon-file-text-alt" },
-        { oldIcon: ".sprTreePackage", newIcon: "icon-box" },
-        { oldIcon: ".sprTreeRepository", newIcon: "icon-server-alt" },
-        
-        { oldIcon: ".sprTreeSettingDataType", newIcon: "icon-autofill" },
-
-        //TODO:
-        /*
-        { oldIcon: ".sprTreeSettingAgent", newIcon: "" },
-        { oldIcon: ".sprTreeSettingCss", newIcon: "" },
-        { oldIcon: ".sprTreeSettingCssItem", newIcon: "" },
-        
-        { oldIcon: ".sprTreeSettingDataTypeChild", newIcon: "" },
-        { oldIcon: ".sprTreeSettingDomain", newIcon: "" },
-        { oldIcon: ".sprTreeSettingLanguage", newIcon: "" },
-        { oldIcon: ".sprTreeSettingScript", newIcon: "" },
-        { oldIcon: ".sprTreeSettingTemplate", newIcon: "" },
-        { oldIcon: ".sprTreeSettingXml", newIcon: "" },
-        { oldIcon: ".sprTreeStatistik", newIcon: "" },
-        { oldIcon: ".sprTreeUser", newIcon: "" },
-        { oldIcon: ".sprTreeUserGroup", newIcon: "" },
-        { oldIcon: ".sprTreeUserType", newIcon: "" },
-        */
-
-        { oldIcon: "folder.png", newIcon: "icon-folder" },
-        { oldIcon: "mediaphoto.gif", newIcon: "icon-picture" },
-        { oldIcon: "mediafile.gif", newIcon: "icon-document" },
-
-        { oldIcon: ".sprTreeDeveloperCacheItem", newIcon: "icon-box" },
-        { oldIcon: ".sprTreeDeveloperCacheTypes", newIcon: "icon-box" },
-        { oldIcon: ".sprTreeDeveloperMacro", newIcon: "icon-cogs" },
-        { oldIcon: ".sprTreeDeveloperRegistry", newIcon: "icon-windows" },
-        { oldIcon: ".sprTreeDeveloperPython", newIcon: "icon-linux" }
-    ];
-
-    var imageConverter = [
-            {oldImage: "contour.png", newIcon: "icon-umb-contour"}
-            ];
-
-    var collectedIcons;
-            
-    return {
-        
-        /** Used by the create dialogs for content/media types to format the data so that the thumbnails are styled properly */
-        formatContentTypeThumbnails: function (contentTypes) {
-            for (var i = 0; i < contentTypes.length; i++) {
-
-                if (contentTypes[i].thumbnailIsClass === undefined || contentTypes[i].thumbnailIsClass) {
-                    contentTypes[i].cssClass = this.convertFromLegacyIcon(contentTypes[i].thumbnail);
-                }else {
-                    contentTypes[i].style = "background-image: url('" + contentTypes[i].thumbnailFilePath + "');height:36px; background-position:4px 0px; background-repeat: no-repeat;background-size: 35px 35px;";
-                    //we need an 'icon-' class in there for certain styles to work so if it is image based we'll add this
-                    contentTypes[i].cssClass = "custom-file";
-                }
-            }
-            return contentTypes;
-        },
-        formatContentTypeIcons: function (contentTypes) {
-            for (var i = 0; i < contentTypes.length; i++) {
-                contentTypes[i].icon = this.convertFromLegacyIcon(contentTypes[i].icon);
-
-                //couldnt find replacement
-                if(contentTypes[i].icon.indexOf(".") > 0){
-                     contentTypes[i].icon = "icon-document-dashed-line";   
-                }
-            }
-            return contentTypes;
-        },
-        /** If the icon is file based (i.e. it has a file path) */
-        isFileBasedIcon: function (icon) {
-            //if it doesn't start with a '.' but contains one then we'll assume it's file based
-            if (icon.startsWith('..') || (!icon.startsWith('.') && icon.indexOf('.') > 1)) {
-                return true;
-            }
-            return false;
-        },
-        /** If the icon is legacy */
-        isLegacyIcon: function (icon) {
-            if(icon.startsWith('..')){
-                return false;
-            }
-
-            if (icon.startsWith('.')) {
-                return true;
-            }
-            return false;
-        },
-        /** If the tree node has a legacy icon */
-        isLegacyTreeNodeIcon: function(treeNode){
-            if (treeNode.iconIsClass) {
-                return this.isLegacyIcon(treeNode.icon);
-            }
-            return false;
-        },
-
-        /** Return a list of icons, optionally filter them */
-        /** It fetches them directly from the active stylesheets in the browser */
-        getIcons: function(){
-            var deferred = $q.defer();
-            $timeout(function(){
-                if(collectedIcons){
-                    deferred.resolve(collectedIcons);
-                }else{
-                    collectedIcons = [];
-                    var c = ".icon-";
-
-                    for (var i = document.styleSheets.length - 1; i >= 0; i--) {
-                        var classes = document.styleSheets[i].rules || document.styleSheets[i].cssRules;
-                        
-                        for(var x=0;x<classes.length;x++) {
-                            var cur = classes[x];
-                            if(cur.selectorText && cur.selectorText.indexOf(c) === 0) {
-                                var s = cur.selectorText.substring(1);
-                                var hasSpace = s.indexOf(" ");
-                                if(hasSpace>0){
-                                    s = s.substring(0, hasSpace);
-                                }
-                                var hasPseudo = s.indexOf(":");
-                                if(hasPseudo>0){
-                                    s = s.substring(0, hasPseudo);
-                                }
-
-                                if(collectedIcons.indexOf(s) < 0){
-                                    collectedIcons.push(s);
-                                }
-                            }
-                        }
-                    }
-                    deferred.resolve(collectedIcons);
-                }
-            }, 100);
-            
-            return deferred.promise;
-        },
-
-        /** Converts the icon from legacy to a new one if an old one is detected */
-        convertFromLegacyIcon: function (icon) {
-            if (this.isLegacyIcon(icon)) {
-                //its legacy so convert it if we can
-                var found = _.find(converter, function (item) {
-                    return item.oldIcon.toLowerCase() === icon.toLowerCase();
-                });
-                return (found ? found.newIcon : icon);
-            }
-            return icon;
-        },
-
-        convertFromLegacyImage: function (icon) {
-                var found = _.find(imageConverter, function (item) {
-                    return item.oldImage.toLowerCase() === icon.toLowerCase();
-                });
-                return (found ? found.newIcon : undefined);
-        },
-
-        /** If we detect that the tree node has legacy icons that can be converted, this will convert them */
-        convertFromLegacyTreeNodeIcon: function (treeNode) {
-            if (this.isLegacyTreeNodeIcon(treeNode)) {
-                return this.convertFromLegacyIcon(treeNode.icon);
-            }
-            return treeNode.icon;
-        }
-    };
-}
-angular.module('umbraco.services').factory('iconHelper', iconHelper);
-
-
 
 
 /**
@@ -6515,360 +7554,359 @@ function xmlhelper($http) {
      */
 
     function X2JS() {
-            var VERSION = "1.0.11";
-            var escapeMode = false;
+        var VERSION = "1.0.11";
+        var escapeMode = false;
 
-            var DOMNodeTypes = {
-                    ELEMENT_NODE       : 1,
-                    TEXT_NODE          : 3,
-                    CDATA_SECTION_NODE : 4,
-                    DOCUMENT_NODE      : 9
-            };
-            
-            function getNodeLocalName( node ) {
-                    var nodeLocalName = node.localName;                     
-                    if(nodeLocalName == null){
-                        nodeLocalName = node.baseName;
-                    } // Yeah, this is IE!! 
-                            
-                    if(nodeLocalName === null || nodeLocalName===""){
-                        nodeLocalName = node.nodeName;
-                    } // =="" is IE too
-                            
-                    return nodeLocalName;
+        var DOMNodeTypes = {
+            ELEMENT_NODE: 1,
+            TEXT_NODE: 3,
+            CDATA_SECTION_NODE: 4,
+            DOCUMENT_NODE: 9
+        };
+
+        function getNodeLocalName(node) {
+            var nodeLocalName = node.localName;
+            if (nodeLocalName == null) {
+                nodeLocalName = node.baseName;
+            } // Yeah, this is IE!! 
+
+            if (nodeLocalName === null || nodeLocalName === "") {
+                nodeLocalName = node.nodeName;
+            } // =="" is IE too
+
+            return nodeLocalName;
+        }
+
+        function getNodePrefix(node) {
+            return node.prefix;
+        }
+
+        function escapeXmlChars(str) {
+            if (typeof (str) === "string") {
+                return str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#x27;').replace(/\//g, '&#x2F;');
+            } else {
+                return str;
             }
-            
-            function getNodePrefix(node) {
-                    return node.prefix;
+        }
+
+        function unescapeXmlChars(str) {
+            return str.replace(/&amp;/g, '&').replace(/&lt;/g, '<').replace(/&gt;/g, '>').replace(/&quot;/g, '"').replace(/&#x27;/g, "'").replace(/&#x2F;/g, '\/');
+        }
+
+        function parseDOMChildren(node) {
+            var result, child, childName;
+
+            if (node.nodeType === DOMNodeTypes.DOCUMENT_NODE) {
+                result = {};
+                child = node.firstChild;
+                childName = getNodeLocalName(child);
+                result[childName] = parseDOMChildren(child);
+                return result;
             }
-                    
-            function escapeXmlChars(str) {
-                    if(typeof(str) === "string"){
-                            return str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#x27;').replace(/\//g, '&#x2F;');
-                    }else{
-                        return str;
-                    }
-            }
+            else {
 
-            function unescapeXmlChars(str) {
-                    return str.replace(/&amp;/g, '&').replace(/&lt;/g, '<').replace(/&gt;/g, '>').replace(/&quot;/g, '"').replace(/&#x27;/g, "'").replace(/&#x2F;/g, '\/');
-            }      
+                if (node.nodeType === DOMNodeTypes.ELEMENT_NODE) {
+                    result = {};
+                    result.__cnt = 0;
+                    var nodeChildren = node.childNodes;
 
-            function parseDOMChildren( node ) {
-                    var result,child, childName;
+                    // Children nodes
+                    for (var cidx = 0; cidx < nodeChildren.length; cidx++) {
+                        child = nodeChildren.item(cidx); // nodeChildren[cidx];
+                        childName = getNodeLocalName(child);
 
-                    if(node.nodeType === DOMNodeTypes.DOCUMENT_NODE) {
-                            result = {};
-                            child = node.firstChild;
-                            childName = getNodeLocalName(child);
+                        result.__cnt++;
+                        if (result[childName] === null) {
                             result[childName] = parseDOMChildren(child);
-                            return result;
-                    }
-                    else{
+                            result[childName + "_asArray"] = new Array(1);
+                            result[childName + "_asArray"][0] = result[childName];
+                        }
+                        else {
+                            if (result[childName] !== null) {
+                                if (!(result[childName] instanceof Array)) {
+                                    var tmpObj = result[childName];
+                                    result[childName] = [];
+                                    result[childName][0] = tmpObj;
 
-                    if(node.nodeType === DOMNodeTypes.ELEMENT_NODE) {
-                            result = {};
-                            result.__cnt=0;
-                            var nodeChildren = node.childNodes;
-                            
-                            // Children nodes
-                            for(var cidx=0; cidx <nodeChildren.length; cidx++) {
-                                    child = nodeChildren.item(cidx); // nodeChildren[cidx];
-                                    childName = getNodeLocalName(child);
-                                    
-                                    result.__cnt++;
-                                    if(result[childName] === null) {
-                                            result[childName] = parseDOMChildren(child);
-                                            result[childName+"_asArray"] = new Array(1);
-                                            result[childName+"_asArray"][0] = result[childName];
-                                    }
-                                    else {
-                                            if(result[childName] !== null) {
-                                                    if( !(result[childName] instanceof Array)) {
-                                                            var tmpObj = result[childName];
-                                                            result[childName] = [];
-                                                            result[childName][0] = tmpObj;
-                                                            
-                                                            result[childName+"_asArray"] = result[childName];
-                                                    }
-                                            }
-                                            var aridx = 0;
-                                            while(result[childName][aridx]!==null){
-                                                aridx++;
-                                            } 
-
-                                            (result[childName])[aridx] = parseDOMChildren(child);
-                                    }                       
-                            }
-                            
-                            // Attributes
-                            for(var aidx=0; aidx <node.attributes.length; aidx++) {
-                                    var attr = node.attributes.item(aidx); // [aidx];
-                                    result.__cnt++;
-                                    result["_"+attr.name]=attr.value;
-                            }
-                            
-                            // Node namespace prefix
-                            var nodePrefix = getNodePrefix(node);
-                            if(nodePrefix!==null && nodePrefix!=="") {
-                                    result.__cnt++;
-                                    result.__prefix=nodePrefix;
-                            }
-                            
-                            if( result.__cnt === 1 && result["#text"]!==null  ) {
-                                    result = result["#text"];
-                            }
-                            
-                            if(result["#text"]!==null) {
-                                    result.__text = result["#text"];
-                                    if(escapeMode){
-                                        result.__text = unescapeXmlChars(result.__text);
-                                    }
-                                            
-                                    delete result["#text"];
-                                    delete result["#text_asArray"];
-                            }
-                            if(result["#cdata-section"]!=null) {
-                                    result.__cdata = result["#cdata-section"];
-                                    delete result["#cdata-section"];
-                                    delete result["#cdata-section_asArray"];
-                            }
-                            
-                            if(result.__text!=null || result.__cdata!=null) {
-                                    result.toString = function() {
-                                            return (this.__text!=null? this.__text:'')+( this.__cdata!=null ? this.__cdata:'');
-                                    };
-                            }
-                            return result;
-                    }
-                    else{
-                        if(node.nodeType === DOMNodeTypes.TEXT_NODE || node.nodeType === DOMNodeTypes.CDATA_SECTION_NODE) {
-                                return node.nodeValue;
-                        } 
-                    }
-                }     
-            }
-            
-            function startTag(jsonObj, element, attrList, closed) {
-                    var resultStr = "<"+ ( (jsonObj!=null && jsonObj.__prefix!=null)? (jsonObj.__prefix+":"):"") + element;
-                    if(attrList!=null) {
-                            for(var aidx = 0; aidx < attrList.length; aidx++) {
-                                    var attrName = attrList[aidx];
-                                    var attrVal = jsonObj[attrName];
-                                    resultStr+=" "+attrName.substr(1)+"='"+attrVal+"'";
-                            }
-                    }
-                    if(!closed){
-                        resultStr+=">";
-                    }else{
-                        resultStr+="/>";
-                    }
-                            
-                    return resultStr;
-            }
-            
-            function endTag(jsonObj,elementName) {
-                    return "</"+ (jsonObj.__prefix!==null? (jsonObj.__prefix+":"):"")+elementName+">";
-            }
-            
-            function endsWith(str, suffix) {
-                return str.indexOf(suffix, str.length - suffix.length) !== -1;
-            }
-            
-            function jsonXmlSpecialElem ( jsonObj, jsonObjField ) {
-                    if(endsWith(jsonObjField.toString(),("_asArray")) || jsonObjField.toString().indexOf("_")===0 || (jsonObj[jsonObjField] instanceof Function) ){
-                        return true;
-                    }else{
-                        return false;
-                    }
-            }
-            
-            function jsonXmlElemCount ( jsonObj ) {
-                    var elementsCnt = 0;
-                    if(jsonObj instanceof Object ) {
-                            for( var it in jsonObj  ) {
-                                    if(jsonXmlSpecialElem ( jsonObj, it) ){
-                                        continue;
-                                    }                            
-                                    elementsCnt++;
-                            }
-                    }
-                    return elementsCnt;
-            }
-            
-            function parseJSONAttributes ( jsonObj ) {
-                    var attrList = [];
-                    if(jsonObj instanceof Object ) {
-                            for( var ait in jsonObj  ) {
-                                    if(ait.toString().indexOf("__")=== -1 && ait.toString().indexOf("_")===0) {
-                                            attrList.push(ait);
-                                    }
-                            }
-                    }
-
-                    return attrList;
-            }
-            
-            function parseJSONTextAttrs ( jsonTxtObj ) {
-                    var result ="";
-                    
-                    if(jsonTxtObj.__cdata!=null) {                                                                          
-                            result+="<![CDATA["+jsonTxtObj.__cdata+"]]>";                                   
-                    }
-                    
-                    if(jsonTxtObj.__text!=null) {                   
-                            if(escapeMode){
-                               result+=escapeXmlChars(jsonTxtObj.__text);     
-                            }else{
-                                result+=jsonTxtObj.__text;
-                            } 
-                    }
-                    return result;
-            }
-            
-            function parseJSONTextObject ( jsonTxtObj ) {
-                    var result ="";
-
-                    if( jsonTxtObj instanceof Object ) {
-                            result+=parseJSONTextAttrs ( jsonTxtObj );
-                    }
-                    else{
-                        if(jsonTxtObj!=null) {
-                                if(escapeMode){
-                                   result+=escapeXmlChars(jsonTxtObj);     
-                                }else{
-                                    result+=jsonTxtObj;
+                                    result[childName + "_asArray"] = result[childName];
                                 }
+                            }
+                            var aridx = 0;
+                            while (result[childName][aridx] !== null) {
+                                aridx++;
+                            }
+
+                            (result[childName])[aridx] = parseDOMChildren(child);
                         }
                     }
-                            
-                    
-                    return result;
-            }
-            
-            function parseJSONArray ( jsonArrRoot, jsonArrObj, attrList ) {
-                    var result = ""; 
-                    if(jsonArrRoot.length === 0) {
-                            result+=startTag(jsonArrRoot, jsonArrObj, attrList, true);
-                    }
-                    else {
-                            for(var arIdx = 0; arIdx < jsonArrRoot.length; arIdx++) {
-                                    result+=startTag(jsonArrRoot[arIdx], jsonArrObj, parseJSONAttributes(jsonArrRoot[arIdx]), false);
-                                    result+=parseJSONObject(jsonArrRoot[arIdx]);
-                                    result+=endTag(jsonArrRoot[arIdx],jsonArrObj);                                          
-                            }
-                    }
-                    return result;
-            }
-            
-            function parseJSONObject ( jsonObj ) {
-                    var result = "";        
 
-                    var elementsCnt = jsonXmlElemCount ( jsonObj );
-                    
-                    if(elementsCnt > 0) {
-                            for( var it in jsonObj ) {
-                                if(jsonXmlSpecialElem ( jsonObj, it) ){
-                                    continue;
-                                }                            
-                                
-                                var subObj = jsonObj[it];                                               
-                                var attrList = parseJSONAttributes( subObj );
-                                
-                                if(subObj === null || subObj === undefined) {
-                                        result+=startTag(subObj, it, attrList, true);
-                                }else{
-                                    if(subObj instanceof Object) {
-                                            
-                                            if(subObj instanceof Array) {                                   
-                                                    result+=parseJSONArray( subObj, it, attrList );
-                                            }else {
-                                                    var subObjElementsCnt = jsonXmlElemCount ( subObj );
-                                                    if(subObjElementsCnt > 0 || subObj.__text!==null || subObj.__cdata!==null) {
-                                                            result+=startTag(subObj, it, attrList, false);
-                                                            result+=parseJSONObject(subObj);
-                                                            result+=endTag(subObj,it);
-                                                    }else{
-                                                            result+=startTag(subObj, it, attrList, true);
-                                                    }
-                                            }
+                    // Attributes
+                    for (var aidx = 0; aidx < node.attributes.length; aidx++) {
+                        var attr = node.attributes.item(aidx); // [aidx];
+                        result.__cnt++;
+                        result["_" + attr.name] = attr.value;
+                    }
 
-                                    }else {
-                                            result+=startTag(subObj, it, attrList, false);
-                                            result+=parseJSONTextObject(subObj);
-                                            result+=endTag(subObj,it);
-                                    }
+                    // Node namespace prefix
+                    var nodePrefix = getNodePrefix(node);
+                    if (nodePrefix !== null && nodePrefix !== "") {
+                        result.__cnt++;
+                        result.__prefix = nodePrefix;
+                    }
+
+                    if (result.__cnt === 1 && result["#text"] !== null) {
+                        result = result["#text"];
+                    }
+
+                    if (result["#text"] !== null) {
+                        result.__text = result["#text"];
+                        if (escapeMode) {
+                            result.__text = unescapeXmlChars(result.__text);
+                        }
+
+                        delete result["#text"];
+                        delete result["#text_asArray"];
+                    }
+                    if (result["#cdata-section"] != null) {
+                        result.__cdata = result["#cdata-section"];
+                        delete result["#cdata-section"];
+                        delete result["#cdata-section_asArray"];
+                    }
+
+                    if (result.__text != null || result.__cdata != null) {
+                        result.toString = function () {
+                            return (this.__text != null ? this.__text : '') + (this.__cdata != null ? this.__cdata : '');
+                        };
+                    }
+                    return result;
+                }
+                else {
+                    if (node.nodeType === DOMNodeTypes.TEXT_NODE || node.nodeType === DOMNodeTypes.CDATA_SECTION_NODE) {
+                        return node.nodeValue;
+                    }
+                }
+            }
+        }
+
+        function startTag(jsonObj, element, attrList, closed) {
+            var resultStr = "<" + ((jsonObj != null && jsonObj.__prefix != null) ? (jsonObj.__prefix + ":") : "") + element;
+            if (attrList != null) {
+                for (var aidx = 0; aidx < attrList.length; aidx++) {
+                    var attrName = attrList[aidx];
+                    var attrVal = jsonObj[attrName];
+                    resultStr += " " + attrName.substr(1) + "='" + attrVal + "'";
+                }
+            }
+            if (!closed) {
+                resultStr += ">";
+            } else {
+                resultStr += "/>";
+            }
+
+            return resultStr;
+        }
+
+        function endTag(jsonObj, elementName) {
+            return "</" + (jsonObj.__prefix !== null ? (jsonObj.__prefix + ":") : "") + elementName + ">";
+        }
+
+        function endsWith(str, suffix) {
+            return str.indexOf(suffix, str.length - suffix.length) !== -1;
+        }
+
+        function jsonXmlSpecialElem(jsonObj, jsonObjField) {
+            if (endsWith(jsonObjField.toString(), ("_asArray")) || jsonObjField.toString().indexOf("_") === 0 || (jsonObj[jsonObjField] instanceof Function)) {
+                return true;
+            } else {
+                return false;
+            }
+        }
+
+        function jsonXmlElemCount(jsonObj) {
+            var elementsCnt = 0;
+            if (jsonObj instanceof Object) {
+                for (var it in jsonObj) {
+                    if (jsonXmlSpecialElem(jsonObj, it)) {
+                        continue;
+                    }
+                    elementsCnt++;
+                }
+            }
+            return elementsCnt;
+        }
+
+        function parseJSONAttributes(jsonObj) {
+            var attrList = [];
+            if (jsonObj instanceof Object) {
+                for (var ait in jsonObj) {
+                    if (ait.toString().indexOf("__") === -1 && ait.toString().indexOf("_") === 0) {
+                        attrList.push(ait);
+                    }
+                }
+            }
+
+            return attrList;
+        }
+
+        function parseJSONTextAttrs(jsonTxtObj) {
+            var result = "";
+
+            if (jsonTxtObj.__cdata != null) {
+                result += "<![CDATA[" + jsonTxtObj.__cdata + "]]>";
+            }
+
+            if (jsonTxtObj.__text != null) {
+                if (escapeMode) {
+                    result += escapeXmlChars(jsonTxtObj.__text);
+                } else {
+                    result += jsonTxtObj.__text;
+                }
+            }
+            return result;
+        }
+
+        function parseJSONTextObject(jsonTxtObj) {
+            var result = "";
+
+            if (jsonTxtObj instanceof Object) {
+                result += parseJSONTextAttrs(jsonTxtObj);
+            }
+            else {
+                if (jsonTxtObj != null) {
+                    if (escapeMode) {
+                        result += escapeXmlChars(jsonTxtObj);
+                    } else {
+                        result += jsonTxtObj;
+                    }
+                }
+            }
+
+
+            return result;
+        }
+
+        function parseJSONArray(jsonArrRoot, jsonArrObj, attrList) {
+            var result = "";
+            if (jsonArrRoot.length === 0) {
+                result += startTag(jsonArrRoot, jsonArrObj, attrList, true);
+            }
+            else {
+                for (var arIdx = 0; arIdx < jsonArrRoot.length; arIdx++) {
+                    result += startTag(jsonArrRoot[arIdx], jsonArrObj, parseJSONAttributes(jsonArrRoot[arIdx]), false);
+                    result += parseJSONObject(jsonArrRoot[arIdx]);
+                    result += endTag(jsonArrRoot[arIdx], jsonArrObj);
+                }
+            }
+            return result;
+        }
+
+        function parseJSONObject(jsonObj) {
+            var result = "";
+
+            var elementsCnt = jsonXmlElemCount(jsonObj);
+
+            if (elementsCnt > 0) {
+                for (var it in jsonObj) {
+                    if (jsonXmlSpecialElem(jsonObj, it)) {
+                        continue;
+                    }
+
+                    var subObj = jsonObj[it];
+                    var attrList = parseJSONAttributes(subObj);
+
+                    if (subObj === null || subObj === undefined) {
+                        result += startTag(subObj, it, attrList, true);
+                    } else {
+                        if (subObj instanceof Object) {
+
+                            if (subObj instanceof Array) {
+                                result += parseJSONArray(subObj, it, attrList);
+                            } else {
+                                var subObjElementsCnt = jsonXmlElemCount(subObj);
+                                if (subObjElementsCnt > 0 || subObj.__text !== null || subObj.__cdata !== null) {
+                                    result += startTag(subObj, it, attrList, false);
+                                    result += parseJSONObject(subObj);
+                                    result += endTag(subObj, it);
+                                } else {
+                                    result += startTag(subObj, it, attrList, true);
                                 }
                             }
+
+                        } else {
+                            result += startTag(subObj, it, attrList, false);
+                            result += parseJSONTextObject(subObj);
+                            result += endTag(subObj, it);
+                        }
                     }
-                    result+=parseJSONTextObject(jsonObj);
-                    
-                    return result;
+                }
             }
-            
-            this.parseXmlString = function(xmlDocStr) {
-                    var xmlDoc;
-                    if (window.DOMParser) {
-                            var parser=new window.DOMParser();
-                            xmlDoc = parser.parseFromString( xmlDocStr, "text/xml" );
-                    }
-                    else {
-                            // IE :(
-                            if(xmlDocStr.indexOf("<?")===0) {
-                                    xmlDocStr = xmlDocStr.substr( xmlDocStr.indexOf("?>") + 2 );
-                            }
-                            xmlDoc=new ActiveXObject("Microsoft.XMLDOM");
-                            xmlDoc.async="false";
-                            xmlDoc.loadXML(xmlDocStr);
-                    }
-                    return xmlDoc;
-            };
+            result += parseJSONTextObject(jsonObj);
 
-            this.xml2json = function (xmlDoc) {
-                    return parseDOMChildren ( xmlDoc );
-            };
-            
-            this.xml_str2json = function (xmlDocStr) {
-                    var xmlDoc = this.parseXmlString(xmlDocStr);    
-                    return this.xml2json(xmlDoc);
-            };
+            return result;
+        }
 
-            this.json2xml_str = function (jsonObj) {
-                    return parseJSONObject ( jsonObj );
-            };
+        this.parseXmlString = function (xmlDocStr) {
+            var xmlDoc;
+            if (window.DOMParser) {
+                var parser = new window.DOMParser();
+                xmlDoc = parser.parseFromString(xmlDocStr, "text/xml");
+            }
+            else {
+                // IE :(
+                if (xmlDocStr.indexOf("<?") === 0) {
+                    xmlDocStr = xmlDocStr.substr(xmlDocStr.indexOf("?>") + 2);
+                }
+                xmlDoc = new ActiveXObject("Microsoft.XMLDOM");
+                xmlDoc.async = "false";
+                xmlDoc.loadXML(xmlDocStr);
+            }
+            return xmlDoc;
+        };
 
-            this.json2xml = function (jsonObj) {
-                    var xmlDocStr = this.json2xml_str (jsonObj);
-                    return this.parseXmlString(xmlDocStr);
-            };
+        this.xml2json = function (xmlDoc) {
+            return parseDOMChildren(xmlDoc);
+        };
 
-            this.getVersion = function () {
-                    return VERSION;
-            };
+        this.xml_str2json = function (xmlDocStr) {
+            var xmlDoc = this.parseXmlString(xmlDocStr);
+            return this.xml2json(xmlDoc);
+        };
 
-            this.escapeMode = function(enabled) {
-                    escapeMode = enabled;
-            };
+        this.json2xml_str = function (jsonObj) {
+            return parseJSONObject(jsonObj);
+        };
+
+        this.json2xml = function (jsonObj) {
+            var xmlDocStr = this.json2xml_str(jsonObj);
+            return this.parseXmlString(xmlDocStr);
+        };
+
+        this.getVersion = function () {
+            return VERSION;
+        };
+
+        this.escapeMode = function (enabled) {
+            escapeMode = enabled;
+        };
     }
 
     var x2js = new X2JS();
     return {
         /** Called to load in the legacy tree js which is required on startup if a user is logged in or 
          after login, but cannot be called until they are authenticated which is why it needs to be lazy loaded. */
-        toJson: function(xml) {
-            var json = x2js.xml_str2json( xml );
+        toJson: function (xml) {
+            var json = x2js.xml_str2json(xml);
             return json;
         },
-        fromJson: function(json) {
-            var xml = x2js.json2xml_str( json );
+        fromJson: function (json) {
+            var xml = x2js.json2xml_str(json);
             return xml;
         },
-        parseFeed: function (url) {             
-            return $http.jsonp('//ajax.googleapis.com/ajax/services/feed/load?v=1.0&num=50&callback=JSON_CALLBACK&q=' + encodeURIComponent(url));         
+        parseFeed: function (url) {
+            return $http.jsonp('//ajax.googleapis.com/ajax/services/feed/load?v=1.0&num=50&callback=JSON_CALLBACK&q=' + encodeURIComponent(url));
         }
     };
 }
 angular.module('umbraco.services').factory('xmlhelper', xmlhelper);
-
 
 })();

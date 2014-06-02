@@ -1,6 +1,6 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
-  <Import Project="..\packages\UmbracoCms.7.0.0\build\net45\UmbracoCms.props" Condition="Exists('..\packages\UmbracoCms.7.0.0\build\net45\UmbracoCms.props')" />
+  <Import Project="..\packages\UmbracoCms.7.1.4\build\UmbracoCms.props" Condition="Exists('..\packages\UmbracoCms.7.1.4\build\UmbracoCms.props')" />
   <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
@@ -24,6 +24,7 @@
     <SolutionDir Condition="$(SolutionDir) == '' Or $(SolutionDir) == '*Undefined*'">..\</SolutionDir>
     <RestorePackages>true</RestorePackages>
     <WebGreaseLibPath>..\packages\WebGrease.1.5.2\lib</WebGreaseLibPath>
+    <NuGetPackageImportStamp>94827dfc</NuGetPackageImportStamp>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -53,25 +54,25 @@
       <HintPath>..\packages\BundleTransformer.Core.1.8.17\lib\net40\BundleTransformer.Core.dll</HintPath>
     </Reference>
     <Reference Include="businesslogic">
-      <HintPath>..\packages\UmbracoCms.Core.7.0.0\lib\businesslogic.dll</HintPath>
+      <HintPath>..\packages\UmbracoCms.Core.7.1.4\lib\businesslogic.dll</HintPath>
     </Reference>
     <Reference Include="ClientDependency.Core">
-      <HintPath>..\packages\ClientDependency.1.7.0.4\lib\ClientDependency.Core.dll</HintPath>
+      <HintPath>..\packages\ClientDependency.1.7.1.2\lib\ClientDependency.Core.dll</HintPath>
     </Reference>
     <Reference Include="ClientDependency.Core.Mvc">
       <HintPath>..\packages\ClientDependency-Mvc.1.7.0.4\lib\ClientDependency.Core.Mvc.dll</HintPath>
     </Reference>
     <Reference Include="cms">
-      <HintPath>..\packages\UmbracoCms.Core.7.0.0\lib\cms.dll</HintPath>
+      <HintPath>..\packages\UmbracoCms.Core.7.1.4\lib\cms.dll</HintPath>
     </Reference>
     <Reference Include="controls">
-      <HintPath>..\packages\UmbracoCms.Core.7.0.0\lib\controls.dll</HintPath>
+      <HintPath>..\packages\UmbracoCms.Core.7.1.4\lib\controls.dll</HintPath>
     </Reference>
     <Reference Include="CookComputing.XmlRpcV2">
       <HintPath>..\packages\xmlrpcnet.2.5.0\lib\net20\CookComputing.XmlRpcV2.dll</HintPath>
     </Reference>
     <Reference Include="Examine">
-      <HintPath>..\packages\UmbracoCms.Core.7.0.0\lib\Examine.dll</HintPath>
+      <HintPath>..\packages\UmbracoCms.Core.7.1.4\lib\Examine.dll</HintPath>
     </Reference>
     <Reference Include="HtmlAgilityPack">
       <HintPath>..\packages\HtmlAgilityPack.1.4.6\lib\Net45\HtmlAgilityPack.dll</HintPath>
@@ -79,21 +80,27 @@
     <Reference Include="ICSharpCode.SharpZipLib">
       <HintPath>..\packages\SharpZipLib.0.86.0\lib\20\ICSharpCode.SharpZipLib.dll</HintPath>
     </Reference>
+    <Reference Include="ImageProcessor">
+      <HintPath>..\packages\ImageProcessor.1.9.0.0\lib\ImageProcessor.dll</HintPath>
+    </Reference>
+    <Reference Include="ImageProcessor.Web">
+      <HintPath>..\packages\ImageProcessor.Web.3.2.3.0\lib\net45\ImageProcessor.Web.dll</HintPath>
+    </Reference>
     <Reference Include="interfaces">
-      <HintPath>..\packages\UmbracoCms.Core.7.0.0\lib\interfaces.dll</HintPath>
+      <HintPath>..\packages\UmbracoCms.Core.7.1.4\lib\interfaces.dll</HintPath>
     </Reference>
     <Reference Include="log4net">
-      <HintPath>..\packages\UmbracoCms.Core.7.0.0\lib\log4net.dll</HintPath>
+      <HintPath>..\packages\UmbracoCms.Core.7.1.4\lib\log4net.dll</HintPath>
     </Reference>
     <Reference Include="Lucene.Net">
       <HintPath>..\packages\Lucene.Net.2.9.4.1\lib\net40\Lucene.Net.dll</HintPath>
     </Reference>
     <Reference Include="Microsoft.ApplicationBlocks.Data">
-      <HintPath>..\packages\UmbracoCms.Core.7.0.0\lib\Microsoft.ApplicationBlocks.Data.dll</HintPath>
+      <HintPath>..\packages\UmbracoCms.Core.7.1.4\lib\Microsoft.ApplicationBlocks.Data.dll</HintPath>
     </Reference>
     <Reference Include="Microsoft.CSharp" />
     <Reference Include="Microsoft.Web.Helpers">
-      <HintPath>..\packages\UmbracoCms.Core.7.0.0\lib\Microsoft.Web.Helpers.dll</HintPath>
+      <HintPath>..\packages\UmbracoCms.Core.7.1.4\lib\Microsoft.Web.Helpers.dll</HintPath>
     </Reference>
     <Reference Include="Microsoft.Web.Infrastructure, Version=1.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
       <Private>True</Private>
@@ -110,29 +117,20 @@
       <HintPath>..\packages\MySql.Data.6.6.5\lib\net40\MySql.Data.dll</HintPath>
     </Reference>
     <Reference Include="Newtonsoft.Json">
-      <HintPath>..\packages\Newtonsoft.Json.4.5.11\lib\net40\Newtonsoft.Json.dll</HintPath>
-    </Reference>
-    <Reference Include="Our.Umbraco.uGoLive">
-      <HintPath>..\packages\UmbracoCms.Core.7.0.0\lib\Our.Umbraco.uGoLive.dll</HintPath>
-    </Reference>
-    <Reference Include="Our.Umbraco.uGoLive.47x">
-      <HintPath>..\packages\UmbracoCms.Core.7.0.0\lib\Our.Umbraco.uGoLive.47x.dll</HintPath>
-    </Reference>
-    <Reference Include="Our.Umbraco.uGoLive.Checks">
-      <HintPath>..\packages\UmbracoCms.Core.7.0.0\lib\Our.Umbraco.uGoLive.Checks.dll</HintPath>
+      <HintPath>..\packages\Newtonsoft.Json.6.0.2\lib\net45\Newtonsoft.Json.dll</HintPath>
     </Reference>
     <Reference Include="SQLCE4Umbraco">
-      <HintPath>..\packages\UmbracoCms.Core.7.0.0\lib\SQLCE4Umbraco.dll</HintPath>
+      <HintPath>..\packages\UmbracoCms.Core.7.1.4\lib\SQLCE4Umbraco.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Data" />
     <Reference Include="System.Data.SqlServerCe, Version=4.0.0.0, Culture=neutral, PublicKeyToken=89845dcd8080cc91, processorArchitecture=MSIL">
       <Private>True</Private>
-      <HintPath>..\packages\UmbracoCms.Core.7.0.0\lib\System.Data.SqlServerCe.dll</HintPath>
+      <HintPath>..\packages\UmbracoCms.Core.7.1.4\lib\System.Data.SqlServerCe.dll</HintPath>
     </Reference>
     <Reference Include="System.Data.SqlServerCe.Entity, Version=4.0.0.0, Culture=neutral, PublicKeyToken=89845dcd8080cc91, processorArchitecture=MSIL">
       <Private>True</Private>
-      <HintPath>..\packages\UmbracoCms.Core.7.0.0\lib\System.Data.SqlServerCe.Entity.dll</HintPath>
+      <HintPath>..\packages\UmbracoCms.Core.7.1.4\lib\System.Data.SqlServerCe.Entity.dll</HintPath>
     </Reference>
     <Reference Include="System.Drawing" />
     <Reference Include="System.Net.Http.Formatting, Version=4.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
@@ -192,37 +190,37 @@
     <Reference Include="System.Net.Http.WebRequest">
     </Reference>
     <Reference Include="TidyNet">
-      <HintPath>..\packages\UmbracoCms.Core.7.0.0\lib\TidyNet.dll</HintPath>
+      <HintPath>..\packages\UmbracoCms.Core.7.1.4\lib\TidyNet.dll</HintPath>
     </Reference>
     <Reference Include="umbraco">
-      <HintPath>..\packages\UmbracoCms.Core.7.0.0\lib\umbraco.dll</HintPath>
+      <HintPath>..\packages\UmbracoCms.Core.7.1.4\lib\umbraco.dll</HintPath>
     </Reference>
     <Reference Include="Umbraco.Core">
-      <HintPath>..\packages\UmbracoCms.Core.7.0.0\lib\Umbraco.Core.dll</HintPath>
+      <HintPath>..\packages\UmbracoCms.Core.7.1.4\lib\Umbraco.Core.dll</HintPath>
     </Reference>
     <Reference Include="umbraco.DataLayer">
-      <HintPath>..\packages\UmbracoCms.Core.7.0.0\lib\umbraco.DataLayer.dll</HintPath>
+      <HintPath>..\packages\UmbracoCms.Core.7.1.4\lib\umbraco.DataLayer.dll</HintPath>
     </Reference>
     <Reference Include="umbraco.editorControls">
-      <HintPath>..\packages\UmbracoCms.Core.7.0.0\lib\umbraco.editorControls.dll</HintPath>
+      <HintPath>..\packages\UmbracoCms.Core.7.1.4\lib\umbraco.editorControls.dll</HintPath>
     </Reference>
     <Reference Include="umbraco.MacroEngines">
-      <HintPath>..\packages\UmbracoCms.Core.7.0.0\lib\umbraco.MacroEngines.dll</HintPath>
+      <HintPath>..\packages\UmbracoCms.Core.7.1.4\lib\umbraco.MacroEngines.dll</HintPath>
     </Reference>
     <Reference Include="umbraco.providers">
-      <HintPath>..\packages\UmbracoCms.Core.7.0.0\lib\umbraco.providers.dll</HintPath>
+      <HintPath>..\packages\UmbracoCms.Core.7.1.4\lib\umbraco.providers.dll</HintPath>
     </Reference>
     <Reference Include="Umbraco.Web.UI">
-      <HintPath>..\packages\UmbracoCms.Core.7.0.0\lib\Umbraco.Web.UI.dll</HintPath>
+      <HintPath>..\packages\UmbracoCms.Core.7.1.4\lib\Umbraco.Web.UI.dll</HintPath>
     </Reference>
     <Reference Include="umbraco.XmlSerializers">
-      <HintPath>..\packages\UmbracoCms.Core.7.0.0\lib\umbraco.XmlSerializers.dll</HintPath>
+      <HintPath>..\packages\UmbracoCms.Core.7.1.4\lib\umbraco.XmlSerializers.dll</HintPath>
     </Reference>
     <Reference Include="UmbracoExamine">
-      <HintPath>..\packages\UmbracoCms.Core.7.0.0\lib\UmbracoExamine.dll</HintPath>
+      <HintPath>..\packages\UmbracoCms.Core.7.1.4\lib\UmbracoExamine.dll</HintPath>
     </Reference>
     <Reference Include="UrlRewritingNet.UrlRewriter">
-      <HintPath>..\packages\UmbracoCms.Core.7.0.0\lib\UrlRewritingNet.UrlRewriter.dll</HintPath>
+      <HintPath>..\packages\UmbracoCms.Core.7.1.4\lib\UrlRewritingNet.UrlRewriter.dll</HintPath>
     </Reference>
     <Reference Include="WebGrease, Version=1.5.2.14234, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
@@ -233,64 +231,6 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
-    <Content Include="bin\amd64\Microsoft.VC90.CRT\msvcr90.dll" />
-    <Content Include="bin\amd64\Microsoft.VC90.CRT\README_ENU.txt" />
-    <Content Include="bin\amd64\sqlceca40.dll" />
-    <Content Include="bin\amd64\sqlcecompact40.dll" />
-    <Content Include="bin\amd64\sqlceer40EN.dll" />
-    <Content Include="bin\amd64\sqlceme40.dll" />
-    <Content Include="bin\amd64\sqlceqp40.dll" />
-    <Content Include="bin\amd64\sqlcese40.dll" />
-    <Content Include="bin\Antlr3.Runtime.dll" />
-    <Content Include="bin\Antlr3.Runtime.pdb" />
-    <Content Include="bin\BundleTransformer.CoffeeScript.dll" />
-    <Content Include="bin\BundleTransformer.Core.dll" />
-    <Content Include="bin\BundleTransformer.Less.dll" />
-    <Content Include="bin\BundleTransformer.SassAndScss.dll" />
-    <Content Include="bin\BundleTransformer.TypeScript.dll" />
-    <Content Include="bin\IronRuby.dll" />
-    <Content Include="bin\IronRuby.Libraries.dll" />
-    <Content Include="bin\IronRuby.Libraries.Yaml.dll" />
-    <Content Include="bin\Microsoft.Dynamic.dll" />
-    <Content Include="bin\Microsoft.Scripting.dll" />
-    <Content Include="bin\Microsoft.Scripting.Metadata.dll" />
-    <Content Include="bin\Microsoft.Web.Infrastructure.dll" />
-    <Content Include="bin\Optimus.dll" />
-    <Content Include="bin\Optimus.pdb" />
-    <Content Include="bin\Optimus.Providers.CoffeeScript.dll" />
-    <Content Include="bin\Optimus.Providers.CoffeeScript.pdb" />
-    <Content Include="bin\Optimus.Providers.Less.dll" />
-    <Content Include="bin\Optimus.Providers.Less.pdb" />
-    <Content Include="bin\Optimus.Providers.SassAndSCSS.dll" />
-    <Content Include="bin\Optimus.Providers.SassAndSCSS.pdb" />
-    <Content Include="bin\Optimus.Providers.TypeScript.dll" />
-    <Content Include="bin\Optimus.Providers.TypeScript.pdb" />
-    <Content Include="bin\Optimus.Trees.Scripts.dll" />
-    <Content Include="bin\Optimus.Trees.Scripts.pdb" />
-    <Content Include="bin\Optimus.Trees.Stylesheets.dll" />
-    <Content Include="bin\Optimus.Trees.Stylesheets.pdb" />
-    <Content Include="bin\Optimus.V7.dll" />
-    <Content Include="bin\Optimus.V7.pdb" />
-    <Content Include="bin\System.Net.Http.Formatting.dll" />
-    <Content Include="bin\System.Web.Helpers.dll" />
-    <Content Include="bin\System.Web.Http.dll" />
-    <Content Include="bin\System.Web.Http.WebHost.dll" />
-    <Content Include="bin\System.Web.Mvc.dll" />
-    <Content Include="bin\System.Web.Optimization.dll" />
-    <Content Include="bin\System.Web.Optimization.xml" />
-    <Content Include="bin\System.Web.Razor.dll" />
-    <Content Include="bin\System.Web.WebPages.Deployment.dll" />
-    <Content Include="bin\System.Web.WebPages.dll" />
-    <Content Include="bin\System.Web.WebPages.Razor.dll" />
-    <Content Include="bin\WebGrease.dll" />
-    <Content Include="bin\x86\Microsoft.VC90.CRT\msvcr90.dll" />
-    <Content Include="bin\x86\Microsoft.VC90.CRT\README_ENU.txt" />
-    <Content Include="bin\x86\sqlceca40.dll" />
-    <Content Include="bin\x86\sqlcecompact40.dll" />
-    <Content Include="bin\x86\sqlceer40EN.dll" />
-    <Content Include="bin\x86\sqlceme40.dll" />
-    <Content Include="bin\x86\sqlceqp40.dll" />
-    <Content Include="bin\x86\sqlcese40.dll" />
     <Content Include="Css\dummy.txt" />
     <Content Include="Css\font\fontawesome-webfont.svg" />
     <Content Include="Css\images\bracket.svg" />
@@ -346,12 +286,6 @@
     <Content Include="Css\Sassy.scss" />
   </ItemGroup>
   <ItemGroup>
-    <Content Include="bin\x86\Microsoft.VC90.CRT\Microsoft.VC90.CRT.manifest" />
-  </ItemGroup>
-  <ItemGroup>
-    <Content Include="bin\amd64\Microsoft.VC90.CRT\Microsoft.VC90.CRT.manifest" />
-  </ItemGroup>
-  <ItemGroup>
     <None Include="BundleTransformer.Configuration.xsd">
       <SubType>Designer</SubType>
     </None>
@@ -385,7 +319,14 @@
     </VisualStudio>
   </ProjectExtensions>
   <Import Project="$(SolutionDir)\.nuget\nuget.targets" />
-  <Import Project="..\packages\UmbracoCms.7.0.0\build\net45\UmbracoCms.targets" Condition="Exists('..\packages\UmbracoCms.7.0.0\build\net45\UmbracoCms.targets')" />
+  <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
+    <PropertyGroup>
+      <ErrorText>This project references NuGet package(s) that are missing on this computer. Enable NuGet Package Restore to download them.  For more information, see http://go.microsoft.com/fwlink/?LinkID=322105. The missing file is {0}.</ErrorText>
+    </PropertyGroup>
+    <Error Condition="!Exists('..\packages\UmbracoCms.7.1.4\build\UmbracoCms.props')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\UmbracoCms.7.1.4\build\UmbracoCms.props'))" />
+    <Error Condition="!Exists('..\packages\UmbracoCms.7.1.4\build\UmbracoCms.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\UmbracoCms.7.1.4\build\UmbracoCms.targets'))" />
+  </Target>
+  <Import Project="..\packages\UmbracoCms.7.1.4\build\UmbracoCms.targets" Condition="Exists('..\packages\UmbracoCms.7.1.4\build\UmbracoCms.targets')" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
   <Target Name="BeforeBuild">
