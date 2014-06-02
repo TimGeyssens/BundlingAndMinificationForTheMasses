@@ -69,6 +69,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Optimus.Providers.TypeScrip
 		BuildPackages\Optimus.Providers.TypeScript\Package.xml = BuildPackages\Optimus.Providers.TypeScript\Package.xml
 	EndProjectSection
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Optimus.Providers.CoffeeScript", "BundlingAndMinificationForTheMasses.Providers.Coffee\Optimus.Providers.CoffeeScript.csproj", "{077CE74A-1B24-4205-BCD8-CAB39A3CD4DF}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -99,6 +101,10 @@ Global
 		{3BC3A1A4-C9D1-4AF2-9E6B-32096845B6C8}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{3BC3A1A4-C9D1-4AF2-9E6B-32096845B6C8}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{3BC3A1A4-C9D1-4AF2-9E6B-32096845B6C8}.Release|Any CPU.Build.0 = Release|Any CPU
+		{077CE74A-1B24-4205-BCD8-CAB39A3CD4DF}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{077CE74A-1B24-4205-BCD8-CAB39A3CD4DF}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{077CE74A-1B24-4205-BCD8-CAB39A3CD4DF}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{077CE74A-1B24-4205-BCD8-CAB39A3CD4DF}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
