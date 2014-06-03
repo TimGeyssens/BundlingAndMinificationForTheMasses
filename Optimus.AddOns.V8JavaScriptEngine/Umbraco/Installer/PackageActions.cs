@@ -427,11 +427,13 @@ namespace Optimus.Providers.V8JavaScriptEngine.Umbraco.Installer
             var addSectionAction = new AddConfigSection();
             var removeSection = addSectionAction.Undo(packageName, xmlData);
             string folderPath = HttpContext.Current.Server.MapPath("/Noesis.Javascript");
+            
+            Directory.Delete(folderPath);
 
-            foreach (var subDir in new DirectoryInfo(folderPath).GetDirectories())
-            {
-                subDir.Delete(true);
-            }
+            //foreach (var subDir in new DirectoryInfo(folderPath).GetDirectories())
+            //{
+            //    subDir.Delete(true);
+            //}
             return removeSection;
         }
 

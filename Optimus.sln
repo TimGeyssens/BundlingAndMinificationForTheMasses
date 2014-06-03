@@ -75,6 +75,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Optimus.Providers.SassAndSC
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Optimus.Providers.TypeScript", "BundlingAndMinificationForTheMasses.Providers.Type\Optimus.Providers.TypeScript.csproj", "{034575BA-E003-4C09-BDD2-ECC66B6589C2}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Optimus.AddOns.V8JavaScriptEngine", "Optimus.AddOns.V8JavaScriptEngine\Optimus.AddOns.V8JavaScriptEngine.csproj", "{AB157E90-DC19-4A2B-BD52-4365089F2AB8}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -117,6 +119,10 @@ Global
 		{034575BA-E003-4C09-BDD2-ECC66B6589C2}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{034575BA-E003-4C09-BDD2-ECC66B6589C2}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{034575BA-E003-4C09-BDD2-ECC66B6589C2}.Release|Any CPU.Build.0 = Release|Any CPU
+		{AB157E90-DC19-4A2B-BD52-4365089F2AB8}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{AB157E90-DC19-4A2B-BD52-4365089F2AB8}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{AB157E90-DC19-4A2B-BD52-4365089F2AB8}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{AB157E90-DC19-4A2B-BD52-4365089F2AB8}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
