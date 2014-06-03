@@ -413,7 +413,7 @@ namespace Optimus.Providers.V8JavaScriptEngine.Umbraco.Installer
         /// <returns>The Alias in string format</returns>
         public string Alias()
         {
-            return "Umbundle.V8.RemoveLegacy";
+            return "Umbundle.V8.RemoveLegacyAndRenameClearScript";
         }
 
         /// <summary>
@@ -427,13 +427,37 @@ namespace Optimus.Providers.V8JavaScriptEngine.Umbraco.Installer
             var addSectionAction = new AddConfigSection();
             var removeSection = addSectionAction.Undo(packageName, xmlData);
             string folderPath = HttpContext.Current.Server.MapPath("/Noesis.Javascript");
-            
-            Directory.Delete(folderPath);
 
-            //foreach (var subDir in new DirectoryInfo(folderPath).GetDirectories())
+            if (Directory.Exists(folderPath))
+            {         
+                Directory.Delete(folderPath);
+            }
+
+        //foreach (var subDir in new DirectoryInfo(folderPath).GetDirectories())
             //{
             //    subDir.Delete(true);
             //}
+
+            string newPath = HttpContext.Current.Server.MapPath("/ClearScript.V8");
+
+            foreach (var file in new DirectoryInfo(newPath).GetFiles())
+            {
+                if (file.Extension != ".dat")
+                {
+                    File.Delete(file.FullName);
+                }
+            }
+
+            foreach (var file in new DirectoryInfo(newPath).GetFiles())
+            {
+                if (file.Extension == ".dat")
+                {
+                    File.Move(file.FullName, Path.ChangeExtension(file.FullName, ".dll"));
+                }
+            }
+
+            // TODO remove Noesis.Javascript hidden segment
+
             return removeSection;
         }
 

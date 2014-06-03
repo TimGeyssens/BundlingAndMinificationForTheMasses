@@ -67,7 +67,7 @@
             <ClearScript Include="$(CoreProjectDir)\ClearScript.V8\**\*.*" />
         </ItemGroup>
         <Copy SourceFiles="@(ClearScript)"
-        DestinationFiles="@(ClearScript->'$(BuildDir)\ClearScript.V8\%(RecursiveDir)%(Filename)%(Extension)')" />
+        DestinationFiles="@(ClearScript->'$(BuildDir)\ClearScript.V8\%(RecursiveDir)%(Filename).dat')" />
 
     </Target>
 
@@ -94,7 +94,7 @@
 			WorkingDirectory="$(BuildDir)"
 			OutputDirectory="$(PackageDir)"
 			Files="@(PackageFiles)" />
-        <RemoveDir Directories="$(BuildDir)" Condition="Exists('$(BuildDir)')" />
+    <RemoveDir Directories="$(BuildDir)" Condition="Exists('$(BuildDir)')" />
 	</Target>
 
 </Project>
