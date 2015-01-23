@@ -433,11 +433,6 @@ namespace Optimus.Providers.V8JavaScriptEngine.Umbraco.Installer
                 Directory.Delete(folderPath);
             }
 
-        //foreach (var subDir in new DirectoryInfo(folderPath).GetDirectories())
-            //{
-            //    subDir.Delete(true);
-            //}
-
             string newPath = HttpContext.Current.Server.MapPath("/ClearScript.V8");
 
             foreach (var file in new DirectoryInfo(newPath).GetFiles())
@@ -456,7 +451,16 @@ namespace Optimus.Providers.V8JavaScriptEngine.Umbraco.Installer
                 }
             }
 
-            // TODO remove Noesis.Javascript hidden segment
+            //Remove Noesis.Javascript hidden segment
+
+            var hiddenSegement = new AddHiddenSegment();
+            var str = "<Action runat=\"install\" undo=\"true\" alias=\"Umbundle.V8.AddHiddenSegment\" position=\"beginning\" segment=\"Noesis.Javascript\" />";
+            
+            var doc = new XmlDocument();
+            doc.LoadXml(str);
+            var newNode = doc.DocumentElement;
+
+            hiddenSegement.Undo("", newNode);
 
             return removeSection;
         }
