@@ -76,6 +76,7 @@ namespace Optimus.Umbraco.Trees
                         xDirNode.Icon = FolderIcon;
                     xDirNode.OpenIcon = FolderIconOpen;
                     xDirNode.HasChildren = dir.GetFiles().Length > 0 || dir.GetDirectories().Length > 0;
+                    xDirNode.Action = "#";
 
                     OnRenderFolderNode(ref xDirNode);
                     OnBeforeNodeRender(ref tree, ref xDirNode, EventArgs.Empty);
