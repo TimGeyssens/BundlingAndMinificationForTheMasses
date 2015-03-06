@@ -15,6 +15,7 @@ namespace Optimus.Umbraco.Installer
     using System.Configuration;
     using System.IO;
     using System.Reflection;
+    using System.Text;
     using System.Web.Configuration;
     using System.Xml.XPath;
 
@@ -1697,6 +1698,20 @@ namespace Optimus.Umbraco.Installer
                 cssNodeMinifiers.AppendChild("<minifiers/>");
                 modified = true;
             }
+            var cssNodePostProcessors = nav.SelectSingleNode("//transformer:bundleTransformer/transformer:core/transformer:css/transformer:postProcessors", nsmgr);
+            if (cssNodePostProcessors == null)
+            {
+                cssNodePostProcessors = nav.SelectSingleNode("//transformer:bundleTransformer/transformer:core/transformer:css", nsmgr);
+                cssNodePostProcessors.AppendChild("<postProcessors/>");
+                modified = true;
+            }
+            var cssfileExtensions = nav.SelectSingleNode("//transformer:bundleTransformer/transformer:core/transformer:css/transformer:fileExtensions", nsmgr);
+            if (cssfileExtensions == null)
+            {
+                cssfileExtensions = nav.SelectSingleNode("//transformer:bundleTransformer/transformer:core/transformer:css", nsmgr);
+                cssfileExtensions.AppendChild("<fileExtensions/>");
+                modified = true;
+            }
             var jsNode = nav.SelectSingleNode("//transformer:bundleTransformer/transformer:core/transformer:js", nsmgr);
             if (jsNode == null)
             {
@@ -1716,6 +1731,13 @@ namespace Optimus.Umbraco.Installer
             {
                 jsNodeMinifiers = nav.SelectSingleNode("//transformer:bundleTransformer/transformer:core/transformer:js", nsmgr);
                 jsNodeMinifiers.AppendChild("<minifiers/>");
+                modified = true;
+            }
+            var jsNodefileExtensions = nav.SelectSingleNode("//transformer:bundleTransformer/transformer:core/transformer:js/transformer:fileExtensions", nsmgr);
+            if (jsNodefileExtensions == null)
+            {
+                jsNodefileExtensions = nav.SelectSingleNode("//transformer:bundleTransformer/transformer:core/transformer:js", nsmgr);
+                jsNodefileExtensions.AppendChild("<fileExtensions/>");
                 modified = true;
             }
 
@@ -1802,7 +1824,7 @@ namespace Optimus.Umbraco.Installer
             string filename = HttpContext.Current.Server.MapPath("/web.config");
 
             //Get attribute values of xmlData
-            string addType, name, type, enabled;
+            string addType, name, type, enabled, useInDebugMode;
             if (!this.GetAttribute(xmlData, "addType", out addType) || !this.GetAttribute(xmlData, "name", out name) || !this.GetAttribute(xmlData, "type", out type))
             {
                 return result;
@@ -1811,6 +1833,11 @@ namespace Optimus.Umbraco.Installer
             if (!this.GetAttribute(xmlData, "enabled", out enabled))
             {
                 enabled = string.Empty;
+            }
+
+            if (!this.GetAttribute(xmlData, "useInDebugMode", out useInDebugMode))
+            {
+                useInDebugMode = string.Empty;
             }
 
             XmlDocument document = new XmlDocument();
@@ -1834,6 +1861,9 @@ namespace Optimus.Umbraco.Installer
                     break;
                 case "css-translator":
                     xpath = "//transformer:bundleTransformer/transformer:core/transformer:css/transformer:translators";
+                    break;
+                case "css-postProcessor":
+                    xpath = "//transformer:bundleTransformer/transformer:core/transformer:css/transformer:postProcessors";
                     break;
                 case "js-minifier":
                     xpath = "//transformer:bundleTransformer/transformer:core/transformer:js/transformer:minifiers";
@@ -1867,8 +1897,19 @@ namespace Optimus.Umbraco.Installer
             // Check for insert flag
             if (insertNode)
             {
-                var newNodeContent = !string.IsNullOrEmpty(enabled) ? string.Format("<add name=\"{0}\" type=\"{1}\" enabled=\"{2}\" />", name, type, enabled) : string.Format("<add name=\"{0}\" type=\"{1}\" />", name, type);
-                nav.AppendChild(newNodeContent);
+                var newNodeContent = new StringBuilder(string.Format("<add name=\"{0}\" type=\"{1}\"", name, type));
+
+                if (!string.IsNullOrEmpty(enabled))
+                {
+                    newNodeContent.Append(string.Format(" enabled=\"{0}\"", enabled));
+                }
+                if (!string.IsNullOrEmpty(useInDebugMode))
+                {
+                    newNodeContent.Append(string.Format(" useInDebugMode=\"{0}\"", useInDebugMode));
+                }
+
+                newNodeContent.Append("/>");
+                nav.AppendChild(newNodeContent.ToString());
 
                 modified = true;
             }
@@ -1944,6 +1985,9 @@ namespace Optimus.Umbraco.Installer
                     break;
                 case "css-translator":
                     xpath = "//transformer:bundleTransformer/transformer:core/transformer:css/transformer:translators";
+                    break;
+                case "css-postProcessor":
+                    xpath = "//transformer:bundleTransformer/transformer:core/transformer:css/transformer:postProcessors";
                     break;
                 case "js-minifier":
                     xpath = "//transformer:bundleTransformer/transformer:core/transformer:js/transformer:minifiers";
@@ -2042,6 +2086,269 @@ namespace Optimus.Umbraco.Installer
         {
             return helper.parseStringToXmlNode(
                 "<Action runat=\"install\" undo=\"true/false\" alias=\"Umbundle.AddBundleTransformerItem\" name=\"NullTranslator\" type\"BundleTransformer.Core.Translators.NullTranslator, BundleTransformer.Core\" addType=\"js-translator\" />");
+        }
+
+        #endregion
+    }
+
+    public class AddBundleTransformerFileExtension : IPackageAction
+    {
+        //Set the web.config full path
+        const string FULL_PATH = "/web.config";
+
+        #region IPackageAction AddBundleTransformerFileExtension
+
+        /// <summary>
+        /// This Alias must be unique and is used as an identifier that must match 
+        /// the alias in the package action XML
+        /// </summary>
+        /// <returns>The Alias in string format</returns>
+        public string Alias()
+        {
+            return "Umbundle.AddBundleTransformerFileExtension";
+        }
+
+        /// <summary>
+        /// Append the xmlData node to the web.config file
+        /// </summary>
+        /// <param name="packageName">Name of the package that we install</param>
+        /// <param name="xmlData">The data that must be appended to the web.config file</param>
+        /// <returns>True when succeeded</returns>
+        public bool Execute(string packageName, XmlNode xmlData)
+        {
+            // Set result default to false
+            bool result = false;
+
+            // Set insert node default true
+            bool insertNode = true;
+
+            // Set modified document default to false
+            bool modified = false;
+
+
+            string filename = HttpContext.Current.Server.MapPath("/web.config");
+
+            //Get attribute values of xmlData
+            string addType, fileExtension, assetTypeCode;
+            if (!this.GetAttribute(xmlData, "addType", out addType) || !this.GetAttribute(xmlData, "fileExtension", out fileExtension) || !this.GetAttribute(xmlData, "assetTypeCode", out assetTypeCode))
+            {
+                return result;
+            }
+
+            XmlDocument document = new XmlDocument();
+            try
+            {
+                document.Load(filename);
+            }
+            catch (FileNotFoundException)
+            {
+            }
+
+            XmlNamespaceManager nsmgr = new XmlNamespaceManager(document.NameTable);
+            nsmgr.AddNamespace("transformer", "http://tempuri.org/BundleTransformer.Configuration.xsd");
+
+            var xpath = string.Empty;
+
+            switch (addType)
+            {
+                case "css":
+                    xpath = "//transformer:bundleTransformer/transformer:core/transformer:css/transformer:fileExtensions";
+                    break;
+                case "js":
+                    xpath = "//transformer:bundleTransformer/transformer:core/transformer:js/transformer:fileExtensions";
+                    break;
+            }
+
+            XPathNavigator nav = document.CreateNavigator().SelectSingleNode(xpath, nsmgr);
+            if (nav == null)
+            {
+                throw new Exception("Invalid Configuration File");
+            }
+
+            // Look for existing nodes with same path like the new node
+            if (nav.HasChildren)
+            {
+                // Look for existing nodeType nodes
+                var node =
+                    nav.SelectSingleNode(
+                        string.Format("./transformer:add[@fileExtension = '{0}' and @assetTypeCode='{1}']", fileExtension, assetTypeCode),
+                        nsmgr);
+
+                // If path already exists 
+                if (node != null)
+                {
+                    insertNode = false;
+                }
+            }
+            // Check for insert flag
+            if (insertNode)
+            {
+                var newNodeContent = new StringBuilder(string.Format("<add fileExtension=\"{0}\" assetTypeCode=\"{1}\"", fileExtension, assetTypeCode));
+
+                newNodeContent.Append("/>");
+                nav.AppendChild(newNodeContent.ToString());
+
+                modified = true;
+            }
+            if (modified)
+            {
+                try
+                {
+                    document.Save(filename);
+
+                    // No errors so the result is true
+                    result = true;
+                }
+                catch (Exception e)
+                {
+                    // Log error message
+                    string message = "Error at execute AddBundleTransformerFileExtension package action: " + e.Message;
+                    LogHelper.Error(typeof(AddBundleTransformerFileExtension), message, e);
+                }
+            }
+            return result;
+        }
+
+        /// <summary>
+        /// Removes the xmlData node from the web.config file
+        /// </summary>
+        /// <param name="packageName">Name of the package that we install</param>
+        /// <param name="xmlData">The data that must be appended to the web.config file</param>
+        /// <returns>True when succeeded</returns>
+        public bool Undo(string packageName, System.Xml.XmlNode xmlData)
+        {
+            // Set result default to false
+            bool result = false;
+
+            // Set insert node default true
+            bool insertNode = true;
+
+            // Set modified document default to false
+            bool modified = false;
+
+
+            string filename = HttpContext.Current.Server.MapPath("/web.config");
+
+            //Get attribute values of xmlData
+            string addType, fileExtension, assetTypeCode;
+            if (!this.GetAttribute(xmlData, "addType", out addType) || !this.GetAttribute(xmlData, "fileExtension", out fileExtension) || !this.GetAttribute(xmlData, "assetTypeCode", out assetTypeCode))
+            {
+                return result;
+            }
+
+            XmlDocument document = new XmlDocument();
+            try
+            {
+                document.Load(filename);
+            }
+            catch (FileNotFoundException)
+            {
+            }
+
+            XmlNamespaceManager nsmgr = new XmlNamespaceManager(document.NameTable);
+            nsmgr.AddNamespace("transformer", "http://tempuri.org/BundleTransformer.Configuration.xsd");
+
+            var xpath = string.Empty;
+
+            switch (addType)
+            {
+                case "css":
+                    xpath = "//transformer:bundleTransformer/transformer:core/transformer:css/transformer:fileExtensions";
+                    break;
+                case "js":
+                    xpath = "//transformer:bundleTransformer/transformer:core/transformer:js/transformer:fileExtensions";
+                    break;
+            }
+
+            XPathNavigator nav = document.CreateNavigator().SelectSingleNode(xpath, nsmgr);
+            if (nav == null)
+            {
+                throw new Exception("Invalid Configuration File");
+            }
+
+            // Look for existing nodes with same path like the new node
+            if (nav.HasChildren)
+            {
+                // Look for existing nodeType nodes
+                var node =
+                    nav.SelectSingleNode(
+                        string.Format("./transformer:add[@fileExtension = '{0}' and @assetTypeCode='{1}']", fileExtension, assetTypeCode),
+                        nsmgr);
+
+                // If path already exists 
+                if (node != null)
+                {
+
+                    node.DeleteSelf();
+                    modified = true;
+                }
+            }
+
+            if (modified)
+            {
+                try
+                {
+                    document.Save(filename);
+
+                    // No errors so the result is true
+                    result = true;
+                }
+                catch (Exception e)
+                {
+                    // Log error message
+                    string message = "Error at execute AddBundleTransformerFileExtension package action: " + e.Message;
+                    LogHelper.Error(typeof(AddBundleTransformerFileExtension), message, e);
+                }
+            }
+            return result;
+        }
+
+        /// <summary>
+        /// Get a named attribute from xmlData root node
+        /// </summary>
+        /// <param name="xmlData">The data that must be appended to the web.config file</param>
+        /// <param name="attribute">The name of the attribute</param>
+        /// <param name="value">returns the attribute value from xmlData</param>
+        /// <returns>True, when attribute value available</returns>
+        private bool GetAttribute(XmlNode xmlData, string attribute, out string value)
+        {
+            //Set result default to false
+            bool result = false;
+
+            //Out params must be assigned
+            value = String.Empty;
+
+            //Search xml attribute
+            XmlAttribute xmlAttribute = xmlData.Attributes[attribute];
+
+            //When xml attribute exists
+            if (xmlAttribute != null)
+            {
+                //Get xml attribute value
+                value = xmlAttribute.Value;
+
+                //Set result successful to true
+                result = true;
+            }
+            else
+            {
+                //Log error message
+                string message = "Error at AddBundleTransformerFileExtension package action: "
+                     + "Attribute \"" + attribute + "\" not found.";
+                LogHelper.Warn(typeof(AddBundleTransformerFileExtension), message);
+            }
+            return result;
+        }
+
+        /// <summary>
+        /// Returns a Sample XML Node 
+        /// In this case the Sample HTTP Module TimingModule 
+        /// </summary>
+        /// <returns>The sample xml as node</returns>
+        public XmlNode SampleXml()
+        {
+            return helper.parseStringToXmlNode(
+                "<Action runat=\"install\" undo=\"true/false\" alias=\"Umbundle.AddBundleTransformerFileExtension\" fileExtension=\".css\" assetTypeCode\"Css\" addType=\"css\" />");
         }
 
         #endregion

@@ -85,8 +85,13 @@ Also possible to install providers for dynamic stylesheet and script support (le
       <Action runat="install" undo="false" alias="Umbundle.AddBundleTransformer" />
       <Action runat="install" undo="false" alias="Umbundle.AddBundleTransformerProvider" name="NullMinifier" type="BundleTransformer.Core.Minifiers.NullMinifier, BundleTransformer.Core" addType="css-minifier" />
       <Action runat="install" undo="false" alias="Umbundle.AddBundleTransformerProvider" name="NullTranslator" type="BundleTransformer.Core.Translators.NullTranslator, BundleTransformer.Core" enabled="false" addType="css-translator" />
+      <Action runat="install" undo="false" alias="Umbundle.AddBundleTransformerProvider" name="UrlRewritingCssPostProcessor" type="BundleTransformer.Core.PostProcessors.UrlRewritingCssPostProcessor, BundleTransformer.Core" useInDebugMode="false" addType="css-postProcessor" />
+
       <Action runat="install" undo="false" alias="Umbundle.AddBundleTransformerProvider" name="NullMinifier" type="BundleTransformer.Core.Minifiers.NullMinifier, BundleTransformer.Core" addType="js-minifier" />
       <Action runat="install" undo="false" alias="Umbundle.AddBundleTransformerProvider" name="NullTranslator" type="BundleTransformer.Core.Translators.NullTranslator, BundleTransformer.Core" enabled="false" addType="js-translator" />
+
+      <Action runat="install" undo="false" alias="Umbundle.AddBundleTransformerFileExtension" fileExtension=".js" assetTypeCode="JavaScript" addType="js" />
+      <Action runat="install" undo="false" alias="Umbundle.AddBundleTransformerFileExtension" fileExtension=".css" assetTypeCode="Css" addType="css" />
 
       <Action runat="install" undo="false" alias="Umbundle.AddConfigSectionGroup" name="jsEngineSwitcher" />
       <Action runat="install" undo="false" alias="Umbundle.AddConfigSection" name="core" type="JavaScriptEngineSwitcher.Core.Configuration.CoreConfiguration, JavaScriptEngineSwitcher.Core" sectionGroup="jsEngineSwitcher" />
