@@ -1,17 +1,12 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Web;
 using System.Web.Optimization;
 using System.Xml.Linq;
 using BundleTransformer.Core.Orderers;
 using BundleTransformer.Core.Transformers;
-using umbraco.BusinessLogic;
 
 namespace Optimus
 {
-    using System.IO;
-
     using global::Umbraco.Core.Logging;
 
     public class BundleConfig
@@ -27,8 +22,8 @@ namespace Optimus
                     BundleTable.EnableOptimizations = true;
                 }
 
-                var cssTransformer = new CssTransformer();
-                var jsTransformer = new JsTransformer();
+                var cssTransformer = new StyleTransformer();
+                var jsTransformer = new ScriptTransformer();
                 var nullOrderer = new NullOrderer();
 
                 var doc = XDocument.Load(HttpContext.Current.Server.MapPath(Config.BundlesConfigPath));
