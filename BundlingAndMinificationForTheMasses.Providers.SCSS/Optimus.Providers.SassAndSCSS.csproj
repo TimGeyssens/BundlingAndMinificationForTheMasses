@@ -50,21 +50,26 @@
       <HintPath>..\packages\BundleTransformer.Core.1.9.43\lib\net40\BundleTransformer.Core.dll</HintPath>
       <Private>True</Private>
     </Reference>
-    <Reference Include="BundleTransformer.SassAndScss">
-      <HintPath>..\packages\BundleTransformer.SassAndScss.1.8.32\lib\net40\BundleTransformer.SassAndScss.dll</HintPath>
+    <Reference Include="BundleTransformer.SassAndScss, Version=1.9.49.0, Culture=neutral, PublicKeyToken=973c344c93aac60d, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\packages\BundleTransformer.SassAndScss.1.9.49\lib\net40\BundleTransformer.SassAndScss.dll</HintPath>
     </Reference>
-    <Reference Include="IronRuby">
-      <HintPath>..\packages\BundleTransformer.SassAndScss.1.8.32\lib\net40\IronRuby.dll</HintPath>
+    <Reference Include="IronRuby, Version=1.1.4.0, Culture=neutral, PublicKeyToken=7f709c5b713576e1, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\packages\BundleTransformer.SassAndScss.1.9.49\lib\net40\IronRuby.dll</HintPath>
     </Reference>
-    <Reference Include="IronRuby.Libraries">
-      <HintPath>..\packages\BundleTransformer.SassAndScss.1.8.32\lib\net40\IronRuby.Libraries.dll</HintPath>
+    <Reference Include="IronRuby.Libraries, Version=1.1.4.0, Culture=neutral, PublicKeyToken=7f709c5b713576e1, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\packages\BundleTransformer.SassAndScss.1.9.49\lib\net40\IronRuby.Libraries.dll</HintPath>
     </Reference>
     <Reference Include="Microsoft.CSharp" />
-    <Reference Include="Microsoft.Dynamic">
-      <HintPath>..\packages\BundleTransformer.SassAndScss.1.8.32\lib\net40\Microsoft.Dynamic.dll</HintPath>
+    <Reference Include="Microsoft.Dynamic, Version=1.1.0.30, Culture=neutral, PublicKeyToken=7f709c5b713576e1, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\packages\BundleTransformer.SassAndScss.1.9.49\lib\net40\Microsoft.Dynamic.dll</HintPath>
     </Reference>
-    <Reference Include="Microsoft.Scripting">
-      <HintPath>..\packages\BundleTransformer.SassAndScss.1.8.32\lib\net40\Microsoft.Scripting.dll</HintPath>
+    <Reference Include="Microsoft.Scripting, Version=1.1.0.30, Culture=neutral, PublicKeyToken=7f709c5b713576e1, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\packages\BundleTransformer.SassAndScss.1.9.49\lib\net40\Microsoft.Scripting.dll</HintPath>
     </Reference>
     <Reference Include="Newtonsoft.Json, Version=4.5.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
