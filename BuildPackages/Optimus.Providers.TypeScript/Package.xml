@@ -33,6 +33,7 @@
 
       <Action runat="install" undo="true" alias="Umbundle.AddConfigSection" name="typeScript" type="BundleTransformer.TypeScript.Configuration.TypeScriptSettings, BundleTransformer.TypeScript" sectionGroup="bundleTransformer" />
       <Action runat="install" undo="true" alias="Umbundle.AddBundleTransformerProvider" name="TypeScriptTranslator" type="BundleTransformer.TypeScript.Translators.TypeScriptTranslator, BundleTransformer.TypeScript" addType="js-translator" />
+      <Action runat="install" undo="true" alias="Umbundle.AddBundleTransformerFileExtension" fileExtension=".ts" assetTypeCode="TypeScript" addType="js" />
       <Action runat="install" undo="true" alias="Umbundle.AddHttpHandler" name="TypeScriptAssetHandler" position="end" path="*.ts" verb="GET" type="BundleTransformer.TypeScript.HttpHandlers.TypeScriptAssetHandler, BundleTransformer.TypeScript" validate="true" />
       <Action runat="install" undo="true" alias="Umbundle.AddBundleTransformerJSEngine" name="typeScript" engine="MsieJsEngine"  />
       
