@@ -90,9 +90,10 @@
     </ItemGroup>
     
     <Copy SourceFiles="@(PackageFile)" DestinationFolder="$(BuildDir)" />       
-    <Copy SourceFiles="@(ConfigFiles)" DestinationFolder="$(AppPluginDir)\Config" /> 
+    <Copy SourceFiles="@(ConfigFiles)" DestinationFolder="$(AppPluginDir)\Config" />
+    <Move SourceFiles="$(AppPluginDir)\Config\bundles.config" DestinationFiles="$(AppPluginDir)\Config\bundles.tmp.config" />
     <Copy SourceFiles="@(ContentFiles)"
-    DestinationFiles="@(ContentFiles->'$(AppPluginDir)\Content\%(RecursiveDir)%(Filename)%(Extension)')" />    
+    DestinationFiles="@(ContentFiles->'$(AppPluginDir)\Content\%(RecursiveDir)%(Filename)%(Extension)')" />
     <Copy SourceFiles="@(DialogFiles)" DestinationFolder="$(AppPluginDir)\Dialogs" /> 
     <Copy SourceFiles="@(IconFiles)" DestinationFolder="$(AppPluginDir)\Icons" /> 
     <Copy SourceFiles="@(PagesFiles)" DestinationFolder="$(AppPluginDir)\Pages" /> 
@@ -126,7 +127,7 @@
 			WorkingDirectory="$(BuildDir)"
 			OutputDirectory="$(PackageDir)"
 			Files="@(PackageFiles)" />
-    <RemoveDir Directories="$(BuildDir)" Condition="Exists('$(BuildDir)')" />
+    <!--<RemoveDir Directories="$(BuildDir)" Condition="Exists('$(BuildDir)')" />-->
 	</Target>
 
 </Project>

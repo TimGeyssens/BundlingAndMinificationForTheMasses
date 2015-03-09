@@ -21,6 +21,8 @@ namespace Optimus.Umbraco.Installer
 
     using global::Umbraco.Core.Logging;
 
+    using Microsoft.SqlServer.Server;
+
     using umbraco.cms.businesslogic.packager.standardPackageActions;
     using umbraco.NodeFactory;
     using umbraco.presentation.translation;
@@ -2892,11 +2894,11 @@ namespace Optimus.Umbraco.Installer
         #endregion
     }
 
-    public class AddUmbracoReservedPath : IPackageAction
+    public class AddUmbracoReservedPathAndRenameConfig : IPackageAction
     {
         public string Alias()
         {
-            return "Umbundle.AddUmbracoReservedPath";
+            return "Umbundle.AddUmbracoReservedPathAndRenameConfig";
         }
 
         public bool Execute(string packageName, XmlNode xmlData)
@@ -2908,20 +2910,38 @@ namespace Optimus.Umbraco.Installer
                     WebConfigurationManager.OpenWebConfiguration(HttpContext.Current.Request.ApplicationPath);
 
                 // TODO, make this reusable and get these values from package action xmldata
-                const string appendString = "~/bundles/";
-                const string keyName = "umbracoReservedPaths";
+                const string AppendString = "~/bundles/";
+                const string KeyName = "umbracoReservedPaths";
 
-                var currentValue = config.AppSettings.Settings[keyName].Value;
-                if (!currentValue.Split(',').Contains(appendString))
+                var currentValue = config.AppSettings.Settings[KeyName].Value;
+                if (!currentValue.Split(',').Contains(AppendString))
                 {
                     var newValue = currentValue.EndsWith(",")
-                        ? currentValue + appendString
-                        : currentValue + "," + appendString;
+                        ? currentValue + AppendString
+                        : currentValue + "," + AppendString;
 
-                    config.AppSettings.Settings[keyName].Value = newValue;
+                    config.AppSettings.Settings[KeyName].Value = newValue;
                     config.Save(ConfigurationSaveMode.Modified);
                 }
                 result = true;
+
+
+                // Rename temp Optimus config file or delete it if it already exists to stop overrite for upgrades
+                var pathToOptimusConfig =
+                    HttpContext.Current.Server.MapPath("~/App_Plugins/Optimus/Config");
+
+                var tempConfigFile = string.Format("{0}/bundles.tmp.config", pathToOptimusConfig);
+                var configFile = string.Format("{0}/bundles.config", pathToOptimusConfig);
+
+                if (!File.Exists(configFile) && File.Exists(tempConfigFile))
+                {
+                    File.Move(tempConfigFile, configFile);
+                }
+                else if (File.Exists(tempConfigFile))
+                {
+                    File.Delete(tempConfigFile);
+                }
+
             }
             catch (Exception e)
             {

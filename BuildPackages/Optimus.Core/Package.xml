@@ -78,7 +78,9 @@ Also possible to install providers for dynamic stylesheet and script support (le
       
       <Action runat="install" undo="false" alias="Umbundle.AddNamespace" file="~/views/web.config" xpath="//configuration/system.web.webPages.razor/pages" position="end" namespace="System.Web.Optimization" />
       <Action runat="install" undo="false" alias="Umbundle.AddNamespace" file="~/web.config" xpath="//system.web/pages" position="end" namespace="System.Web.Optimization" />
-      
+
+      <Action runat="install" undo="false" alias="Umbundle.AddUmbracoReservedPathAndRenameConfig" />
+
       <Action runat="install" undo="false" alias="Umbundle.AddConfigSectionGroup" name="bundleTransformer" />
       <Action runat="install" undo="false" alias="Umbundle.AddConfigSection" name="core" type="BundleTransformer.Core.Configuration.CoreSettings, BundleTransformer.Core" sectionGroup="bundleTransformer" />
 
@@ -97,11 +99,9 @@ Also possible to install providers for dynamic stylesheet and script support (le
       <Action runat="install" undo="false" alias="Umbundle.AddConfigSection" name="core" type="JavaScriptEngineSwitcher.Core.Configuration.CoreConfiguration, JavaScriptEngineSwitcher.Core" sectionGroup="jsEngineSwitcher" />
       <Action runat="install" undo="false" alias="Umbundle.AddConfigSection" name="msie" type="JavaScriptEngineSwitcher.Msie.Configuration.MsieConfiguration, JavaScriptEngineSwitcher.Msie" sectionGroup="jsEngineSwitcher" />
 
-
       <Action runat="install" undo="false" alias="Umbundle.AddJSEngineSwitcher" />
       <Action runat="install" undo="false" alias="Umbundle.AddJSEngineSwitcherProvider" name="MsieJsEngine" type="JavaScriptEngineSwitcher.Msie.MsieJsEngine, JavaScriptEngineSwitcher.Msie" />
 
-      <Action runat="install" undo="false" alias="Umbundle.AddUmbracoReservedPath" />
     </Actions>
 
   <control>/App_Plugins/Optimus/Dialogs/ProviderInstaller.ascx</control>
