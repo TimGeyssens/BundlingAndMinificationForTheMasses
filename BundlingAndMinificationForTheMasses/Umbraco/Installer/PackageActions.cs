@@ -2926,7 +2926,7 @@ namespace Optimus.Umbraco.Installer
                 result = true;
 
 
-                // Rename temp Optimus config file or delete it if it already exists to stop overrite for upgrades
+                // Rename temp Optimus config file or delete it if it already exists to stop overwrite for upgrades
                 var pathToOptimusConfig =
                     HttpContext.Current.Server.MapPath("~/App_Plugins/Optimus/Config");
 
