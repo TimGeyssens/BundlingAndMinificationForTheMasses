@@ -2947,7 +2947,7 @@ namespace Optimus.Umbraco.Installer
             {
                 // Log error message
                 string message = "Error at execute AddUmbracoReservedPath package action: " + e.Message;
-                LogHelper.Error(typeof(AddUmbracoReservedPath), message, e);
+                LogHelper.Error(typeof(AddUmbracoReservedPathAndRenameConfig), message, e);
 
                 result = false;
             }
