@@ -37,7 +37,7 @@ namespace Optimus.Umbraco.Trees
                 xNode.NodeID        = "1";
                 xNode.NodeType      = "scriptBundle";
                 xNode.Text          = "Scripts";
-                xNode.Action        = "";
+                xNode.Action        = "#";
                 if (CompatibilityHelper.IsVersion7OrNewer)
                     xNode.Icon = "icon-folder";
                 else
@@ -64,7 +64,7 @@ namespace Optimus.Umbraco.Trees
                 xNode2.NodeID       = "2";
                 xNode2.NodeType     = "styleBundle";
                 xNode2.Text         = "Styles";
-                xNode2.Action       = "";
+                xNode2.Action       = "#";
                 if (CompatibilityHelper.IsVersion7OrNewer)
                     xNode2.Icon = "icon-folder";
                 else

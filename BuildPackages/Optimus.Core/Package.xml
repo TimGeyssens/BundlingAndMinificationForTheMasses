@@ -36,9 +36,11 @@ Also possible to install providers for dynamic stylesheet and script support (le
 	<DataTypes />
 
     <Actions>
-      <Action runat="install" undo="false" alias="Umbundle.AddAssemblyBinding" name="BundleTransformer.Core" publicKeyToken="973c344c93aac60d" oldVersion="0.0.0.0-1.8.17.0" newVersion="1.8.17.0" />
-      <Action runat="install" undo="false" alias="Umbundle.AddAssemblyBinding" name="WebGrease" publicKeyToken="31bf3856ad364e35" oldVersion="0.0.0.0-1.5.2.14234" newVersion="1.5.2.14234" />
-      <Action runat="install" undo="false" alias="Umbundle.AddAssemblyBinding" name="MsieJavaScriptEngine" publicKeyToken="a3a2846a37ac0d3e" oldVersion="0.0.0.0-1.1.3.0" newVersion="1.1.3.0" />
+      <Action runat="install" undo="false" alias="Umbundle.AddAssemblyBinding" name="BundleTransformer.Core" publicKeyToken="973c344c93aac60d" oldVersion="0.0.0.0-1.9.43.0" newVersion="1.9.43.0" />
+      <Action runat="install" undo="false" alias="Umbundle.AddAssemblyBinding" name="WebGrease" publicKeyToken="31bf3856ad364e35" oldVersion="0.0.0.0-1.6.5135.21930" newVersion="1.6.5135.21930" />
+      <Action runat="install" undo="false" alias="Umbundle.AddAssemblyBinding" name="MsieJavaScriptEngine" publicKeyToken="a3a2846a37ac0d3e" oldVersion="0.0.0.0-1.5.1.0" newVersion="1.5.1.0" />
+      <Action runat="install" undo="false" alias="Umbundle.AddAssemblyBinding" name="JavaScriptEngineSwitcher.Core" publicKeyToken="c608b2a8cc9e4472" oldVersion="0.0.0.0-1.1.3.0" newVersion="1.1.3.0" />
+
       <Action runat="install" alias="Umbundle.AddTree">
         <!-- Optimus  Stuff -->
         <nodeType alias="scriptBundle">
@@ -73,25 +75,33 @@ Also possible to install providers for dynamic stylesheet and script support (le
         </nodeType>
         <!-- End Optimus  Stuff -->
       </Action>
+      
       <Action runat="install" undo="false" alias="Umbundle.AddNamespace" file="~/views/web.config" xpath="//configuration/system.web.webPages.razor/pages" position="end" namespace="System.Web.Optimization" />
       <Action runat="install" undo="false" alias="Umbundle.AddNamespace" file="~/web.config" xpath="//system.web/pages" position="end" namespace="System.Web.Optimization" />
-      
+
+      <Action runat="install" undo="false" alias="Umbundle.AddUmbracoReservedPathAndRenameConfig" />
+
       <Action runat="install" undo="false" alias="Umbundle.AddConfigSectionGroup" name="bundleTransformer" />
       <Action runat="install" undo="false" alias="Umbundle.AddConfigSection" name="core" type="BundleTransformer.Core.Configuration.CoreSettings, BundleTransformer.Core" sectionGroup="bundleTransformer" />
 
       <Action runat="install" undo="false" alias="Umbundle.AddBundleTransformer" />
       <Action runat="install" undo="false" alias="Umbundle.AddBundleTransformerProvider" name="NullMinifier" type="BundleTransformer.Core.Minifiers.NullMinifier, BundleTransformer.Core" addType="css-minifier" />
       <Action runat="install" undo="false" alias="Umbundle.AddBundleTransformerProvider" name="NullTranslator" type="BundleTransformer.Core.Translators.NullTranslator, BundleTransformer.Core" enabled="false" addType="css-translator" />
+      <Action runat="install" undo="false" alias="Umbundle.AddBundleTransformerProvider" name="UrlRewritingCssPostProcessor" type="BundleTransformer.Core.PostProcessors.UrlRewritingCssPostProcessor, BundleTransformer.Core" useInDebugMode="false" addType="css-postProcessor" />
+
       <Action runat="install" undo="false" alias="Umbundle.AddBundleTransformerProvider" name="NullMinifier" type="BundleTransformer.Core.Minifiers.NullMinifier, BundleTransformer.Core" addType="js-minifier" />
       <Action runat="install" undo="false" alias="Umbundle.AddBundleTransformerProvider" name="NullTranslator" type="BundleTransformer.Core.Translators.NullTranslator, BundleTransformer.Core" enabled="false" addType="js-translator" />
 
+      <Action runat="install" undo="false" alias="Umbundle.AddBundleTransformerFileExtension" fileExtension=".js" assetTypeCode="JavaScript" addType="js" />
+      <Action runat="install" undo="false" alias="Umbundle.AddBundleTransformerFileExtension" fileExtension=".css" assetTypeCode="Css" addType="css" />
+
       <Action runat="install" undo="false" alias="Umbundle.AddConfigSectionGroup" name="jsEngineSwitcher" />
       <Action runat="install" undo="false" alias="Umbundle.AddConfigSection" name="core" type="JavaScriptEngineSwitcher.Core.Configuration.CoreConfiguration, JavaScriptEngineSwitcher.Core" sectionGroup="jsEngineSwitcher" />
+      <Action runat="install" undo="false" alias="Umbundle.AddConfigSection" name="msie" type="JavaScriptEngineSwitcher.Msie.Configuration.MsieConfiguration, JavaScriptEngineSwitcher.Msie" sectionGroup="jsEngineSwitcher" />
 
       <Action runat="install" undo="false" alias="Umbundle.AddJSEngineSwitcher" />
       <Action runat="install" undo="false" alias="Umbundle.AddJSEngineSwitcherProvider" name="MsieJsEngine" type="JavaScriptEngineSwitcher.Msie.MsieJsEngine, JavaScriptEngineSwitcher.Msie" />
 
-      <Action runat="install" undo="false" alias="Umbundle.AddUmbracoReservedPath" />
     </Actions>
 
   <control>/App_Plugins/Optimus/Dialogs/ProviderInstaller.ascx</control>

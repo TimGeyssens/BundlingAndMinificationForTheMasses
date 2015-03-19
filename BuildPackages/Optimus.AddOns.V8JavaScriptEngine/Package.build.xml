@@ -13,9 +13,9 @@
 	<!-- PROPERTIES -->
 	<PropertyGroup>
 		<VersionMajor>1</VersionMajor>
-		<VersionMinor>2</VersionMinor>
+		<VersionMinor>3</VersionMinor>
 		<VersionPatch>0</VersionPatch>
-		<VersionSuffix></VersionSuffix>
+		<VersionSuffix>-beta</VersionSuffix>
 		<UmbracoVersion>6.0.6</UmbracoVersion>
 	</PropertyGroup>
 
@@ -64,10 +64,10 @@
         <Copy SourceFiles="@(PackageFile)" DestinationFolder="$(BuildDir)" />
        
         <ItemGroup>
-            <Noesis Include="$(CoreProjectDir)\Noesis.Javascript\**\*.*" />
+            <ClearScript Include="$(CoreProjectDir)\ClearScript.V8\**\*.*" />
         </ItemGroup>
-        <Copy SourceFiles="@(Noesis)"
-        DestinationFiles="@(Noesis->'$(BuildDir)\Noesis.Javascript\%(RecursiveDir)%(Filename)%(Extension)')" />
+        <Copy SourceFiles="@(ClearScript)"
+        DestinationFiles="@(ClearScript->'$(BuildDir)\ClearScript.V8\%(RecursiveDir)%(Filename).dat')" />
 
     </Target>
 
@@ -94,7 +94,7 @@
 			WorkingDirectory="$(BuildDir)"
 			OutputDirectory="$(PackageDir)"
 			Files="@(PackageFiles)" />
-        <RemoveDir Directories="$(BuildDir)" Condition="Exists('$(BuildDir)')" />
+    <RemoveDir Directories="$(BuildDir)" Condition="Exists('$(BuildDir)')" />
 	</Target>
 
 </Project>

@@ -1,11 +1,9 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 2013
-VisualStudioVersion = 12.0.21005.1
+VisualStudioVersion = 12.0.30501.0
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Optimus", "BundlingAndMinificationForTheMasses\Optimus.csproj", "{68A4FD95-45A1-4CC1-AFF1-7C2FAC5D26AF}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TestSite", "TestSite\TestSite.csproj", "{9219F09E-95A8-494D-AA98-40DFB8BEBF4D}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".nuget", ".nuget", "{627A0428-E0BE-413A-B946-29B864C2827C}"
 	ProjectSection(SolutionItems) = preProject
@@ -16,17 +14,9 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".nuget", ".nuget", "{627A04
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Optimus.Providers.Less", "BundlingAndMinificationForTheMasses.Providers.Less\Optimus.Providers.Less.csproj", "{509FBD0A-682B-420E-9F7F-F9C59032AA2C}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Optimus.Providers.SassAndSCSS", "BundlingAndMinificationForTheMasses.Providers.SCSS\Optimus.Providers.SassAndSCSS.csproj", "{9FE56583-994F-4286-9BE5-C2F0237D6FB7}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Optimus.Providers.CoffeeScript", "BundlingAndMinificationForTheMasses.Providers.Coffee\Optimus.Providers.CoffeeScript.csproj", "{077CE74A-1B24-4205-BCD8-CAB39A3CD4DF}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Optimus.Providers.TypeScript", "BundlingAndMinificationForTheMasses.Providers.Type\Optimus.Providers.TypeScript.csproj", "{034575BA-E003-4C09-BDD2-ECC66B6589C2}"
-EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Optimus.Trees.Stylesheets", "Optimus.Trees.Stylesheets\Optimus.Trees.Stylesheets.csproj", "{F2E815DB-B7FB-44A4-BB42-450D1A51A299}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Optimus.Trees.Scripts", "Optimus.Trees.Scripts\Optimus.Trees.Scripts.csproj", "{63A7396E-8187-4111-BB71-990955F19948}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Optimus.AddOns.V8JavaScriptEngine", "Optimus.AddOns.V8JavaScriptEngine\Optimus.AddOns.V8JavaScriptEngine.csproj", "{AB157E90-DC19-4A2B-BD52-4365089F2AB8}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Optimus.V7", "Optimus.V7\Optimus.V7.csproj", "{D6AE76D1-1E19-4D48-BE2F-5561BD6D5782}"
 EndProject
@@ -79,6 +69,14 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Optimus.Providers.TypeScrip
 		BuildPackages\Optimus.Providers.TypeScript\Package.xml = BuildPackages\Optimus.Providers.TypeScript\Package.xml
 	EndProjectSection
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Optimus.Providers.CoffeeScript", "BundlingAndMinificationForTheMasses.Providers.Coffee\Optimus.Providers.CoffeeScript.csproj", "{077CE74A-1B24-4205-BCD8-CAB39A3CD4DF}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Optimus.Providers.SassAndSCSS", "BundlingAndMinificationForTheMasses.Providers.SCSS\Optimus.Providers.SassAndSCSS.csproj", "{9FE56583-994F-4286-9BE5-C2F0237D6FB7}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Optimus.Providers.TypeScript", "BundlingAndMinificationForTheMasses.Providers.Type\Optimus.Providers.TypeScript.csproj", "{034575BA-E003-4C09-BDD2-ECC66B6589C2}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Optimus.AddOns.V8JavaScriptEngine", "Optimus.AddOns.V8JavaScriptEngine\Optimus.AddOns.V8JavaScriptEngine.csproj", "{AB157E90-DC19-4A2B-BD52-4365089F2AB8}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -89,26 +87,10 @@ Global
 		{68A4FD95-45A1-4CC1-AFF1-7C2FAC5D26AF}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{68A4FD95-45A1-4CC1-AFF1-7C2FAC5D26AF}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{68A4FD95-45A1-4CC1-AFF1-7C2FAC5D26AF}.Release|Any CPU.Build.0 = Release|Any CPU
-		{9219F09E-95A8-494D-AA98-40DFB8BEBF4D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{9219F09E-95A8-494D-AA98-40DFB8BEBF4D}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{9219F09E-95A8-494D-AA98-40DFB8BEBF4D}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{9219F09E-95A8-494D-AA98-40DFB8BEBF4D}.Release|Any CPU.Build.0 = Release|Any CPU
 		{509FBD0A-682B-420E-9F7F-F9C59032AA2C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{509FBD0A-682B-420E-9F7F-F9C59032AA2C}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{509FBD0A-682B-420E-9F7F-F9C59032AA2C}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{509FBD0A-682B-420E-9F7F-F9C59032AA2C}.Release|Any CPU.Build.0 = Release|Any CPU
-		{9FE56583-994F-4286-9BE5-C2F0237D6FB7}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{9FE56583-994F-4286-9BE5-C2F0237D6FB7}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{9FE56583-994F-4286-9BE5-C2F0237D6FB7}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{9FE56583-994F-4286-9BE5-C2F0237D6FB7}.Release|Any CPU.Build.0 = Release|Any CPU
-		{077CE74A-1B24-4205-BCD8-CAB39A3CD4DF}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{077CE74A-1B24-4205-BCD8-CAB39A3CD4DF}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{077CE74A-1B24-4205-BCD8-CAB39A3CD4DF}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{077CE74A-1B24-4205-BCD8-CAB39A3CD4DF}.Release|Any CPU.Build.0 = Release|Any CPU
-		{034575BA-E003-4C09-BDD2-ECC66B6589C2}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{034575BA-E003-4C09-BDD2-ECC66B6589C2}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{034575BA-E003-4C09-BDD2-ECC66B6589C2}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{034575BA-E003-4C09-BDD2-ECC66B6589C2}.Release|Any CPU.Build.0 = Release|Any CPU
 		{F2E815DB-B7FB-44A4-BB42-450D1A51A299}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{F2E815DB-B7FB-44A4-BB42-450D1A51A299}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{F2E815DB-B7FB-44A4-BB42-450D1A51A299}.Release|Any CPU.ActiveCfg = Release|Any CPU
@@ -117,10 +99,6 @@ Global
 		{63A7396E-8187-4111-BB71-990955F19948}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{63A7396E-8187-4111-BB71-990955F19948}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{63A7396E-8187-4111-BB71-990955F19948}.Release|Any CPU.Build.0 = Release|Any CPU
-		{AB157E90-DC19-4A2B-BD52-4365089F2AB8}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{AB157E90-DC19-4A2B-BD52-4365089F2AB8}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{AB157E90-DC19-4A2B-BD52-4365089F2AB8}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{AB157E90-DC19-4A2B-BD52-4365089F2AB8}.Release|Any CPU.Build.0 = Release|Any CPU
 		{D6AE76D1-1E19-4D48-BE2F-5561BD6D5782}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{D6AE76D1-1E19-4D48-BE2F-5561BD6D5782}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{D6AE76D1-1E19-4D48-BE2F-5561BD6D5782}.Release|Any CPU.ActiveCfg = Release|Any CPU
@@ -129,6 +107,22 @@ Global
 		{3BC3A1A4-C9D1-4AF2-9E6B-32096845B6C8}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{3BC3A1A4-C9D1-4AF2-9E6B-32096845B6C8}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{3BC3A1A4-C9D1-4AF2-9E6B-32096845B6C8}.Release|Any CPU.Build.0 = Release|Any CPU
+		{077CE74A-1B24-4205-BCD8-CAB39A3CD4DF}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{077CE74A-1B24-4205-BCD8-CAB39A3CD4DF}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{077CE74A-1B24-4205-BCD8-CAB39A3CD4DF}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{077CE74A-1B24-4205-BCD8-CAB39A3CD4DF}.Release|Any CPU.Build.0 = Release|Any CPU
+		{9FE56583-994F-4286-9BE5-C2F0237D6FB7}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{9FE56583-994F-4286-9BE5-C2F0237D6FB7}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{9FE56583-994F-4286-9BE5-C2F0237D6FB7}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{9FE56583-994F-4286-9BE5-C2F0237D6FB7}.Release|Any CPU.Build.0 = Release|Any CPU
+		{034575BA-E003-4C09-BDD2-ECC66B6589C2}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{034575BA-E003-4C09-BDD2-ECC66B6589C2}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{034575BA-E003-4C09-BDD2-ECC66B6589C2}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{034575BA-E003-4C09-BDD2-ECC66B6589C2}.Release|Any CPU.Build.0 = Release|Any CPU
+		{AB157E90-DC19-4A2B-BD52-4365089F2AB8}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{AB157E90-DC19-4A2B-BD52-4365089F2AB8}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{AB157E90-DC19-4A2B-BD52-4365089F2AB8}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{AB157E90-DC19-4A2B-BD52-4365089F2AB8}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

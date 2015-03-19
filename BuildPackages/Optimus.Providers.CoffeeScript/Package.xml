@@ -32,6 +32,9 @@
     <Actions>
       <Action runat="install" undo="true" alias="Umbundle.AddConfigSection" name="coffeeScript" type="BundleTransformer.CoffeeScript.Configuration.CoffeeScriptSettings, BundleTransformer.CoffeeScript" sectionGroup="bundleTransformer" />
       <Action runat="install" undo="true" alias="Umbundle.AddBundleTransformerProvider" name="CoffeeScriptTranslator" type="BundleTransformer.CoffeeScript.Translators.CoffeeScriptTranslator, BundleTransformer.CoffeeScript" addType="js-translator" />
+      <Action runat="install" undo="true" alias="Umbundle.AddBundleTransformerFileExtension" fileExtension=".coffee" assetTypeCode="CoffeeScript" addType="js" />
+      <Action runat="install" undo="true" alias="Umbundle.AddBundleTransformerFileExtension" fileExtension=".litcoffee" assetTypeCode="LiterateCoffeeScript" addType="js" />
+      <Action runat="install" undo="true" alias="Umbundle.AddBundleTransformerFileExtension" fileExtension=".coffee.md" assetTypeCode="LiterateCoffeeScript" addType="js" />
 
       <Action runat="install" undo="true" alias="Umbundle.AddHttpHandler" name="CoffeeScriptAssetHandler" position="end" path="*.coffee" verb="GET" type="BundleTransformer.CoffeeScript.HttpHandlers.CoffeeScriptAssetHandler, BundleTransformer.CoffeeScript" validate="true" />
       <Action runat="install" undo="true" alias="Umbundle.AddHttpHandler" name="LiterateCoffeeScriptAssetHandler" position="end" path="*.litcoffee" verb="GET" type="BundleTransformer.CoffeeScript.HttpHandlers.CoffeeScriptAssetHandler, BundleTransformer.CoffeeScript" validate="true" />

@@ -32,6 +32,7 @@
     <Actions>
       <Action runat="install" undo="true" alias="Umbundle.AddConfigSection" name="less" type="BundleTransformer.Less.Configuration.LessSettings, BundleTransformer.Less" sectionGroup="bundleTransformer" />
       <Action runat="install" undo="true" alias="Umbundle.AddBundleTransformerProvider" name="LessTranslator" type="BundleTransformer.Less.Translators.LessTranslator, BundleTransformer.Less" addType="css-translator" />
+      <Action runat="install" undo="true" alias="Umbundle.AddBundleTransformerFileExtension" fileExtension=".less" assetTypeCode="Less" addType="css" />
       <Action runat="install" undo="true" alias="Umbundle.AddHttpHandler" name="LessAssetHandler" position="end" path="*.less" verb="GET" type="BundleTransformer.Less.HttpHandlers.LessAssetHandler, BundleTransformer.Less" validate="true" />
       <Action runat="install" undo="true" alias="Umbundle.AddBundleTransformerJSEngine" name="less" engine="MsieJsEngine"  />
     </Actions>
