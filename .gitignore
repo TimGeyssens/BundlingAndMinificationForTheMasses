@@ -121,3 +121,4 @@ TestSiteV7/aspnet_client/
 TestSiteV7/App_Data/*.udt
 
 */_systemUmbracoIndexDontDelete/*
+TestSiteV7/App_Data/NuGetBackup/
