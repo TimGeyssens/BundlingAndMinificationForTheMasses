@@ -127,7 +127,7 @@ namespace Optimus.Umbraco.Trees
         {
             Javascript.Append(
                @"function openBundlingAndMinificationEditPage(virtualPath,bundleType) {
-                 UmbClientMgr.contentFrame('../App_Plugins/Optimus/Index?virtualPath='+virtualPath +'&bundleType=' + bundleType);
+                 UmbClientMgr.contentFrame('../umbraco/backoffice/Plugins/Optimus/Index?virtualPath='+virtualPath +'&bundleType=' + bundleType);
     }       ");
         }
     }

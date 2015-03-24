@@ -10,8 +10,7 @@
 	// asweeny@fit.edu
 	// 24 March 2008
 	//
-    if(umbraco.BasePages.BasePage.ValidateUserContextID(umbraco.BasePages.BasePage.umbracoUserContextID))
-    {
+    
         string dir;
         string fileFilter = Request.Form["fileFilter"];
         if (Request.Form["dir"] == null || Request.Form["dir"].Length <= 0)
@@ -31,5 +30,5 @@
             Response.Write("\t<li class=\"file ext_" + ext + "\"><a href=\"#\" rel=\"" + dir + fi.Name + "\">" + fi.Name + "</a></li>\n");
         }
         Response.Write("</ul>");
-    }
+    
 %>

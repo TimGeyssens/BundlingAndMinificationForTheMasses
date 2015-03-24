@@ -11,7 +11,7 @@ namespace Optimus
         {
             config.Routes.MapHttpRoute(
                 name: "BundleApi",
-                routeTemplate: "App_Plugins/Optimus/api/{action}/{id}",
+                routeTemplate: "umbraco/backoffice/Plugins/Optimus/api/{action}/{id}",
                 defaults: new {  controller = "BundleApi", id = RouteParameter.Optional }
             );
         }

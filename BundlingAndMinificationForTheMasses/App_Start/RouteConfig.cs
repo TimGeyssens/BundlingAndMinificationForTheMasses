@@ -14,7 +14,7 @@ namespace Optimus
            
             routes.MapRoute(
                 name: "Bundle",
-                url: "App_Plugins/Optimus/{action}/{id}",
+                url: "umbraco/backoffice/Plugins/Optimus/{action}/{id}",
                 defaults: new { controller = "Bundle", action = "Index", id = UrlParameter.Optional }
             );
         }

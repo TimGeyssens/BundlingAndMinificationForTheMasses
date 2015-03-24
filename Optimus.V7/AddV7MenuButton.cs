@@ -20,7 +20,7 @@ namespace Optimus.V7
             eazyDBtn.AltText = "Create script/style bundle";
             eazyDBtn.ImageURL = "../../../App_Plugins/Optimus/Icons/bundle_menu_icon.png";
             eazyDBtn.OnClickCommand =
-                @"var selection = UmbEditor.IsSimpleEditor? jQuery('#body_editorSource').getSelection().text : UmbEditor._editor.getSelection();                                                UmbClientMgr.openModalWindow('/App_Plugins/Optimus/Dialog?snippet='+selection, 'Create Bundle', true, 550, 350);                                                return false;";
+                @"var selection = UmbEditor.IsSimpleEditor? jQuery('#body_editorSource').getSelection().text : UmbEditor._editor.getSelection();                                                UmbClientMgr.openModalWindow('/umbraco/backoffice/Plugins/Optimus/Dialog?snippet='+selection, 'Create Bundle', true, 550, 350);                                                return false;";
 
         }
 
