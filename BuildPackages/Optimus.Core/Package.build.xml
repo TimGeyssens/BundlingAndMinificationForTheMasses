@@ -33,8 +33,8 @@
 	<!-- CLEAN -->
 	<Target Name="Clean">
 		<RemoveDir Directories="$(BuildDir)" Condition="Exists('$(BuildDir)')" />
-		<MakeDir Directories="$(BuildDir)" />    
-		<MakeDir Directories="$(PackageDir)" />
+		<MakeDir Directories="$(BuildDir)" />
+    <MakeDir Directories="$(PackageDir)" />
     <MakeDir Directories="$(AppPluginDir)" />
 	</Target>
 
@@ -127,7 +127,7 @@
 			WorkingDirectory="$(BuildDir)"
 			OutputDirectory="$(PackageDir)"
 			Files="@(PackageFiles)" />
-    <!--<RemoveDir Directories="$(BuildDir)" Condition="Exists('$(BuildDir)')" />-->
-	</Target>
+    <RemoveDir Directories="$(BuildDir)" Condition="Exists('$(BuildDir)')" />
+  </Target>
 
 </Project>
