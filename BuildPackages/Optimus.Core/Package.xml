@@ -75,7 +75,9 @@ Also possible to install providers for dynamic stylesheet and script support (le
         </nodeType>
         <!-- End Optimus  Stuff -->
       </Action>
-      
+
+      <Action runat="install" undo="true" alias="Umbundle.AddHttpModule" position="end" name="BundleModule" type="System.Web.Optimization.BundleModule" />
+
       <Action runat="install" undo="false" alias="Umbundle.AddNamespace" file="~/views/web.config" xpath="//configuration/system.web.webPages.razor/pages" position="end" namespace="System.Web.Optimization" />
       <Action runat="install" undo="false" alias="Umbundle.AddNamespace" file="~/web.config" xpath="//system.web/pages" position="end" namespace="System.Web.Optimization" />
 
