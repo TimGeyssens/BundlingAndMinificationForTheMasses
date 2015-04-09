@@ -1,12 +1,15 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Web;
-using System.Xml.Linq;
-using Optimus.Models;
-
-namespace Optimus
+﻿namespace Optimus
 {
+    using System;
+    using System.Collections.Generic;
+    using System.Linq;
+    using System.Web;
+    using System.Xml.Linq;
+
+    using global::Umbraco.Core.Logging;
+
+    using Optimus.Models;
+
     public class Bundles
     {
         public static BundleViewModel GetBundleAsViewModel(string virtualPath, string bundleType)
@@ -65,7 +68,16 @@ namespace Optimus
 
             doc.Save(HttpContext.Current.Server.MapPath(Config.BundlesConfigPath));
 
-            HttpRuntime.UnloadAppDomain();
+            try
+            {
+                //HttpRuntime.UnloadAppDomain();
+                var webConfigPath = HttpContext.Current.Request.PhysicalApplicationPath + "\\\\Web.config"; 
+                System.IO.File.SetLastWriteTimeUtc(webConfigPath, DateTime.UtcNow); 
+            }
+            catch (Exception ex)
+            {
+                LogHelper.Info<Bundles>("Optimus failed to restart the application pool, you may need to check permissions on web.config");
+            }
         }
 
         public static bool DeleteBundle(string bundleType, string virtualPath)
