@@ -16,7 +16,7 @@
         {
             var doc = XDocument.Load(HttpContext.Current.Server.MapPath(Config.BundlesConfigPath));
             var files = new List<string>();
-            var disableMinifcation = false;
+            var disableMinification = false;
 
             if (doc.Descendants(bundleType + "Bundle")
                    .Any(x => x.Attribute("virtualPath").Value == virtualPath))
@@ -25,14 +25,14 @@
                 var bundleElement = doc.Descendants(bundleType + "Bundle")
                                         .Single(x => x.Attribute("virtualPath").Value == virtualPath);
 
-                disableMinifcation = bundleElement.Attribute("disableMinification") != null ? bundleElement.Attribute("disableMinification").Value == true.ToString() : false;
-                
-                foreach (var file in bundleElement.Descendants())
-                {
-                    files.Add(file.Attribute("virtualPath").Value);
-                }
+                disableMinification = bundleElement.Attribute("disableMinification") != null && bundleElement.Attribute("disableMinification").Value == true.ToString(); // simplified
+
+	            files.AddRange(bundleElement.Descendants().Select(file => file.Attribute("virtualPath").Value)); 
             }
-            return new BundleViewModel { VirtualPath = virtualPath, DisableMinification = disableMinifcation, Files = files };
+
+	        string path = string.Format("{0}{1}", bundleType, virtualPath.Replace('~','s')); // text for current bundle being edited
+
+            return new BundleViewModel { VirtualPath = virtualPath, DisableMinification = disableMinification, Files = files, EditPath = path}; // constructor
         }
 
         public static void SaveBundleFromViewModel(BundleViewModel bundle, string bundleType)
