@@ -7,6 +7,7 @@ using System.Web;
 using System.Web.UI;
 using System.Web.UI.WebControls;
 using System.Xml.Linq;
+using HtmlAgilityPack;
 using ICSharpCode.SharpZipLib.Zip;
 using Optimus.Extensions;
 using umbraco;
@@ -133,16 +134,33 @@ namespace Optimus.Umbraco.Dialogs
 
         private IList<ProviderPackage> GetProviderPackages()
         {
-            var rnd = DateTime.Now.Round(new TimeSpan(0, 5, 0)).Ticks;
-            var feed = XDocument.Load(string.Format(PROVIDER_FEED_URL_FORMAT, rnd));
 
-            var providers = feed.Descendants("item").Select(item => new ProviderPackage
+            string Url = "https://our.umbraco.org/projects/developer-tools/optimus/";
+            HtmlWeb web = new HtmlWeb();
+            HtmlDocument doc = web.Load(Url);
+
+
+            var providers = new List<ProviderPackage>();
+
+            var nodes = doc.DocumentNode.SelectNodes(".//div[@id = 'tab-package']//a");
+            foreach (var node in nodes)
             {
-                Name = item.Element("title").Value,
-                Url = item.Element("link").Value
-            });
+                var url = node.Attributes["href"].Value;
+                var name = node.SelectSingleNode(".//div [@class = 'type-name']").InnerText;
+                providers.Add(new ProviderPackage {Url = url, Name = name});
 
-            return providers.ToList();
+            }
+            return providers;
+            //var rnd = DateTime.Now.Round(new TimeSpan(0, 5, 0)).Ticks;
+            //var feed = XDocument.Load(string.Format(PROVIDER_FEED_URL_FORMAT, rnd));
+
+            //var providers = feed.Descendants("item").Select(item => new ProviderPackage
+            //{
+            //    Name = item.Element("title").Value,
+            //    Url = item.Element("link").Value
+            //});
+
+            //return providers.ToList();
         }
 
         private Guid GetPackageGuidFromZip(string path)
