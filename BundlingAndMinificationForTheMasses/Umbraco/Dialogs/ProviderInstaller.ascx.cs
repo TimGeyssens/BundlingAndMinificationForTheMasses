@@ -147,7 +147,8 @@ namespace Optimus.Umbraco.Dialogs
             {
                 var url = node.Attributes["href"].Value;
                 var name = node.SelectSingleNode(".//div [@class = 'type-name']").InnerText;
-                providers.Add(new ProviderPackage {Url = url, Name = name});
+                if(name.ToLower().Contains("prov"))
+                    providers.Add(new ProviderPackage {Url = url, Name = name});
 
             }
             return providers;
