@@ -1,0 +1,12 @@
+{
+    "javascript" : [
+        '~/App_Plugins/LookWhosEditingToo/js/main.js',
+		'~/App_Plugins/LookWhosEditingToo/js/resource.js',
+		'~/App_Plugins/LookWhosEditingToo/js/jquery.cookie.js',
+		'~/App_Plugins/LookWhosEditingToo/js/jquery.signalR-2.2.0.min.js',
+		'~/signalr/hubs'
+    ],
+    "css" : [
+    	'~/App_Plugins/LookWhosEditingToo/style.css'
+    ]
+}

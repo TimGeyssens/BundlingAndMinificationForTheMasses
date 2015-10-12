@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <createUI>
   <nodeType alias="nodeTypes">
     <header>Nodetype</header>
@@ -61,7 +61,7 @@
   </nodeType>
   <nodeType alias="users">
     <header>User</header>
-    <usercontrol>/create/simple.ascx</usercontrol>
+    <usercontrol>/create/user.ascx</usercontrol>
     <tasks>
       <create assembly="umbraco" type="userTasks" />
       <delete assembly="umbraco" type="userTasks" />
@@ -130,7 +130,7 @@
       <create assembly="umbraco" type="MediaTypeTasks" />
       <delete assembly="umbraco" type="MediaTypeTasks" />
     </tasks>
-  </nodeType>
+  </nodeType>  
   <nodeType alias="initmember">
     <header>member</header>
     <usercontrol>/create/member.ascx</usercontrol>
@@ -324,7 +324,7 @@
   </nodeType>
   <nodeType alias="partialViews">
     <header>Macro</header>
-    <usercontrol>/Create/PartialView.ascx</usercontrol>
+		<usercontrol>/Create/PartialView.ascx</usercontrol>
     <tasks>
       <create assembly="umbraco" type="PartialViewTasks" />
       <delete assembly="umbraco" type="PartialViewTasks" />
@@ -338,34 +338,20 @@
       <delete assembly="umbraco" type="PartialViewMacroTasks" />
     </tasks>
   </nodeType>
-  <nodeType alias="scriptBundle">
-    <header>Script bundle</header>
-    <usercontrol>/create/simple.ascx</usercontrol>
+  <nodeType alias="partialViewsFolder">
+    <header>Macro</header>
+    <usercontrol>/Create/PartialView.ascx</usercontrol>
     <tasks>
-      <create assembly="Optimus" type="Umbraco.Tasks.ScriptBundleTasks" />
-      <delete assembly="Optimus" type="Umbraco.Tasks.ScriptBundleTasks" />
+      <create assembly="umbraco" type="PartialViewTasks" />
+      <delete assembly="umbraco" type="PartialViewTasks" />
     </tasks>
   </nodeType>
-  <nodeType alias="styleBundle">
-    <header>Style bundle</header>
-    <usercontrol>/create/simple.ascx</usercontrol>
+  <nodeType alias="partialViewMacrosFolder">
+    <header>Macro</header>
+    <usercontrol>/Create/PartialViewMacro.ascx</usercontrol>
     <tasks>
-      <create assembly="Optimus" type="Umbraco.Tasks.StyleBundleTasks" />
-      <delete assembly="Optimus" type="Umbraco.Tasks.StyleBundleTasks" />
-    </tasks>
-  </nodeType>
-  <nodeType alias="initstylesheetsNew">
-    <header>Dynamic Stylesheets</header>
-    <usercontrol>../../App_Plugins/Optimus/Dialogs/CreateStyleSheet.ascx</usercontrol>
-    <tasks>
-      <delete assembly="Optimus" type="Umbraco.Tasks.DynamicStyleTasks" />
-    </tasks>
-  </nodeType>
-  <nodeType alias="initscriptsNew">
-    <header>Dynamic Scripts</header>
-    <usercontrol>../../App_Plugins/Optimus/Dialogs/CreateScript.ascx</usercontrol>
-    <tasks>
-      <delete assembly="Optimus" type="Umbraco.Tasks.DynamicScriptTasks" />
+      <create assembly="umbraco" type="PartialViewMacroTasks" />
+      <delete assembly="umbraco" type="PartialViewMacroTasks" />
     </tasks>
   </nodeType>
 </createUI>

@@ -1,0 +1,10 @@
+﻿{
+  "css": [
+    "~/App_Plugins/PageNotFoundManager/css/style.css"
+  ],
+  "javascript": [
+    "~/App_Plugins/PageNotFoundManager/js/pagenotfoundmanager.dialog.controller.js",
+    "~/App_Plugins/PageNotFoundManager/js/pagenotfoundmanager.resource.js",
+    "~/App_Plugins/PageNotFoundManager/Directives/pnfmContentPicker.js"
+  ]
+}

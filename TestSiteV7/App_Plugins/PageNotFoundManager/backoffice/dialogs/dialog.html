@@ -1,0 +1,79 @@
+﻿<div ng-controller="PageNotFoundManager.Dialog.Controller">
+    <div class="umb-dialog-body form-horizontal">
+        <div class="umb-pane">
+            <p class="abstract" ng-hide="success">
+                Choose the 404 page for <strong>{{currentNode.name}}</strong> and child pages
+            </p>
+
+            <div ng-if ="pageNotFoundNode">
+                <ul class="unstyled list-icons">
+                    <li>
+                        <i class="icon {{pageNotFoundNode.icon}} hover-hide"></i>
+
+                        <a href prevent-default ng-click="clear()">{{pageNotFoundNode.name}}</a>
+                    </li>
+                </ul>
+            </div>
+
+
+            <div class="umb-loader-wrapper" ng-show="busy">
+                <div class="umb-loader"></div>
+            </div>
+
+            <div class="alert alert-error" ng-show="error">
+                <h4>{{error.errorMsg}}</h4>
+                <p>{{error.data.Message}}</p>
+            </div>
+
+            <div class="alert alert-success" ng-show="success">
+                <p>
+                    <strong>{{target.name}}</strong> is set as the 404 page for
+                    <strong>{{currentNode.name}}</strong> and it's child pages
+                </p>
+
+                <button class="btn btn-primary" ng-click="nav.hideDialog()">Ok</button>
+            </div>
+
+            <div ng-if="!pageNotFoundNode">
+
+                <div ng-hide="success">
+
+                    <umb-tree-search-box hide-search-callback="hideSearch"
+                                         search-callback="onSearchResults"
+                                         search-from-id="{{searchInfo.searchFromId}}"
+                                         search-from-name="{{searchInfo.searchFromName}}"
+                                         show-search="{{searchInfo.showSearch}}"
+                                         section="{{section}}">
+                    </umb-tree-search-box>
+
+                    <br/>
+
+                    <umb-tree-search-results ng-if="searchInfo.showSearch"
+                                             results="searchInfo.results"
+                                             select-result-callback="selectResult">
+                    </umb-tree-search-results>
+
+                    <div ng-hide="searchInfo.showSearch">
+                        <umb-tree section="content"
+                                  hideheader="true"
+                                  hideoptions="true"
+                                  isdialog="true"
+                                  eventhandler="dialogTreeEventHandler"
+                                  enablecheckboxes="true">
+                        </umb-tree>
+                    </div>
+                </div>
+                </div>
+            </div>
+    </div>
+
+    <div class="umb-dialog-footer btn-toolbar umb-btn-toolbar" ng-hide="success">
+        <a class="btn btn-link" ng-click="nav.hideDialog()" ng-if="!busy">
+            <localize key="general_cancel">Cancel</localize>
+        </a>
+        <button class="btn btn-primary" ng-click="setNotFoundPage()" ng-disabled="busy">
+            <localize key="general_ok">OK</localize>
+        </button>
+    </div>
+
+    </div>
