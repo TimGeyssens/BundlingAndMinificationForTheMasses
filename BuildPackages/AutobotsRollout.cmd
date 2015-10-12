@@ -16,4 +16,3 @@ cd..
 cd Optimus.AddOns.V8JavaScriptEngine
 CALL Package.build.cmd
 ECHO The Autobots have been released!
-pause
