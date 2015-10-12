@@ -145,7 +145,7 @@ namespace Optimus.Umbraco.Dialogs
             var nodes = doc.DocumentNode.SelectNodes(".//div[@id = 'tab-package']//a");
             foreach (var node in nodes)
             {
-                var url = node.Attributes["href"].Value;
+                var url = "https://our.umbraco.org/" + node.Attributes["href"].Value;
                 var name = node.SelectSingleNode(".//div [@class = 'type-name']").InnerText;
                 if(name.ToLower().Contains("prov"))
                     providers.Add(new ProviderPackage {Url = url, Name = name});
