@@ -85,7 +85,13 @@
       <ScriptsFiles Include="$(CoreProjectDir)\Scripts\*.*" />
       <ServicesFiles Include="$(CoreProjectDir)\Services\*.aspx" />
       <ViewsFiles Include="$(CoreProjectDir)\Views\*.*" />
-      <BinFiles Include="$(CoreProjectDir)\bin\**\*.dll" />
+      <BinFiles Include="$(CoreProjectDir)\bin\**\Optimus.*" />
+      <BinFiles Include="$(CoreProjectDir)\bin\**\Optimus.*" />
+      <BinFiles Include="$(CoreProjectDir)\bin\**\Optimus.*" />
+      <OptimizationBinFiles Include="$(CoreProjectDir)\bin\**\System.Web.Optimization.*" />
+      <BundleBinFiles Include="$(CoreProjectDir)\bin\**\BundleTransformer.Core.*" />
+      <WebGreaseBinFiles Include="$(CoreProjectDir)\bin\**\WebGrease.*" />
+      <AntlrBinFiles Include="$(CoreProjectDir)\bin\**\Antlr3.Runtime.*" />
       <v7BinFiles Include="$(CoreV7ProjectDir)\bin\Optimus.V7.dll" />
     </ItemGroup>
     
@@ -102,6 +108,14 @@
     <Copy SourceFiles="@(ViewsFiles)" DestinationFolder="$(AppPluginDir)\Views" /> 
     <Copy SourceFiles="@(BinFiles)"
     DestinationFiles="@(BinFiles->'$(BuildDir)\bin\%(RecursiveDir)%(Filename)%(Extension)')" />
+    <Copy SourceFiles="@(OptimizationBinFiles)"
+    DestinationFiles="@(OptimizationBinFiles->'$(BuildDir)\bin\%(RecursiveDir)%(Filename)%(Extension)')" />
+    <Copy SourceFiles="@(BundleBinFiles)"
+    DestinationFiles="@(BundleBinFiles->'$(BuildDir)\bin\%(RecursiveDir)%(Filename)%(Extension)')" />
+    <Copy SourceFiles="@(WebGreaseBinFiles)"
+    DestinationFiles="@(WebGreaseBinFiles->'$(BuildDir)\bin\%(RecursiveDir)%(Filename)%(Extension)')" />
+    <Copy SourceFiles="@(AntlrBinFiles)"
+    DestinationFiles="@(AntlrBinFiles->'$(BuildDir)\bin\%(RecursiveDir)%(Filename)%(Extension)')" />
     <Copy SourceFiles="@(v7BinFiles)" DestinationFolder="$(BuildDir)\bin" />
   </Target>
 
