@@ -238,24 +238,25 @@
 
             <div class="umb-pane ">
                 <div class="control-group umb-control-group">
+					<div>
+						@*@Html.EditorFor(m => m.DisableMinification)*@
+						@Html.LabelFor(m => m.EditPath)<span class="umb-abstract">@(Model.EditPath)</span>
+					</div>
+					@* <div class="umb-el-wrap ">
+						@Html.LabelFor(m => m.VirtualPath, new { @class = "control-label" })
+						<div class="controls controls-row">
 
-                    <p class="umb-abstract">Edit Bundle</p>
+							@Html.EditorFor(m => m.VirtualPath)
+							<br/><small>use with @@@{@exampleScript}.Render("@Model.VirtualPath")</small>
+						</div>
+					</div>
+					<div class="umb-el-wrap ">
+						@Html.LabelFor(m => m.DisableMinification, new { @class = "control-label" })
+						<div class="controls controls-row">
 
-                    @* <div class="umb-el-wrap ">
-                            @Html.LabelFor(m => m.VirtualPath, new { @class = "control-label" })
-                            <div class="controls controls-row">
-
-                                @Html.EditorFor(m => m.VirtualPath)
-                                <br/><small>use with @@@{@exampleScript}.Render("@Model.VirtualPath")</small>
-                            </div>
-                        </div>
-                        <div class="umb-el-wrap ">
-                            @Html.LabelFor(m => m.DisableMinification, new { @class = "control-label" })
-                            <div class="controls controls-row">
-
-                                @Html.EditorFor(m => m.DisableMinification)
-                            </div>
-                        </div>*@
+							@Html.EditorFor(m => m.DisableMinification)
+						</div>
+					</div>*@
                     <div class="umb-el-wrap ">
                         @Html.LabelFor(m => m.Files, new { @class = "control-label" })
                         <div class="controls controls-row">
@@ -271,21 +272,12 @@
                     </div>
                 </div>
             </div>
-
         </div>
-
-
-
-
     </body>
 }
 else
 {
-
-
     <body>
-
-
         <div id="body_UmbracoPanel" class="panel" style="width:100%;">
             <div class="boxhead">
                 <h2 id="body_UmbracoPanelLabel">Bundle Editor</h2>

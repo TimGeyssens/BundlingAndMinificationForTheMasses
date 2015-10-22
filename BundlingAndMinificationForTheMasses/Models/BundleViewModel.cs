@@ -1,11 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
-using System.Linq;
-using System.Web;
 
 namespace Optimus.Models
 {
+	/// <summary>
+	/// Main front-end Optimus view model.
+	/// </summary>
     public class BundleViewModel
     {
         [Display(Name = "Virtual path:")]
@@ -16,5 +16,11 @@ namespace Optimus.Models
 
         [Display(Name = "Files in bundle:")]
         public IEnumerable<string> Files { get; set; }
+
+		/// <summary>
+		/// Optimus bundling section's header bar text.
+		/// </summary>
+		[Display(Name = "Editing:")]
+	    public string EditPath { get; set; }
     }
 }
