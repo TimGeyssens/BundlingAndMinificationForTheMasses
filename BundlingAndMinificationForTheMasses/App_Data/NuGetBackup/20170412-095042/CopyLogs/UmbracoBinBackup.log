@@ -1,0 +1,68 @@
+
+-------------------------------------------------------------------------------
+   ROBOCOPY     ::     Robust File Copy for Windows                              
+-------------------------------------------------------------------------------
+
+  Started : 12 April 2017 09:50:42
+   Source : C:\Projects\GitHub\Optimus\BundlingAndMinificationForTheMasses\bin\
+     Dest : C:\Projects\GitHub\Optimus\BundlingAndMinificationForTheMasses\App_Data\NuGetBackup\20170412-095042\bin\
+
+    Files : *.*
+	    
+  Options : *.* /S /E /DCOPY:DA /COPY:DAT /R:1000000 /W:30 
+
+------------------------------------------------------------------------------
+
+	                  38	C:\Projects\GitHub\Optimus\BundlingAndMinificationForTheMasses\bin\
+	    New File  		  118784	businesslogic.dll  0%  100%  
+	    New File  		  147456	ClientDependency.Core.dll  0%   88%  100%  
+	    New File  		  512000	cms.dll  0%   25%   51%   76%  100%  
+	    New File  		   52224	controls.dll  0%  100%  
+	    New File  		   98816	Examine.dll  0%  100%  
+	    New File  		  178176	ImageProcessor.dll  0%   73%  100%  
+	    New File  		  112128	ImageProcessor.Web.dll  0%  100%  
+	    New File  		   24576	interfaces.dll  0%  100%  
+	    New File  		  258048	log4net.dll  0%   50%  100%  
+	    New File  		   54784	MarkdownSharp.dll  0%  100%  
+	    New File  		   11264	Microsoft.ApplicationBlocks.Data.dll  0%  100%  
+	    New File  		   45416	Microsoft.Web.Infrastructure.dll  0%  100%  
+	    New File  		  424448	MySql.Data.dll  0%   30%   61%   92%  100%  
+	    New File  		  504320	Newtonsoft.Json.dll  0%   25%   51%   77%  100%  
+	    New File  		   19968	SQLCE4Umbraco.dll  0%  100%  
+	    New File  		  470240	System.Data.SqlServerCe.dll  0%   27%   55%   83%  100%  
+	    New File  		  240352	System.Data.SqlServerCe.Entity.dll  0%   54%  100%  
+	    New File  		  168520	System.Net.Http.Formatting.dll  0%   77%  100%  
+	    New File  		  138432	System.Web.Helpers.dll  0%   94%  100%  
+	    New File  		  323168	System.Web.Http.dll  0%   40%   81%  100%  
+	    New File  		   73312	System.Web.Http.WebHost.dll  0%  100%  
+	    New File  		  505504	System.Web.Mvc.dll  0%   25%   51%   77%  100%  
+	    New File  		  266944	System.Web.Razor.dll  0%   49%   98%  100%  
+	    New File  		   41152	System.Web.WebPages.Deployment.dll  0%  100%  
+	    New File  		  204480	System.Web.WebPages.dll  0%   64%  100%  
+	    New File  		   39616	System.Web.WebPages.Razor.dll  0%  100%  
+	    New File  		  192512	TidyNet.dll  0%   68%  100%  
+	    New File  		   2.3 m	Umbraco.Core.dll  0%   20%   41%   62%   83%  100%  
+	    New File  		   38400	umbraco.DataLayer.dll  0%  100%  
+	    New File  		   2.1 m	umbraco.dll  0%   23%   46%   70%   93%  100%  
+	    New File  		  372736	umbraco.editorControls.dll  0%   35%   70%  100%  
+	    New File  		  131584	umbraco.MacroEngines.dll  0%   99%  100%  
+	    New File  		   38400	umbraco.providers.dll  0%  100%  
+	    New File  		   57344	Umbraco.Web.UI.dll  0%  100%  
+	    New File  		   59904	UmbracoExamine.dll  0%  100%  
+	    New File  		   22528	UrlRewritingNet.UrlRewriter.dll  0%  100%  
+	    New File  		   38080	WebMatrix.Data.dll  0%  100%  
+	    New File  		   74944	WebMatrix.WebData.dll  0%  100%  
+
+------------------------------------------------------------------------------
+
+               Total    Copied   Skipped  Mismatch    FAILED    Extras
+    Dirs :         1         0         1         0         0         0
+   Files :        38        38         0         0         0         0
+   Bytes :   10.31 m   10.31 m         0         0         0         0
+   Times :   0:00:00   0:00:00                       0:00:00   0:00:00
+
+
+   Speed :           204037132 Bytes/sec.
+   Speed :           11675.098 MegaBytes/min.
+   Ended : 12 April 2017 09:50:42
+

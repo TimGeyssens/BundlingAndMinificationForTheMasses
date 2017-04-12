@@ -1,0 +1,27 @@
+
+-------------------------------------------------------------------------------
+   ROBOCOPY     ::     Robust File Copy for Windows                              
+-------------------------------------------------------------------------------
+
+  Started : 12 April 2017 09:49:28
+   Source : C:\Projects\GitHub\Optimus\Optimus.AddOns.V8JavaScriptEngine\bin\
+     Dest : C:\Projects\GitHub\Optimus\Optimus.AddOns.V8JavaScriptEngine\App_Data\NuGetBackup\20170412-094928\bin\
+
+    Files : *.*
+	    
+  Options : *.* /S /E /DCOPY:DA /COPY:DAT /R:1000000 /W:30 
+
+------------------------------------------------------------------------------
+
+	                   0	C:\Projects\GitHub\Optimus\Optimus.AddOns.V8JavaScriptEngine\bin\
+	  New Dir          0	C:\Projects\GitHub\Optimus\Optimus.AddOns.V8JavaScriptEngine\bin\Debug\
+
+------------------------------------------------------------------------------
+
+               Total    Copied   Skipped  Mismatch    FAILED    Extras
+    Dirs :         2         1         1         0         0         0
+   Files :         0         0         0         0         0         0
+   Bytes :         0         0         0         0         0         0
+   Times :   0:00:00   0:00:00                       0:00:00   0:00:00
+   Ended : 12 April 2017 09:49:28
+
